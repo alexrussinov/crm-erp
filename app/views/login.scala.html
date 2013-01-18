@@ -1,0 +1,39 @@
+@(form: Form[Option[Users]])(implicit flash: Flash)
+@import helper.twitterBootstrap._
+        @main("Login you"){
+@helper.form(routes.Application.authenticate, args = 'class -> "form-horizontal") {
+
+
+@form.globalError.map { error =>
+<p class="error">
+    @error.message
+</p>
+}
+
+@flash.get("success").map { message =>
+<p class="success">
+    @message
+</p>
+}
+<fieldset>
+    <legend>Sign in</legend>
+<div class="control-group">
+    <div class="controls">
+    <input type="email" name="email" placeholder="Email" id="email" value="@form("email").value">
+    </div>
+</div>
+
+<div class="control-group">
+    <div class="controls">
+    <input type="password" name="password" id="password" placeholder="Password">
+    </div>
+</div>
+
+<div class="control-group">
+    <div class="controls">
+    <button type="submit" class="btn" id="loginbutton">Login</button>
+    </div>
+</div>
+</fieldset>
+}
+}

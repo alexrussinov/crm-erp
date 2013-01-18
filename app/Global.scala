@@ -1,3 +1,4 @@
+import models.Users
 import org.squeryl.adapters.{H2Adapter, PostgreSqlAdapter, MySQLAdapter}
 import org.squeryl.internals.DatabaseAdapter
 import org.squeryl.{Session, SessionFactory}
@@ -21,6 +22,13 @@ object Global extends GlobalSettings {
       case Some("org.postgresql.Driver") => Some(() => getSession(new PostgreSqlAdapter, app))
       case Some("com.mysql.jdbc.Driver") => Some(() => getSession(new MySQLAdapter, app ))
       case _ => sys.error("Database driver must be either org.h2.Driver or org.postgresql.Driver or com.mysql.jdbc.Driver")
+    }
+
+    if (Users.findAll.isEmpty) {
+      Seq(
+        Users("test@test.com", "12345", 1)
+
+      ) foreach Users.create
     }
   }
 

@@ -1,0 +1,38 @@
+@(form: Form[Users], message : String)
+
+@import helper.twitterBootstrap._
+
+@main("User creation"){
+
+@helper.form(routes.AccountCreation.createAccount, args = 'class -> "form-horizontal") {
+
+<fieldset>
+    <legend>Create new user</legend>
+<div class="control-group">
+   <div class="controls">
+    @helper.inputText(form("email"), '_label -> "Email ", '_help -> "Enter a valid email address.")
+             </div>
+         </div>
+<div class="control-group">
+    <div class="controls">
+    @helper.inputPassword(form("password"),'_label -> "Password", '_help -> "A password must be at least 6 characters. ")
+    </div>
+</div>
+
+<div class="control-group">
+    <div class="controls">
+    <select name="admin" id="admin">
+        <option value="1">Admin</option>
+        <option value="0">User</option>
+    </select>
+    </div>
+</div>
+
+    <div class="control-group">
+        <div class="controls">
+<input type="submit" class="btn primary" value="Create ">
+      </div>
+        </div>
+</fieldset>
+}
+}

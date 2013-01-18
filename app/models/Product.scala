@@ -1,6 +1,6 @@
 package models
 
-import org.squeryl.{Schema}
+import org.squeryl.{Table, Schema}
 import org.squeryl.annotations.Column
 
 
@@ -20,5 +20,6 @@ case class Product(@Column("rowid") id : Int, ref : Option[String], label : Opti
 }
 
 object AppDB extends Schema {
-  val productTable = table[Product]("llx_product")
+  val productTable: Table[Product] = table[Product]("llx_product")
+
 }
