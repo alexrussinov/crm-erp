@@ -1,0 +1,40 @@
+@(order : Order, user : Users, form : Form[(Int,Int)])
+@import helper.twitterBootstrap._
+        @main("New Order", user){
+
+        <table id="order_totals" >
+            <tr>
+                <td>Ref. </td><td>@order.ref</td>
+            </tr>
+            <tr>
+                <td>Client </td><td>@order.id</td>
+            </tr>
+            <tr>
+                <td>Date </td><td>@order.order_date</td>
+            </tr>
+            <tr>
+                <td>Qty </td><td></td>
+            </tr>
+            <tr>
+                <td>Total HT </td><td>@order.total_ht</td>
+            </tr>
+            <tr>
+                <td>Total TTC </td><td>@order.total_ttc</td>
+            </tr>
+        </table>
+
+        <table id="order_lines">
+
+        </table>
+
+@helper.form(routes.Orders.addLine, args = 'class -> "form-horizontal") {
+<script src="@routes.Assets.at("javascripts/lst.js")" type="text/javascript"></script>
+      <div id="add_line">
+          <input type="text"  name="product_id" id="product_id" >
+          <input type="text" name="product_qty" id="product_qty">
+
+      </div>
+      <table id="search_result"></table>
+      <input type="submit" class="btn primary" value="Add">
+   }
+}

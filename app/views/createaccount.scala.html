@@ -1,8 +1,8 @@
-@(form: Form[Users], message : String)
+@(form: Form[Users], message : String, user : Users)
 
 @import helper.twitterBootstrap._
 
-@main("User creation"){
+@main("User creation", user){
 
 @helper.form(routes.AccountCreation.createAccount, args = 'class -> "form-horizontal") {
 

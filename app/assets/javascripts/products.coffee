@@ -1,8 +1,16 @@
+#$ ->
+ #   $('#product_id').on "keyup", ->
+  #        $('#search_result').empty()
+   #       $.get "/searchproducts/"+$('#product_id').val(), (data) ->
+    #           $.each data, (index, item) ->
+     #              $(".dropdown-menu").append("<li><a tabindex='-1' href='#'>" + item.label "</a></li>") ->
+      #                $('.dropdown-toggle').dropdown()
 
-# $ ->
- # $.get "/getproducts", (data) ->
-  #  $.each data, (index, item) ->
-   #   $("#products_list").append $("<tr>").
-    #  append ("<td>"+item.ref+"</td>"+"<td>"+item.label+"</td>"+"<td>"+item.price+"</td>")
+      # $ ->
+       #  $('#product_id').autocomplete ("/searchproducts")
+
+
+
+
 
 

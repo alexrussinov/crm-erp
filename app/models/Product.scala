@@ -2,6 +2,8 @@ package models
 
 import org.squeryl.{Table, Schema}
 import org.squeryl.annotations.Column
+import org.squeryl.PrimitiveTypeMode._
+import play.api.Play._
 
 
 
@@ -19,7 +21,14 @@ case class Product(@Column("rowid") id : Int, ref : Option[String], label : Opti
   // TODO: Add fields for product entity
 }
 
-object AppDB extends Schema {
+object Product extends Schema {
   val productTable: Table[Product] = table[Product]("llx_product")
+
+  def getById(id : Int) : Product = {
+    transaction(DollConn.doll_session(current)){
+      val product = from(productTable)(s => where (s.id === id) select(s))
+      product.head
+    }
+  }
 
 }

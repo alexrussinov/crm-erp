@@ -4,7 +4,6 @@ import models._
 import play.api._
 import data.Form
 import play.api.data.Forms._
-import play.api.data.validation.Constraints._
 import db.DB
 import play.api.mvc._
 import play.api.mvc.Results._
@@ -13,18 +12,19 @@ import com.codahale.jerkson.Json
 import play.api.Play.current
 import jp.t2v.lab.play20.auth._
 import play.api.Play._
+import play.api.Routes
 
 
 object Application extends Controller with LoginLogout with AuthConf with Auth{
   
-  def index = Action {
-    Ok(views.html.index("Your new application is ready."))
+  def index =authorizedAction(NormalUser){ user => implicit request =>
+    Ok(views.html.index(user))
   }
 
 
   def getProducts = Action {
     val json = transaction(DollConn.doll_session(current)) {
-      val products = from(AppDB.productTable)(productTable =>
+      val products = from(Product.productTable)(productTable =>
         select(productTable)
       )
       Json.generate(products)
@@ -34,7 +34,7 @@ object Application extends Controller with LoginLogout with AuthConf with Auth{
 
   def searchProducts(value : Option[String]) = Action {
     val json = transaction(DollConn.doll_session(current)){
-      val products = from(AppDB.productTable) ( s => where ( (s.ref like value.map(_+ "%").?) or
+      val products = from(Product.productTable) ( s => where ( (s.ref like value.map(_+ "%").?) or
         (s.label like value.map("%"+ _ + "%").?) ) select(s))
       Json.generate(products)
     }
@@ -43,7 +43,7 @@ object Application extends Controller with LoginLogout with AuthConf with Auth{
   }
 
   def showProducts = authorizedAction(NormalUser){ user => implicit request =>
-    Ok(views.html.products())
+    Ok(views.html.products(user))
   }
 
   /** Your application's login form.  Alter it to fit your application */
@@ -54,7 +54,7 @@ object Application extends Controller with LoginLogout with AuthConf with Auth{
 
   /** Alter the login page action to suit your application. */
   def login = Action { implicit request =>
-    Ok(views.html.login(loginForm))
+    Ok(views.html.login(loginForm, Users("", "", 0)))
   }
 
   /**
@@ -83,9 +83,18 @@ object Application extends Controller with LoginLogout with AuthConf with Auth{
    */
   def authenticate = Action { implicit request =>
     loginForm.bindFromRequest.fold(
-      formWithErrors => BadRequest(views.html.login(formWithErrors)),
+      formWithErrors => BadRequest(views.html.login(formWithErrors, Users("","", 0))),
       user => gotoLoginSucceeded(user.get.id)
     )
+  }
+
+  def javascriptRoutes = Action { implicit request =>
+    import routes.javascript._
+    Ok(
+      Routes.javascriptRouter("javascriptRoutes")(
+        Orders.searchProducts
+      )
+    ).as("text/javascript")
   }
 
 
@@ -144,7 +153,7 @@ trait AuthConf extends AuthConfig {
   /**
    * Where to redirect the user after logging out
    */
-  def logoutSucceeded(request: RequestHeader): Result = Redirect(routes.Application.login)
+  def logoutSucceeded(request: RequestHeader): Result = Redirect(routes.Application.index)
 
   /**
    * If the user is not logged in and tries to access a protected resource then redirct them as follows:
@@ -190,12 +199,12 @@ object AccountCreation extends Controller with LoginLogout with AuthConf with Au
   )
 
   def createAccountForm = authorizedAction(Administrator){ user => implicit request =>
-    Ok(views.html.createaccount(createaccountform, "Create user"))
+    Ok(views.html.createaccount(createaccountform, "Create user", user))
   }
 
-  def createAccount = Action { implicit request =>
+  def createAccount = authorizedAction(Administrator){ user => implicit request =>
      createaccountform.bindFromRequest.fold(
-       formWithErrors => BadRequest(views.html.createaccount(formWithErrors, "Errors!!!")),
+       formWithErrors => BadRequest(views.html.createaccount(formWithErrors, "Errors!!!", user)),
        user => {
          Users.createUser(user.email, user.pass, user.admin)
          Redirect(routes.Application.showProducts)
