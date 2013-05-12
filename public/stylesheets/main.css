@@ -1,11 +1,68 @@
-table {
-border : 1px solid black;
+table.order{
+
 border-collapse : collapse;
+background-color:  transparent;
+width: 100%;
+border : 1px solid #a2abc0;
+}
+table.order td{
+    border : 1px solid #a2abc0;
+    font-weight: bold;
 }
 
-td,th {
-border : 1px solid black;
+table.order .qty, .ref, .client, .date, .total_ht, .total_ttc{
+    width: 25%;
+
+}
+th {
+/*border : 1px solid #a2abc0;*/
 text-align : center;
 }
 
 
+[class="span10"] {
+ background-color: #eef0f0;
+ margin-bottom: 10px;
+ border-radius: 5px 5px 5px 5px;
+    box-shadow: -2px 2px 5px 2px rgba(0, 0, 0, 0.2);
+    /*line-height: 80px;*/
+ /*text-align: center;*/
+}
+
+[class="span2"]{
+ background-color: lightgrey;
+ line-height: 100px;
+ text-align: center;
+}
+
+[class="smallInput"]{
+    width: 30px;
+}
+
+[class="table table-bordered"]{
+    background-color: WhiteSmoke;
+}
+
+[class= "header_lines"]{
+background-color: #a2abc0;
+    text-align: center;
+}
+
+[class= "add_line_header"]{
+    background-color: #a2abc0;
+    height: 25px;
+}
+
+[class= "add_line"] {
+    /*box-shadow: -1px 2px 5px 1px rgba(0, 0, 0, 0.7);*/
+
+}
+#order_controls {
+    margin: 5px;
+    text-align: right;
+}
+
+#add_line_form {
+padding: 10px;
+    background-color: WhiteSmoke;
+}

@@ -1,0 +1,103 @@
+@(order : Order, user : Users, form_add_line : Form[(String,Int,String,Int)], form_update_line : Form[(Int, String, String, String, String, Int)])
+@import helper.twitterBootstrap._
+@import controllers.routes.javascript._
+
+
+@main("New Order", user){
+
+@form_add_line.globalError.map { error =>
+<p class="error">
+    @error.message
+</p>
+}
+<script src="@routes.Application.javascriptRoutes" type="text/javascript"></script>
+@*<script src="@routes.Assets.at("javascripts/orderlines.min.js")" type="text/javascript"></script>*@
+<script src="@routes.Assets.at("javascripts/controllers.js")" type="text/javascript"></script>
+
+<input type="hidden" name="customer_id" id="customer_id" value="@order.fk_soc">
+<div class="row-fluid">
+    <div class="span12"  ng-controller="GetLinesCtrl">
+        <table id="order_totals">
+            <tr>
+                <td>Ref.</td>
+                <td>@order.ref</td>
+            </tr>
+            <tr>
+                <td>Client</td>
+                <td>@models.Customer.getById(order.fk_soc).nom</td>
+            </tr>
+            <tr>
+                <td>Date</td>
+                <td>@order.order_date</td>
+            </tr>
+            <tr>
+                <td>Qty</td>
+                <td id="total_qty">{{total_qty}}</td>
+            </tr>
+            <tr>
+                <td>Total HT</td>
+                <td>@order.total_ht</td>
+            </tr>
+            <tr>
+                <td>Total TTC</td>
+                <td>@order.total_ttc</td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="row-fluid">
+    @*<form action='@routes.Orders.updateLine' method="post">*@
+    <div class="span12" id="lines" ng-controller="GetLinesCtrl">
+        <form action='@routes.Orders.updateLine' method="post">
+        <table class="table table-bordered" id="order_lines">
+
+            <tr>
+                <th>S.N.</th>
+                <th>Ref.</th>
+                <th>Label</th>
+                <th>Tva</th>
+                <th>Qty</th>
+                <th>Unite</th>
+                <th>Prix HT</th>
+                <th>Total HT</th>
+            </tr>
+            <tr id="no_record"><th colspan="8"  style="text-align: center" >No records</th></tr>
+
+            <input type="hidden" name="order_id"  value="@order.id">
+            <tr id='{{line.id}}' ng-repeat="line in lines">
+            <td id="sn">{{$index+1}}</td>
+            <td>{{line.product_ref}}</td>
+            <td>{{line.label}}</td>
+            <td class="tva">{{line.tva}}</td>
+            <td class="qty">{{line.qty}}</td>
+            <td class="unity">{{line.unity}}</td>
+            <td class="prix_ht">{{line.prix_ht}}</td>
+            <td>{{line.prix_ht*line.qty}}</td>
+
+            <th class="control-buttons" edit-line="test" ><button  class="btn editline"><i class="icon-edit"></i></button> <button class="btn deleteline"><i class="icon-trash"></i> </button></th>
+
+            </tr>
+
+        </table>
+        </form>
+    </div>
+        @*</form>*@
+</div>
+
+@helper.form(routes.Orders.addLine, args = 'class -> "form-horizontal") {
+
+<script src="@routes.Assets.at("javascripts/lst.js")" type="text/javascript"></script>
+
+<div id="add_line">
+    <input type="text" class="autocomplete" name="product" id="product">
+    <input type="text" name="product_qty" id="product_qty" class="input-mini">
+    <input type="hidden" name="order_id" id="order_id" value="@order.id">
+    <input type="hidden" name="product_id" id="product_id">
+    <input type="submit" class="btn primary" value="Add">
+</div>
+
+<table id="search_result"></table>
+
+<!--<input type="submit" class="btn primary" value="Add">-->
+}
+}

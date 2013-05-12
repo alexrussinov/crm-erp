@@ -7,12 +7,9 @@ import play.api.Play._
 import com.codahale.jerkson.Json
 
 /**
- * Created with IntelliJ IDEA.
- * User: alex
- * Date: 27/12/12
- * Time: 17:02
- * To change this template use File | Settings | File Templates.
+ *  Class that represent the Customer entity
  */
+
 case class Customer(@Column("rowid")id : Int, nom : Option[String],  price_level : Option[Int], address : Option[String], cp : Option[String],
                   ville : Option[String], tel: Option[String], email : Option[String] ) {
 
@@ -27,5 +24,13 @@ object Customer extends Schema {
       Json.generate(customers)
     }
     json
+  }
+
+  def getById(id : Int): Customer = {
+    transaction(DollConn.doll_session(current)){
+      val customer = from(customerTable)(s => where(s.id === id) select(s))
+      customer.head
+    }
+
   }
 }

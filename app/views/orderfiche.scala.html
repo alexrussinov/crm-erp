@@ -1,40 +1,99 @@
-@(order : Order, user : Users, form : Form[(Int,Int)])
+@(order : Order, user : Users, form_add_line : Form[(String,Int,String,Int)], form_update_line : Form[(Int, String, Int)])
 @import helper.twitterBootstrap._
-        @main("New Order", user){
+@import controllers.routes.javascript._
 
-        <table id="order_totals" >
+
+@main("New Order", user){
+@form_add_line.globalError.map { error =>
+<p class="error" xmlns="http://www.w3.org/1999/html">
+    @error.message
+</p>
+}
+
+@form_update_line.globalError.map { error =>
+        <p class="error">
+            @error.message
+        </p>
+}
+<script src="@routes.Application.javascriptRoutes" type="text/javascript"></script>
+<script src="@routes.Assets.at("javascripts/orderlines.min.js")" type="text/javascript"></script>
+<input type="hidden" name="customer_id" id="customer_id" value="@order.fk_soc">
+<div class="row-fluid">
+    <div class="span12">
+        <table id="order_totals" class="order">
             <tr>
-                <td>Ref. </td><td>@order.ref</td>
+                <td class="ref">Ref.</td>
+                <td>@order.ref</td>
             </tr>
             <tr>
-                <td>Client </td><td>@order.id</td>
+                <td class="client">Client:</td>
+                <td>@models.Customer.getById(order.fk_soc).nom</td>
             </tr>
             <tr>
-                <td>Date </td><td>@order.order_date</td>
+                <td class="date">Date:</td>
+                <td>@order.order_date</td>
             </tr>
             <tr>
-                <td>Qty </td><td></td>
+                <td class="qty">Qty:</td>
+                <td id="total_qty"></td>
             </tr>
             <tr>
-                <td>Total HT </td><td>@order.total_ht</td>
+                <td class="total_ht">Total HT:</td>
+                <td>@order.total_ht</td>
             </tr>
             <tr>
-                <td>Total TTC </td><td>@order.total_ttc</td>
+                <td class="total_ttc">Total TTC:</td>
+                <td>@order.total_ttc</td>
             </tr>
         </table>
+    </div>
+</div>
+<div class="row-fluid">
+    <div class="span12" id="lines">
 
-        <table id="order_lines">
-
+        <form action='@routes.Orders.updateLine' id="update_line" method="post"></form>
+            <table class="table table-bordered" id="order_lines">
+                <thead class="header_lines">
+                    <th>S.N.</th>
+                    <th>Ref.</th>
+                    <th>Label</th>
+                    <th>Tva</th>
+                    <th>Qty</th>
+                    <th>Unite</th>
+                    <th>Prix HT</th>
+                    <th>Total HT</th>
+                </thead>
+                <tr id="no_record"><th colspan="8"  style="text-align: center" >No records</th></tr>
+                <input type="hidden" name="order_id" form="update_line"  value="@order.id">
         </table>
+        @*</form>*@
+    </div>
+</div>
 
-@helper.form(routes.Orders.addLine, args = 'class -> "form-horizontal") {
+@helper.form(routes.Orders.addLine, args = 'class -> "form-inline") {
+
 <script src="@routes.Assets.at("javascripts/lst.js")" type="text/javascript"></script>
-      <div id="add_line">
-          <input type="text"  name="product_id" id="product_id" >
-          <input type="text" name="product_qty" id="product_qty">
+    <div class="add_line">
+    <div class="add_line_header"></div>
+    <div id="add_line_form">
 
-      </div>
-      <table id="search_result"></table>
-      <input type="submit" class="btn primary" value="Add">
-   }
+    <label for="product"> Réf. ou Libellé
+        <input type="text" class="autocomplete" name="product" id="product" required placeholder="Tapez votre recherche">
+    </label>
+    <label for="product_qty"> Qty
+        <input type="text" name="product_qty" id="product_qty" class="input-mini" required pattern="\d+(\.\d*)?" placeholder="0.00">
+     </label>
+    <input type="hidden" name="order_id" id="order_id" value="@order.id">
+    <input type="hidden" name="product_id" id="product_id">
+    <input type="submit" class="btn primary" value="Ajouter">
+</div>
+<table id="search_result"></table>
+</div>
+@*Order controls   *@
+    <div id="order_controls">
+        <a class="btn" href="">Valider</a>
+        <a class="btn" href="">Envoyer</a>
+        <a class="btn" href="">Supprimer</a>
+    </div>
+}
 }

@@ -2,12 +2,11 @@
 @main("List of products", user) {
 <script src="@routes.Assets.at("javascripts/products.min.js")" type="text/javascript"> </script>
 <script src="@routes.Assets.at("javascripts/lst.js")" type="text/javascript"> </script>
-        <p>You logged in as:<a href="xxxx">@user.email</a></p>
 <div id="search">
 <input id="search_value" type="text" onkeyup="searchProducts()">Search</input>
     </div>
         <div id="products">
         </div>
 
-
+// TODO We need a list of products with posibilities of filtering, indication of disponibility, photos, descriptions
 }

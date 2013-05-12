@@ -13,6 +13,7 @@ import play.api.Play.current
 import jp.t2v.lab.play20.auth._
 import play.api.Play._
 import play.api.Routes
+// import scala.reflect.classTag
 
 
 object Application extends Controller with LoginLogout with AuthConf with Auth{
@@ -89,12 +90,13 @@ object Application extends Controller with LoginLogout with AuthConf with Auth{
   }
 
   def javascriptRoutes = Action { implicit request =>
-    import routes.javascript._
+
     Ok(
-      Routes.javascriptRouter("javascriptRoutes")(
-        Orders.searchProducts
+      Routes.javascriptRouter("jsRoutes")(
+        routes.javascript.Orders.searchProducts, routes.javascript.Application.getProducts,
+        routes.javascript.Orders.getOrderLinesInJson
       )
-    ).as("text/javascript")
+    ).as(JAVASCRIPT)
   }
 
 
@@ -128,7 +130,9 @@ trait AuthConf extends AuthConfig {
    * A `ClassManifest` is used to retrieve an id from the Cache API.
    * Use something like this:
    */
-  val idManifest: ClassManifest[Id] = classManifest[Id]
+   val idManifest: ClassManifest[Id] = classManifest[Id]  // This working with play 2.0.4
+
+  // val idTag = classTag[Id]     // This for play 2.1.0
 
   /**
    * The session timeout in seconds
