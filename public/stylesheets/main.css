@@ -20,19 +20,24 @@ text-align : center;
 }
 
 
-[class="span10"] {
- background-color: #eef0f0;
- margin-bottom: 10px;
- border-radius: 5px 5px 5px 5px;
-    box-shadow: -2px 2px 5px 2px rgba(0, 0, 0, 0.2);
+[class="span10 main"] {
+  background-color: #eef0f0;
+  margin-bottom: 10px;
+  border-radius: 5px 5px 5px 5px;
+  box-shadow: -2px 2px 5px 2px rgba(0, 0, 0, 0.2);
+
+
+
     /*line-height: 80px;*/
  /*text-align: center;*/
 }
 
-[class="span2"]{
- background-color: lightgrey;
+[class="span2 sidebar"]{
+ background-color: #eef0f0;
  line-height: 100px;
  text-align: center;
+ box-shadow: -2px 2px 5px 2px rgba(0, 0, 0, 0.2);
+
 }
 
 [class="smallInput"]{
