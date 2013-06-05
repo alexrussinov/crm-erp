@@ -1,0 +1,19 @@
+@(products : List[ProductPresta])
+<link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/bootstrap/bootstrap.min.css")"/>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Ref.</th><th>Description</th><th>Price</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for(product <- products){
+            <tr>
+            <td><img src=''></td>
+            <td>@product.ref_fournisseur</td>
+            <td>@product.description</td>
+            <td>@product.price_fournisseur</td>
+            </tr>
+            }
+    </tbody>
+</table>

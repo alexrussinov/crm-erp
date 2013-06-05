@@ -1,0 +1,29 @@
+@(user : Users)
+@main("Catalogue", user){
+    <script src="@routes.Assets.at("javascripts/controllers.js")" type="text/javascript"></script>
+    <div class="span12 products-list" ng-app>
+        <div><input type="text" class="span2 search-query" ng-model="query"><hr></div>
+        <div class="container-list-products-table" ng-controller="GetProductsCtrl">
+            <table class="list-products">
+                @*<thead>*@
+                    @*<tr>*@
+                        @*<th></th><th>Ref.</th><th>Label</th><th>TVA</th><th>Prix</th><th></th>*@
+                    @*</tr>*@
+                @*</thead>*@
+                <tbody>
+                    <tr ng-repeat="product in products">
+                        <td><img src=""></td>
+                        <td>{{product._2}}</td>
+                        <td>{{product._3}}</td>
+                        <td>{{product._4}}</td>
+                        <td>{{product._5}}</td>
+                        <td><button class="btn-small"><i class="icon-shopping-cart"></i></button> </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    @*TODO Add custom search et pagination, total found in the bottom*@
+    @*TODO  Realize add the product to the order functionality*@
+
+}

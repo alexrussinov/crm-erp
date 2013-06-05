@@ -2,7 +2,7 @@ package controllers
 
 import play.api.mvc.Controller
 import jp.t2v.lab.play20.auth.{Auth, LoginLogout}
-import models.{Product, NormalUser}
+import models._
 
 
 /**
@@ -15,7 +15,7 @@ import models.{Product, NormalUser}
 object ShopingCart extends Controller with LoginLogout with AuthConf with Auth {
 
     def addItem(item_id : Int, qty : Double) = authorizedAction(NormalUser){ user => implicit request =>
-      val product = Product.getById(item_id)
+      val product = ProductDoll.getById(item_id)
       Ok("").withSession(session + (product.id.toString -> qty.toString))
 
     }

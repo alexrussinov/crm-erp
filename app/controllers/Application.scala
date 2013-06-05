@@ -25,7 +25,7 @@ object Application extends Controller with LoginLogout with AuthConf with Auth{
 
   def getProducts = Action {
     val json = transaction(DollConn.doll_session(current)) {
-      val products = from(Product.productTable)(productTable =>
+      val products = from(ProductDoll.productTable)(productTable =>
         select(productTable)
       )
       Json.generate(products)
@@ -35,7 +35,7 @@ object Application extends Controller with LoginLogout with AuthConf with Auth{
 
   def searchProducts(value : Option[String]) = Action {
     val json = transaction(DollConn.doll_session(current)){
-      val products = from(Product.productTable) ( s => where ( (s.ref like value.map(_+ "%").?) or
+      val products = from(ProductDoll.productTable) ( s => where ( (s.ref like value.map(_+ "%").?) or
         (s.label like value.map("%"+ _ + "%").?) ) select(s))
       Json.generate(products)
     }
@@ -214,6 +214,17 @@ object AccountCreation extends Controller with LoginLogout with AuthConf with Au
          Redirect(routes.Application.showProducts)
        }
      )
+  }
+}
+
+object Catalogue extends Controller with LoginLogout with AuthConf with Auth {
+  def getProductsWithPricesInJson(customer_id: Int) = authorizedAction(Administrator){ user => implicit request =>
+                val result = ProductDoll.getProductsWithPrices(customer_id,0,100)
+    Ok(result).as(JSON)
+  }
+
+  def listProducts = authorizedAction(Administrator){ user => implicit request =>
+    Ok(views.html.catalogue(user))
   }
 }
 

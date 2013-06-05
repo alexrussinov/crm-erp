@@ -102,7 +102,7 @@ object OrderLine extends Schema {
   //val orderlinesTable : Table[OrderLine] = table[OrderLine]("t_orderlines")
 
 
-    def getLinesJson (order_id: Int)= {
+    def getLinesJson (order_id: Int) : String= {
     val json = inTransaction{
     /* val orderlines = from(orderlinesTable)(ln =>
        where (order_id in

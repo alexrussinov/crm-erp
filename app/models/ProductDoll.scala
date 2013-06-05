@@ -8,6 +8,7 @@ import org.jsoup.Jsoup
 import play.api.libs.ws.{Response, WS}
 import scala.xml.NodeSeq
 import play.api.libs.concurrent.Promise
+import com.codahale.jerkson.Json
 
 
 /**
@@ -48,6 +49,16 @@ object ProductDoll extends Schema {
   }
 
 
+  def getProductsWithPrices(customer_id: Int,offset: Int, pageLength: Int): String = {
+    val customer: Customer = Customer.getById(customer_id)
+     val json  = transaction(DollConn.doll_session(current)){
+      val products  = from(productTable,productpriceTable)((s,pr)=>
+      where(s.id===pr.fk_product and pr.price_level===customer.price_level) select(s.id, s.ref, s.label,s.tva_tx, pr.price)
+      ).page(offset,pageLength)
+      Json.generate(products)
+    }
+    json
+  }
 
 }
 
@@ -64,11 +75,14 @@ object ProductPresta {
       (node \ "id_category_default").text.toInt,
       (node \ "price").text.toDouble,
       Jsoup.parse((node \ "description_short" \ "language").text.toString).body().text(),
-      (node \ "id_default_image").text.toString
+    {
+      val image = (node \ "id_default_image" )(0)
+      image.attribute(image.getNamespace("xlink"),"href").getOrElse(None).toString
+    }
     )
   }
 
-//  def listProducts(resp : scala.xml.NodeSeq) = {
+//  def getProductsWithPricesInJson(resp : scala.xml.NodeSeq) = {
 //    val products:Promise[Response] = WS.url("http://localtest.my/prestashop/api/"+obj+"/")
 //      .withAuth("GIS6VC2DAXZWZN8XQEET1SSJ6L0CCTPG", "", com.ning.http.client.Realm.AuthScheme.BASIC)
 //      .get

@@ -18,8 +18,8 @@
 <script src="@routes.Application.javascriptRoutes" type="text/javascript"></script>
 <script src="@routes.Assets.at("javascripts/orderlines.min.js")" type="text/javascript"></script>
 <input type="hidden" name="customer_id" id="customer_id" value="@order.fk_soc">
-<div class="row-fluid">
-    <div class="span12">
+@*<div class="row-fluid">*@
+    <div class="span12 order-summary">
         <table id="order_totals" class="order">
             <tr>
                 <td class="ref">Ref.</td>
@@ -47,9 +47,9 @@
             </tr>
         </table>
     </div>
-</div>
-<div class="row-fluid">
-    <div class="span12" id="lines">
+@*</div>*@
+@*<div class="row-fluid">*@
+    <div class="span12 fiche" id="lines">
 
         <form action='@routes.Orders.updateLine' id="update_line" method="post"></form>
             <table class="table table-bordered" id="order_lines">
@@ -68,8 +68,8 @@
         </table>
         @*</form>*@
     </div>
-</div>
-
+@*</div>*@
+   <div class="span12 order-controls">
 @helper.form(routes.Orders.addLine, args = 'class -> "form-inline") {
 
 <script src="@routes.Assets.at("javascripts/lst.js")" type="text/javascript"></script>
@@ -90,7 +90,13 @@
 <table id="search_result"></table>
 </div>
 @*Order controls   *@
-    <div id="order_controls">
+    @*<div id="order_controls">*@
+        @*<a class="btn" href="">Valider</a>*@
+        @*<a class="btn" href="">Envoyer</a>*@
+        @*<a class="btn" href="">Supprimer</a>*@
+    @*</div>*@
+</div>
+    <div class="span12 order-controls">
         <a class="btn" href="">Valider</a>
         <a class="btn" href="">Envoyer</a>
         <a class="btn" href="">Supprimer</a>

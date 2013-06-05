@@ -5,6 +5,7 @@ import jp.t2v.lab.play20.auth.{Auth, LoginLogout}
 import play.api.libs.ws.{Response, WS}
 import play.api.libs.concurrent.Promise
 import scala.xml.{Elem, NodeSeq}
+import models.ProductPresta
 
 /**
  * Created with IntelliJ IDEA.
@@ -34,9 +35,24 @@ object PrestashopClient extends Controller with LoginLogout with AuthConf with A
    }
      Async{
        result map {   f =>
-         Ok("Result: "+ f )
+         val products : List[ProductPresta] = f map {e => ProductPresta.fromXml(e \ "product") }
+
+
+         Ok(views.html.prestaproduct(products) )
        }
      }
+  }
+
+  def getProduct = Action {
+    Async {
+      val product : Promise[Response] = WS.url("http://localhost:8080/prestashop_1.5.4.1/prestashop/api/products/1")
+        .withAuth("LXQBK5G67CMX6H3SXZCD24AJ9I9VBAAD", "", com.ning.http.client.Realm.AuthScheme.BASIC)
+        .get
+
+      product map {f=>
+      Ok("Result" + ProductPresta.fromXml(f.xml \ "product"))
+      }
+    }
   }
 
 }

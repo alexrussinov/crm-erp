@@ -36,5 +36,8 @@ GET     /lines:id                   controllers.Orders.getOrderLinesInJson(id : 
 DELETE  /line                       controllers.Orders.deleteLine(id : Int, order_id : Int)
 
 GET     /otherproducts              controllers.PrestashopClient.productList
+GET     /otherproduct               controllers.PrestashopClient.getProduct
+GET     /catalogue/json             controllers.Catalogue.getProductsWithPricesInJson(id: Int)
+GET     /catalogue                  controllers.Catalogue.listProducts
 
 

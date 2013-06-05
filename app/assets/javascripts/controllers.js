@@ -28,3 +28,9 @@ function GetLinesCtrl($scope, $http){
 
 
 }
+
+function GetProductsCtrl($scope, $http){
+$http.get('/catalogue/json?id=1').success(function(data){
+    $scope.products = data;
+});
+}

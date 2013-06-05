@@ -14,6 +14,7 @@ object ApplicationBuild extends Build {
       "org.scalatest" %% "scalatest" % "1.8" % "test",
       "org.squeryl" %% "squeryl" % "0.9.5-2",
       "org.mindrot" % "jbcrypt" % "0.3m",
+      "org.jsoup" % "jsoup" % "1.7.2",
       "mysql" % "mysql-connector-java" % "5.1.18"
     )
     // Only compile the bootstrap bootstrap.less file and any other *.less file in the stylesheets directory
