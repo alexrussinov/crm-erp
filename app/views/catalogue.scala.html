@@ -16,9 +16,8 @@
                         <td><img src=""></td>
                         <td>{{product._2}}</td>
                         <td>{{product._3}}</td>
-                        <td>{{product._4}}</td>
                         <td>{{product._5}}</td>
-                        <td><button class="btn-small"><i class="icon-shopping-cart"></i></button> </td>
+                        <td><button class="btn-small" ng-click="addProduct()"><i class="icon-shopping-cart"></i></button> </td>
                     </tr>
                 </tbody>
                 <tfoot>
@@ -44,7 +43,41 @@
                 </tfoot>
             </table>
         </div>
-      </div>
+              <!-- Modal Choose an order -->
+          <div id="orderChoice" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+              <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                  <h2 id="myModalLabel">Choisisez une commande...</h2>
+              </div>
+              <div class="modal-body">
+                  <ul>
+                      <li ng-repeat="order in orders">{{order.ref}}&nbsp{{order.date_creation}}&nbsp{{order.total_ht}}</li>
+                  </ul>
+              </div>
+              <div class="modal-footer">
+                  <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+                  <button class="btn btn-primary">Save changes</button>
+              </div>
+          </div>
+
+      </div> @*close ng-controller*@
+    </div>   @*close span12 *@
+
+    <!-- Modal Alert There is no created orders yet -->
+    <div id="addAlertModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h2 id="myModalLabel">Attention, there is no created order yet...</h2>
+        </div>
+        <div class="modal-body">
+            <p>You can't add a product because you have not yet created any orders. To create an order, click "Create order" button
+            or use menu "Order/Create Order" then you can add products to any created order.
+            </p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+            <a href="@routes.Orders.showCreateOrderForm" class="btn btn-primary">Create an Order</a>
+        </div>
     </div>
     @*TODO Add custom search et pagination, total found in the bottom*@
     @*TODO  Realize add the product to the order functionality*@

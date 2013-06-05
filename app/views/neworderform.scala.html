@@ -1,5 +1,5 @@
 @(form : Form[(Int,String,String)], user : Users)
-
+@*TODO We must verify is a user administrator and if no, choose automaticaly client as user*@
 @import helper.twitterBootstrap._
 @main("Create order", user){
 @helper.form(routes.Orders.createOrder, args = 'class -> "form-horizontal") {

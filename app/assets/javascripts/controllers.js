@@ -108,9 +108,26 @@ function GetProductsCtrl($scope, $http, $filter){
 
     //$scope.search();
 
+    $scope.addProduct = function () {
+        $scope.orders=[];
+        $http.get('/getorders').success(function(data){
+
+            if (!$.isEmptyObject(data)){
+//               for (var item in data ){
+//                   if(item.fk_statut == 0)
+//                   $scope.orders.push(item);
+//               }
+                $scope.orders=data
+                $('#orderChoice').modal('toggle');
+            }
+            else
+                $('#addAlertModal').modal('toggle');
+        });
+    }
+
 }
 
-//GetProductsCtrl.$inject = ['$scope','$http','$filter'];
+GetProductsCtrl.$inject = ['$scope','$http','$filter'];
 
 // TODO may be it would be better to realise search et pagination on server side
 // TODO add filter by group, by manufacturer
