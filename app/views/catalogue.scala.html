@@ -2,8 +2,9 @@
 @main("Catalogue", user){
     <script src="@routes.Assets.at("javascripts/controllers.js")" type="text/javascript"></script>
     <div class="span12 products-list" ng-app>
-        <div><input type="text" class="span2 search-query" ng-model="query"><hr></div>
-        <div class="container-list-products-table" ng-controller="GetProductsCtrl">
+      <div ng-controller="GetProductsCtrl">
+        <div><input type="text" class="span2 search-query" ng-model="query" ng-change="search()"><hr></div>
+        <div class="container-list-products-table">
             <table class="list-products">
                 @*<thead>*@
                     @*<tr>*@
@@ -11,7 +12,7 @@
                     @*</tr>*@
                 @*</thead>*@
                 <tbody>
-                    <tr ng-repeat="product in products">
+                    <tr ng-repeat="product in pagedItems[currentPage]">
                         <td><img src=""></td>
                         <td>{{product._2}}</td>
                         <td>{{product._3}}</td>
@@ -20,8 +21,30 @@
                         <td><button class="btn-small"><i class="icon-shopping-cart"></i></button> </td>
                     </tr>
                 </tbody>
+                <tfoot>
+                    <td colspan="6">
+                        <div class="pagination pull-right">
+                            <p>{{filteredItems.length}} Product(s)
+                               {{currentPage +1}} sur {{pagedItems.length}}</p>
+                            <ul>
+                                <li ng-class="{disabled: currentPage == 0}">
+                                    <a href ng-click="prevPage()">« Prev</a>
+                                </li>
+                                @*<li ng-repeat="n in range(products.length)"*@
+                                @*ng-class="{active: n == currentPage}"*@
+                                @*ng-click="setPage()">*@
+                                    @*<a href ng-bind="n + 1">1</a>*@
+                                @*</li>*@
+                                <li ng-class="{disabled: currentPage == pagedItems.length - 1 || pagedItems.length <= itemsPerPage}">
+                                    <a href ng-click="nextPage()">Next »</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                </tfoot>
             </table>
         </div>
+      </div>
     </div>
     @*TODO Add custom search et pagination, total found in the bottom*@
     @*TODO  Realize add the product to the order functionality*@

@@ -68,3 +68,12 @@ myApp.directive('editLine', function($compile) {
     }
 });
 
+//angular.module('itcApp',['filters']);
+//angular.module('filters', []).filter('catalogueSearch',function(){
+// return function(product,query){
+//   for (var key in product){
+//       if(key.index)
+//   }
+// }
+//});
+

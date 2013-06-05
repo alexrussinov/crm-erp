@@ -219,7 +219,7 @@ object AccountCreation extends Controller with LoginLogout with AuthConf with Au
 
 object Catalogue extends Controller with LoginLogout with AuthConf with Auth {
   def getProductsWithPricesInJson(customer_id: Int) = authorizedAction(Administrator){ user => implicit request =>
-                val result = ProductDoll.getProductsWithPrices(customer_id,0,100)
+                val result = ProductDoll.getProductsWithPrices(customer_id,0,10000)
     Ok(result).as(JSON)
   }
 
