@@ -27,6 +27,7 @@ POST    /createaccount              controllers.AccountCreation.createAccount
 GET     /create                     controllers.Orders.showCreateOrderForm
 POST    /create                     controllers.Orders.createOrder
 POST    /addLine                    controllers.Orders.addLine
+POST    /addLineJson                controllers.Orders.addLineInJson
 POST    /updateline                 controllers.Orders.updateLine
 GET     /getorders                  controllers.Orders.listOrders
 GET     /getcustomers               controllers.Orders.getCustomersInJson

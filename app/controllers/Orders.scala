@@ -15,6 +15,8 @@ import com.codahale.jerkson.Json
 import org.squeryl.PrimitiveTypeMode._
 import scala.Some
 import lib._
+import play.api.libs.json._
+
 
 
 object Orders extends  Controller with LoginLogout with AuthConf with Auth with Ord {
@@ -109,6 +111,14 @@ object Orders extends  Controller with LoginLogout with AuthConf with Auth with 
 
   }
 
+  def addLineInJson = Action(parse.json) { request =>
+    val line_id: Int = OrderLine.readJs(request.body).insertLine
+   if (line_id > 0)
+    Ok("Line id:" + line_id)
+    else BadRequest
+
+  }
+
 //  def updateLine (id : Int, tva : Double, qty : Double, unite : String, prix_ht : Double, order_id : Int) = Action {
 //             OrderLine.updateLine(id, tva, unite, prix_ht, qty)
 //              Ok("")
@@ -153,6 +163,8 @@ object Orders extends  Controller with LoginLogout with AuthConf with Auth with 
       BadRequest
 
   }
+
+
 
 //  TODO Add controller for deleting an order
 //  TODO Add controller for validating an order
