@@ -112,9 +112,18 @@ object Orders extends  Controller with LoginLogout with AuthConf with Auth with 
   }
 
   def addLineInJson = Action(parse.json) { request =>
-    val line_id: Int = OrderLine.readJs(request.body).insertLine
-   if (line_id > 0)
-    Ok("Line id:" + line_id)
+
+    val client_id = (request.body \ "user_id").asOpt[Int]
+    val order_id = (request.body \ "order_id").asOpt[Int]
+    val product_id = (request.body \ "product_id").asOpt[Int]
+    val qty = (request.body \ "qty").asOpt[Double]
+    val client : Customer = Customer.getById(client_id.head)
+    val product_price : ProductPrice = ProductDoll.getProductPrice(product_id.head, client.price_level.head)
+    val product : ProductDoll = ProductDoll.getById(client_id.head)
+    val line_id : Int = OrderLine(order_id.head,product.id,product.ref.head,product.label.head,product.tva_tx.head, qty.head, product.unite,product_price.price,product_price.price_ttc).insertLine
+
+    if(line_id > 0)
+      Ok("Line id:"+line_id)
     else BadRequest
 
   }

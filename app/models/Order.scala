@@ -10,7 +10,7 @@ import org.scala_tools.time.Imports._
  import com.codahale.jerkson.Json
  import scala.math.BigDecimal
  import lib.mat
- import play.api.libs.json.JsValue
+ import play.api.libs.json.{Reads, JsValue}
 
  /**
  * Created with IntelliJ IDEA.
@@ -134,17 +134,17 @@ object OrderLine extends Schema {
    OrderDB.orderlinesTable.deleteWhere(s => s.id === id)
   }
   // convert json value in to OrderLine
-  def readJs(json : JsValue): OrderLine = {
-    val client_id = (json \ "user_id").asOpt[Int]
-    val order_id = (json \ "order_id").asOpt[Int]
-    val product_id = (json \ "product_id").asOpt[Int]
-    val qty = (json \ "qty").asOpt[Double]
-    val client : Customer = Customer.getById(client_id.head)
-    val product_price : ProductPrice = ProductDoll.getProductPrice(product_id.head, client.price_level.head)
-    val product : ProductDoll = ProductDoll.getById(client_id.head)
-    OrderLine(order_id.head,product.id,product.ref.head,product.label.head,product.tva_tx.head, qty.head, product.unite,product_price.price,product_price.price_ttc)
-
-  }
+//  def readJs(json : JsValue)(implicit  reads : Reads[T]): OrderLine = {
+//    val client_id = (json \ "user_id").asOpt[Int]
+//    val order_id = (json \ "order_id").asOpt[Int]
+//    val product_id = (json \ "product_id").asOpt[Int]
+//    val qty = (json \ "qty").asOpt[Double]
+//    val client : Customer = Customer.getById(client_id.head)
+//    val product_price : ProductPrice = ProductDoll.getProductPrice(product_id.head, client.price_level.head)
+//    val product : ProductDoll = ProductDoll.getById(client_id.head)
+//    OrderLine(order_id.head,product.id,product.ref.head,product.label.head,product.tva_tx.head, qty.head, product.unite,product_price.price,product_price.price_ttc)
+//
+//  }
 
 }
 
