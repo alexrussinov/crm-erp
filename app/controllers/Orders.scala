@@ -15,6 +15,8 @@ import com.codahale.jerkson.Json
 import org.squeryl.PrimitiveTypeMode._
 import scala.Some
 import lib._
+import play.api.libs.json._
+
 
 
 object Orders extends  Controller with LoginLogout with AuthConf with Auth with Ord {
@@ -109,6 +111,23 @@ object Orders extends  Controller with LoginLogout with AuthConf with Auth with 
 
   }
 
+  def addLineInJson = Action(parse.json) { request =>
+
+    val client_id : Option[Int] = (request.body \ "user_id").asOpt[Int]
+    val order_id = (request.body \ "order_id").asOpt[Int]
+    val product_id = (request.body \ "product_id").asOpt[Int]
+    val qty = (request.body \ "qty").asOpt[Double]
+    val client : Customer = Customer.getById(client_id.getOrElse(1) )
+    val product_price : ProductPrice = ProductDoll.getProductPrice(product_id.head, client.price_level.head)
+    val product : ProductDoll = ProductDoll.getById(client_id.head)
+    val line_id : Int = OrderLine(order_id.head,product.id,product.ref.head,product.label.head,product.tva_tx.head, qty.head, product.unite,product_price.price,product_price.price_ttc).insertLine
+
+    if(line_id > 0)
+      Ok(request.body)
+    else BadRequest
+
+  }
+
 //  def updateLine (id : Int, tva : Double, qty : Double, unite : String, prix_ht : Double, order_id : Int) = Action {
 //             OrderLine.updateLine(id, tva, unite, prix_ht, qty)
 //              Ok("")
@@ -153,6 +172,8 @@ object Orders extends  Controller with LoginLogout with AuthConf with Auth with 
       BadRequest
 
   }
+
+
 
 //  TODO Add controller for deleting an order
 //  TODO Add controller for validating an order

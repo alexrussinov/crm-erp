@@ -2,11 +2,18 @@ import controllers.{Orders, routes}
 import org.scalatest.FlatSpec
 import org.scalatest.matchers.ShouldMatchers
 import models._
-import play.api.test.{FakeRequest, FakeApplication}
+import play.api.http.HeaderNames
+import play.api.libs.json.{JsValue, Json}
+import play.api.test.{FakeHeaders, FakeRequest, FakeApplication}
 import play.api.test.Helpers._
 import org.squeryl.PrimitiveTypeMode.inTransaction
 import org.scala_tools.time.Imports._
 import java.sql.Timestamp
+//import com.codahale.jerkson.Json
+import play.test.Helpers
+import play.api.libs.json
+
+
 
 /**
  * Created with IntelliJ IDEA.
@@ -140,17 +147,33 @@ class OrderSpec extends FlatSpec with ShouldMatchers{
     }
   }
 
-  "A request to the getProductsWithPricesInJson in Json Action" should "respond with data" in {
+  "POST addLine with JSON" should "respond with action and return a message" in {
     running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+      val t =  new Timestamp(DateTime.now.getMillis)
+      val id = Order.createOrder(1,"2002-01-22", t,1,1,Some(0.0),Some(0.0),Some(0.0),Some("xxx"))
+//      val line = OrderLine(id,1,"xxx","xxx",5.5,2.0,"kg", 1.0, 2.0).insertLine
+      val map : JsValue = Json.toJson(Seq("user_id"->1,"order_id"->1,"product_id"->1, "qty"->5.0) )
+      val jsnstr : JsValue  = Json.parse("""{"user_id":"1", "order_id":"1", "product_id": "5", "qty": "2.0"}""")
+      val request = FakeRequest().copy(body = map).withHeaders(HeaderNames.CONTENT_TYPE -> "application/json");
+      val fakeRequest = FakeRequest(Helpers.POST, controllers.routes.Orders.addLineInJson().url, FakeHeaders(), jsnstr)
 
 
-     // val result = controllers.Catalogue.getProductsWithPricesInJson(1)(FakeRequest())
-      //status(result) should equal (OK)
 
-      val  result : String = ProductDoll.getProductsWithPrices(1)
-      result should include ("1")
+      val req = FakeRequest(
+        method = "POST",
+        uri = routes.Orders.addLineInJson().url,
+        headers = FakeHeaders(
+          Map("Content-type"->Seq("application/json"))
+        ),
+        body =  jsnstr
+      )
+      val r = FakeRequest().withJsonBody(jsnstr)
+      val result = controllers.Orders.addLineInJson()(request)
+      status(result) should equal (OK)
+//      contentAsString(result) should include ("1")
     }
   }
+
 
 }
 
