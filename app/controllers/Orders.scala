@@ -14,8 +14,14 @@ import play.api.mvc.Results._
 import com.codahale.jerkson.Json
 import org.squeryl.PrimitiveTypeMode._
 import scala.Some
+import play.api.Play.current
+
+//import play.api.libs.json._
 import lib._
-import play.api.libs.json._
+import com.typesafe.plugin._
+import org.apache.commons.mail._
+//import util.pdf.PDF
+
 
 
 
@@ -64,6 +70,12 @@ object Orders extends  Controller with LoginLogout with AuthConf with Auth with 
     Ok(json).as(JSON)
   }
 
+  //retrieve an order for the given id as json object
+  def getOrderInJson(order_id: Int)= Action {
+    val json = Order.getByIdInJson(order_id)
+    Ok(json).as(JSON)
+  }
+
   // Form to add line in to the invoice
   val addlineform = Form(
     tuple(
@@ -86,7 +98,8 @@ object Orders extends  Controller with LoginLogout with AuthConf with Auth with 
 
   def orderFiche(id : Int) = authorizedAction(NormalUser) { user => implicit request =>
     val order = Order.getById(id)
-    Ok(views.html.orderfiche(order, user, addlineform, update_line_form ))
+    //Ok(views.html.orderfiche(order, user, addlineform, update_line_form ))
+    Ok(views.html.orderfiche3(order, user))
   }
 
   def showListOrders = authorizedAction(NormalUser) { user => implicit request =>
@@ -111,22 +124,43 @@ object Orders extends  Controller with LoginLogout with AuthConf with Auth with 
 
   }
 
-  def addLineInJson = Action(parse.json) { request =>
+//  def addLineInJson = Action(parse.json) { request =>
+//
+//
+//    val client_id : Option[Int] = (request.body \ "user_id").asOpt[Int]
+//    val order_id = (request.body \ "order_id").asOpt[Int]
+//    val product_id = (request.body \ "product_id").asOpt[Int]
+//    val qty = (request.body \ "qty").asOpt[Double]
+//
+//    val client : Customer = Customer.getById(client_id.getOrElse(1) )
+//    val product_price : ProductPrice = ProductDoll.getProductPrice(product_id.head, client.price_level.head)
+//    val product : ProductDoll = ProductDoll.getById(client_id.head)
+//    val line_id : Int = OrderLine(order_id.head,product.id,product.ref.head,product.label.head,product.tva_tx.head, qty.head, product.unite,product_price.price,product_price.price_ttc).insertLine
+//
+//    if(line_id > 0)
+//      Ok(request.body)
+//    else BadRequest
+//
+//  }
 
-    val client_id : Option[Int] = (request.body \ "user_id").asOpt[Int]
-    val order_id = (request.body \ "order_id").asOpt[Int]
-    val product_id = (request.body \ "product_id").asOpt[Int]
-    val qty = (request.body \ "qty").asOpt[Double]
-    val client : Customer = Customer.getById(client_id.getOrElse(1) )
-    val product_price : ProductPrice = ProductDoll.getProductPrice(product_id.head, client.price_level.head)
-    val product : ProductDoll = ProductDoll.getById(client_id.head)
-    val line_id : Int = OrderLine(order_id.head,product.id,product.ref.head,product.label.head,product.tva_tx.head, qty.head, product.unite,product_price.price,product_price.price_ttc).insertLine
+  def addLineInJson = Action { implicit request =>
+    request.body.asJson.map{ json =>
+        val client_id  = (json \ "user_id").asOpt[Int]
+        val order_id = (json \ "order_id").asOpt[Int]
+        val product_id = (json \ "product_id").asOpt[Int]
+        val qty = (json \ "qty").asOpt[String]
 
-    if(line_id > 0)
-      Ok(request.body)
-    else BadRequest
+        val client : Customer = Customer.getById(client_id.head )
+        val product_price : ProductPrice = ProductDoll.getProductPrice(product_id.head, client.price_level.head)
+        val product : ProductDoll = ProductDoll.getById(product_id.head)
+        val line_id =OrderLine(order_id.head,product.id,product.ref.head,product.label.head,product.tva_tx.head, qty.head.toDouble, product.unite,product_price.price,product_price.price_ttc).insertLine
+        val order = Order.getByIdInJson(order_id.head)
+        Ok(order).as(JSON)
+    }.getOrElse{BadRequest}
 
   }
+
+
 
 //  def updateLine (id : Int, tva : Double, qty : Double, unite : String, prix_ht : Double, order_id : Int) = Action {
 //             OrderLine.updateLine(id, tva, unite, prix_ht, qty)
@@ -148,6 +182,19 @@ object Orders extends  Controller with LoginLogout with AuthConf with Auth with 
     //Ok("")
   }
 
+  def updateLineInJson  = Action {  implicit request =>
+    request.body.asJson.map{ json =>
+      val order_id = (json \ "order_id").asOpt[Int]
+      val line_id  = (json \ "line_id").asOpt[Int]
+      val qty = (json \ "qty").asOpt[String]
+
+      OrderLine.updateLine(line_id.get,qty.get.toDouble)
+      val order = Order.getByIdInJson(order_id.get)
+      Ok(order).as(JSON)
+    }.getOrElse{BadRequest}
+
+  }
+
   def searchProducts(value : Option[String], customer_id : Int) = Action {
     val customer = Customer.getById(customer_id)
     val json = transaction(DollConn.doll_session(current)){
@@ -166,14 +213,63 @@ object Orders extends  Controller with LoginLogout with AuthConf with Auth with 
 
   def deleteLine (id : Int, order_id : Int) = Action {
     val result = OrderLine.deleteLine(id)
-    if (result > 0)
-    Ok("")
+    if (result > 0){
+      val order_json = Order.getByIdInJson(order_id)
+    Ok(order_json).as(JSON)
+    }
     else
       BadRequest
 
   }
+  // validate an order and return updated order as json object
+  def validateOrder(order_id : Int) = Action {
+    Order.validate(order_id)
+    val order = Order.getByIdInJson(order_id)
 
+    Ok(order).as(JSON)
 
+  }
+  // delete an order from the database
+  def deleteOrder(order_id: Int) = Action {
+    Order.delete(order_id)
+    Redirect(routes.Orders.showListOrders)
+  }
+
+  def sendOrder(order_id: Int) = Action {
+
+   val order = Order.getById(order_id)
+   val client = Customer.getById(order.fk_soc)
+   val lnk = Order.generateOrderInCSV(order_id)
+    // Create the attachment
+    val attachment = new EmailAttachment()
+    attachment.setPath(lnk)
+    attachment.setDisposition(EmailAttachment.ATTACHMENT)
+    attachment.setDescription("commande")
+    attachment.setName("commande "+order.ref)
+
+    // Create the email message
+    val email = new MultiPartEmail()
+    email.setHostName("smtp.googlemail.com")
+    email.setSmtpPort(465)
+    email.setAuthenticator(new DefaultAuthenticator("imexbox@gmail.com", "eU0mwqAa"))
+    email.setSSL(true)
+    email.addTo("imexbox@gmail.com")
+    email.setFrom("imexbox@gmail.com","Commandes")
+    email.setSubject("Commande de "+client.nom.get)
+    email.setMsg("Veuillez trouver ci-joint commande "+order.ref + " de "+"client.nom.get")
+
+    // add the attachment
+    email.attach(attachment)
+
+    // send the email
+    email.send()
+    Ok("Email sended correctly")
+}
+
+//  def generatePdf(order_id: Int) = Action {
+//    //PDF.ok(views.html.testpdf.render("Your new application is ready."))
+//    Ok(PDF.toBytes(views.html.testpdf.render("Your new application is ready."))).as("application/pdf")
+//  }
 
 //  TODO Add controller for deleting an order
 //  TODO Add controller for validating an order

@@ -29,12 +29,17 @@ POST    /create                     controllers.Orders.createOrder
 POST    /addLine                    controllers.Orders.addLine
 POST    /addLineJson                controllers.Orders.addLineInJson
 POST    /updateline                 controllers.Orders.updateLine
+POST    /updateline/json            controllers.Orders.updateLineInJson
 GET     /getorders                  controllers.Orders.listOrders
 GET     /getcustomers               controllers.Orders.getCustomersInJson
 GET     /order:id                   controllers.Orders.orderFiche(id : Int)
+GET     /order                      controllers.Orders.getOrderInJson(id : Int)
 GET     /showorders                 controllers.Orders.showListOrders
 GET     /lines:id                   controllers.Orders.getOrderLinesInJson(id : Int)
-DELETE  /line                       controllers.Orders.deleteLine(id : Int, order_id : Int)
+POST    /delete/line                controllers.Orders.deleteLine(id : Int, order_id : Int)
+GET     /order/validate             controllers.Orders.validateOrder(id : Int)
+GET     /order/send                 controllers.Orders.sendOrder(id : Int)
+# GET     /order/pdf                  controllers.Orders.generatePdf(id : Int)
 
 GET     /otherproducts              controllers.PrestashopClient.productList
 GET     /otherproduct               controllers.PrestashopClient.getProduct

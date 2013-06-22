@@ -1,9 +1,13 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title></title>
-</head>
-<body>
-
-</body>
-</html>
+@(order : Order, user : Users)
+@main("Nouvelle Commande", user){
+    <script src="@routes.Assets.at("javascripts/app.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("javascripts/controllers.js")" type="text/javascript"></script>
+<div ng-app="orderModule" ng-init="current_order_id='@order.id';">
+  <div ng-controller="OrderCtrl">
+      <input type="hidden" ng-model="order_id" value="@order.id">
+    <div order-header="@order.id"></div>
+    <div order-lines=""></div>
+    <div order-controls=""></div>
+  </div>
+</div>
+}

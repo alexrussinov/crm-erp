@@ -1,5 +1,5 @@
 <div class="span12 fiche" id="lines">
-    <form action='@routes.Orders.updateLine' id="update_line" method="post"></form>
+    <!--<form ng-submit="updateLine()" id="update_line" method="post"></form>-->
     <table class="table table-bordered" id="order_lines">
         <thead class="header_lines">
         <th>S.N.</th>
@@ -10,17 +10,27 @@
         <th>Unite</th>
         <th>Prix HT</th>
         <th>Total HT</th>
+        <th></th>
         </thead>
-        <tbody>
-        <tr id="no_record"><th colspan="8"  style="text-align: center" >No records</th></tr>
+        <tbody ng-switch="lines.length">
+        <tr id="no_record" ng-show="order.lines.length==0"><th colspan="9"  style="text-align: center" >Votre commande est vide....</th></tr>
         <tr ng-repeat="line in order.lines">
-            <td>{{index+1}}</td><td class='line-ref'>{{line.product_ref}}</td><td>{{line.label}}</td>
-            <td class='line-tva'>{{line.tva}}</td><td class='line-qty'>{{line.qty}}</td>
+            <td>{{$index+1}}</td>
+            <td class='line-ref'>{{line.product_ref}}</td>
+            <td>{{line.label}}</td>
+            <td class='line-tva'>{{line.tva}}</td>
+            <td class='line-qty'><editable text="line.qty"></editable></td>
             <td class='line-unity'>{{line.unity}}</td>
-            <td class='line-prix_ht'>{{line.prix_ht}}</td><td>{{line.prix_ht*line.qty}}</td>
-            <th class='control-buttons' ><button  class='btn editline'><i class='icon-edit'></i></button> <button class='btn deleteline'><i class='icon-trash'></i> </button></th>
+            <td class='line-prix_ht'>{{line.prix_ht}}</td>
+            <td>{{(line.prix_ht*line.qty).toFixed(2)}}</td>
+            <td class='control-buttons' ng-hide="editMode">
+                <button  class='btn editline' ng-click="editLine(line,order.id)"><i class='icon-edit'></i></button>
+                <button class='btn deleteline' ng-click="deleteLine($index)"><i class='icon-trash'></i> </button>
+            </td>
+            <td class='control-buttons' ng-show="editMode">
+            <button ng-click="updateLine(line,order.id)" class='btn' ><i class='icon-ok'></i></button>
+            <button id='cancel' class='btn cancel' ng-click="cancelAction()" ><i class='icon-remove'></i> </button></td>
         </tr>
-        <input type="hidden" name="order_id" form="update_line"  value="@order.id">
         </tbody>
     </table>
 </div>

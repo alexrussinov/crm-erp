@@ -327,3 +327,4 @@ var normalize2 = (function () {
         return str.replace(nonWord, mapping);
     };
 }());
+

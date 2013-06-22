@@ -1,9 +1,37 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title></title>
-</head>
-<body>
+<div>
+<div class="span12 order-controls">
 
-</body>
-</html>
+
+    <!--<script src="@routes.Assets.at("javascripts/lst.js")" type="text/javascript"></script>-->
+    <form class="form-inline" method="post" ng-submit="insertLine()">
+    <div class="add_line">
+            <div class="add_line_header"></div>
+            <div id="add_line_form">
+
+            <label for="product"> Réf. ou Libellé
+            <input type="text" ng-model="request" name="product" id="product" required placeholder="Tapez votre recherche" auto-complete>
+            </label>
+            <label for="product_qty"> Qty
+            <input type="text" ng-model="qty" name="product_qty" id="product_qty" class="input-mini" required pattern="\d+(\.\d*)?" placeholder="0.00">
+            </label>
+            <input type="hidden" name="order_id" id="order_id" value="{{order.id}}">
+            <input type="hidden" name="product_id" id="product_id" value="{{product_id}}">
+            <input type="submit" class="btn primary" value="Ajouter">
+            </div>
+            <table id="search_result"></table>
+            </div>
+        </form>
+</div>
+<div class="span12 order-controls" ng-switch="order.fk_statut">
+    <div ng-switch-when="0">
+    <button class="btn" ng-click="validateAction(order)">Valider</button>
+    <button class="btn" ng-click="sendAction(order)" disabled>Envoyer</button>
+    <button class="btn" ng-click="deleteAction(order)">Supprimer</button>
+    </div>
+    <div ng-switch-when="1">
+    <button class="btn" ng-click="modifyAction(order)">Modifier</button>
+                <button class="btn" ng-click="sendAction(order)">Envoyer</button>
+                <button class="btn" ng-click="deleteAction(order)" href="">Supprimer</button>
+    </div>
+</div>
+</div>

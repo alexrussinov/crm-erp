@@ -22,28 +22,22 @@
     <div class="span12 order-summary">
         <table id="order_totals" class="order">
             <tr>
-                <td class="ref">Ref.</td>
-                <td>@order.ref</td>
+                <td class="ref">Ref.</td><td>@order.ref</td>
             </tr>
             <tr>
-                <td class="client">Client:</td>
-                <td>@models.Customer.getById(order.fk_soc).nom</td>
+                <td class="client">Client:</td><td>@models.Customer.getById(order.fk_soc).nom</td>
             </tr>
             <tr>
-                <td class="date">Date:</td>
-                <td>@order.order_date</td>
+                <td class="date">Date:</td><td>@order.order_date</td>
             </tr>
             <tr>
-                <td class="qty">Qty:</td>
-                <td id="total_qty"></td>
+                <td class="qty">Qty:</td><td id="total_qty"></td>
             </tr>
             <tr>
-                <td class="total_ht">Total HT:</td>
-                <td>@order.total_ht</td>
+                <td class="total_ht">Total HT:</td><td>@order.total_ht</td>
             </tr>
             <tr>
-                <td class="total_ttc">Total TTC:</td>
-                <td>@order.total_ttc</td>
+                <td class="total_ttc">Total TTC:</td><td>@order.total_ttc</td>
             </tr>
         </table>
     </div>
@@ -97,9 +91,17 @@
     @*</div>*@
 </div>
     <div class="span12 order-controls">
+        @if(order.fk_statut == 0){
         <a class="btn" href="">Valider</a>
+        <button class="btn" disabled>Envoyer</button>
+        <a class="btn" href="">Supprimer</a>
+        }
+        @if(order.fk_statut == 1){
+        <a class="btn" href="">Modifier</a>
         <a class="btn" href="">Envoyer</a>
         <a class="btn" href="">Supprimer</a>
+        }
     </div>
+
 }
 }

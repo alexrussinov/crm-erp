@@ -35,7 +35,8 @@ function GetProductsCtrl($scope, $http, $filter){
     $scope.pagedItems = [];
     $scope.currentPage = 0;
 
-    // ajax request for data in database
+    // ajax request for products in database
+    // TODO user id is hard coded, must correspond for current user loged in
     $http.get('/catalogue/json?id=1').success(function(data){
     $scope.products =  data;
         $scope.search();
@@ -65,7 +66,7 @@ function GetProductsCtrl($scope, $http, $filter){
         $scope.groupToPages();
     }
 
-//pagination
+   /*Catalog search result Pagination*/
     $scope.groupToPages = function () {
         $scope.pagedItems = [];
 
@@ -107,9 +108,12 @@ function GetProductsCtrl($scope, $http, $filter){
     };
 
     //$scope.search();
-
-    $scope.addProduct = function () {
+   /*add product action from catalog*/
+    $scope.addProduct = function (product) {
         $scope.orders=[];
+
+        $scope.current_product_id = product._1
+
         $http.get('/getorders').success(function(data){
 
             if (!$.isEmptyObject(data)){
@@ -124,10 +128,100 @@ function GetProductsCtrl($scope, $http, $filter){
                 $('#addAlertModal').modal('toggle');
         });
     }
+ /*insert line to order from catalog*/
+    $scope.insertProduct = function (){
+        $scope.insert_product_json =
+            { user_id: $scope.order.fk_soc,
+              order_id: $scope.order.id,
+              product_id: $scope.current_product_id,
+              qty: $scope.current_order_product_qty };
+//        alert("Client id:" + $scope.insert_product_json.user_id + "Order id:"+$scope.insert_product_json.order_id+
+//        "Product id:"+$scope.insert_product_json.product_id+"Qty :"+$scope.insert_product_json.qty);
+        $http.post("/addLineJson", $scope.insert_product_json)
+            .success(function(data, status, headers, config) {
+                $('#orderChoice').modal('hide');
+            }).error(function(data, status, headers, config) {
+                $scope.status = status;
+                alert('Error'+status)
+            });
+    }
 
 }
 
 GetProductsCtrl.$inject = ['$scope','$http','$filter'];
 
+// regroupe order fiche functionality
+function OrderCtrl($scope,$http, calculateTotalQtyService){
+    $scope.total_piece = 0;
+    $scope.total_kg = 0;
+    $scope.line_editable = false;
+    $scope.order_editable = true;
+    $scope.editMode = false;
+
+   //initialising order scope
+    $http.get('/order?id='+$scope.current_order_id).success(function(data){
+
+        $scope.order = data.ord;
+        $scope.order.customer = data.customer;
+        $scope.order.lines = data.lines;
+        $scope.setTotalQty = setTotalQty(data.lines);
+
+    });
+
+    // function insert line in the current order
+    $scope.insertLine = function (){
+        $scope.insert_product_json =
+        { user_id: $scope.order.customer.id,
+            order_id: $scope.order.id,
+            product_id: $scope.product_id,
+            qty: $scope.qty };
+//        alert("Client id:" + $scope.insert_product_json.user_id + "Order id:"+$scope.insert_product_json.order_id+
+//        "Product id:"+$scope.insert_product_json.product_id+"Qty :"+$scope.insert_product_json.qty);
+        $http.post("/addLineJson", $scope.insert_product_json)
+            .success(function(data, status, headers, config) {
+                $scope.order = data.ord;
+                $scope.order.customer = data.customer;
+                $scope.order.lines = data.lines;
+                $scope.request = '';
+                $scope.qty = '';
+                setTotalQty(data.lines)
+
+            }).error(function(data, status, headers, config) {
+                $scope.status = status;
+                alert('Error'+status);
+            });
+    }
+
+    $scope.updateLine = function(line,id){
+        var update_data = {order_id : id, line_id : line.id, qty : line.qty};
+        $http.post('/updateline/json',update_data).success(function(data){
+            $scope.order = data.ord;
+            $scope.order.customer = data.customer;
+            $scope.order.lines = data.lines;
+            var res = calculateTotalQtyService.set(data.lines);
+            $scope.total_kg = res[0];
+            $scope.total_piece = res[1];
+            $scope.editMode= false;
+        }).error(function(data,status){
+                alert('Error: '+status);
+            })
+    }
+
+    function setTotalQty(lines){
+          var total_kg =0;
+          var total_piece = 0;
+        for(var i = 0; i<lines.length; i++){
+            if(lines[i].unity == "piece")
+                total_piece+=lines[i].qty ;
+            if(lines[i].unity == "kg")
+                total_kg+=lines[i].qty ;
+        }
+        $scope.total_kg = total_kg ;
+        $scope.total_piece = total_piece;
+
+    }
+}
+
 // TODO may be it would be better to realise search et pagination on server side
 // TODO add filter by group, by manufacturer
+// TODO Action create new order is possible only if there are no unvalidated orders, or Alert!!!

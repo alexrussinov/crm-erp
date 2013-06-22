@@ -12,12 +12,12 @@
                     @*</tr>*@
                 @*</thead>*@
                 <tbody>
-                    <tr ng-repeat="product in pagedItems[currentPage]">
+                    <tr ng-repeat="product in pagedItems[currentPage]" id="{{product._1}}">
                         <td><img src=""></td>
                         <td>{{product._2}}</td>
                         <td>{{product._3}}</td>
                         <td>{{product._5}}</td>
-                        <td><button class="btn-small" ng-click="addProduct()"><i class="icon-shopping-cart"></i></button> </td>
+                        <td><button class="btn-small" ng-click="addProduct(product)"><i class="icon-shopping-cart"></i></button> </td>
                     </tr>
                 </tbody>
                 <tfoot>
@@ -50,13 +50,27 @@
                   <h2 id="myModalLabel">Choisisez une commande...</h2>
               </div>
               <div class="modal-body">
-                  <ul>
-                      <li ng-repeat="order in orders">{{order.ref}}&nbsp{{order.order_date}}&nbsp{{order.total_ht}}</li>
-                  </ul>
+                  @*<table class="table">*@
+                      @*<thead><th></th><th>Ref.</th><th>Date</th><th>Total HT</th></thead>*@
+                      @*<tbody>*@
+                      @*<tr ng-repeat="order in orders">*@
+                          @*<td><input type="checkbox" value=''></td>*@
+                          @*<td id='{{order.id}}'>{{order.ref}}</td>*@
+                          @*<td>{{order.order_date}}</td>*@
+                          @*<td>{{order.total_ht}}</td>*@
+                          @*<td><input type="text" name="qty"></td>*@
+                      @*</tr>*@
+                      @*</tbody>*@
+                  @*</table>*@
+                  <select class="select-order" ng-model="order" ng-options="o.ref for o in orders">
+                      @*<option ng-repeat="order in orders" value="{{order.id}}">{{order.ref}} {{order.order_date}}</option>*@
+                  </select>
+                  <input type="text" ng-required="Indiquez la quantité" ng-model="current_order_product_qty">
+                  <input type="hidden" value="{{order.fk_soc}}" ng-model="current_order_client_id">
               </div>
               <div class="modal-footer">
-                  <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-                  <button class="btn btn-primary">Save changes</button>
+                  <button class="btn" data-dismiss="modal" aria-hidden="true">Anuler</button>
+                  <button class="btn btn-primary" ng-click="insertProduct()">Ajouter</button>
               </div>
           </div>
 

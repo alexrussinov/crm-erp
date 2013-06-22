@@ -93,6 +93,7 @@ text-align : center;
     margin-top: 60px;
 }
 .fiche {
+    margin-top: 10px;
     width: 95%;
     max-height: 50%;
     overflow: auto;
