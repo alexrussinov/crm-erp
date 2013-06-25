@@ -7,12 +7,14 @@ import org.squeryl.{KeyedEntity, Table, Schema}
 import org.squeryl.annotations.Column
 import org.squeryl.dsl._
 import org.scala_tools.time.Imports._
- import com.codahale.jerkson.Json
  import scala.math.BigDecimal
  import lib.mat
- import play.api.libs.json.{Reads, JsValue}
  import java.io._
  import lib.CustomIO._
+ import play.api.libs.json._
+ import play.api.libs.json.Json
+ import play.api.libs.functional.syntax._
+
 
  /**
  * Created with IntelliJ IDEA.
@@ -31,6 +33,8 @@ case class Order(fk_soc : Int, order_date: String, date_creation: Timestamp,
 
   val date_modif = Some(new Timestamp(DateTime.now.getMillis))
 
+
+
 //  val lines : List[OrderLine] = OrderLine.getLines(this.id)
 //
 //  val customer : Customer = Customer.getById(this.fk_soc)
@@ -44,10 +48,31 @@ case class Order(fk_soc : Int, order_date: String, date_creation: Timestamp,
    }*/
 
 }
+// represent order for generating json
+case class OrderJ(id: Int, ref: String, date_modif : Option[Timestamp], fk_soc : Int, order_date: String, date_creation: Timestamp,
+                   fk_uther_author: Int, fk_statut : Int, tva : Option[Double], total_ht: Option[Double],
+                   total_ttc: Option[Double], note: Option[String])
 
 case class OrderLine (fk_order_id : Int, product_id : Int, product_ref: String, label: String, tva: Double, qty : Double, unity :String, prix_ht : Double,
                  prix_ttc : Double) extends KeyedEntity[Int] {
    val id : Int = 0
+
+//  implicit val orderLineWrites = new Writes[OrderLine] {
+//    def writes(ol: OrderLine): JsValue = {
+//      Json.obj(
+//        "fk_order_id" -> ol.fk_order_id,
+//        "product_id" -> ol.product_id,
+//        "product_ref" -> ol.product_ref,
+//        "label" -> ol.label,
+//        "tva"-> ol.tva,
+//        "qty" -> ol.qty,
+//        "unity"-> ol.unity,
+//        "prix_ht"-> ol.prix_ht,
+//        "prix_ttc"-> ol.prix_ttc
+//      )
+//    }
+//  }
+
 
   def insertLine : Int = inTransaction {
     val line : OrderLine = OrderDB.orderlinesTable insert (this)
@@ -67,8 +92,37 @@ case class OrderLine (fk_order_id : Int, product_id : Int, product_ref: String, 
 }
 
 object Order extends Schema {
+  //   implicit val orderWrites = new Writes[Order] {
+  //     def writes(o: Order): JsValue = {
+  //       Json.obj(
+  //         "fk_societe" -> o.fk_soc,
+  //         "order_date" -> o.order_date,
+  //         "date_creation" -> o.date_creation,
+  //         "fk_user_author" -> o.fk_uther_author,
+  //         "fk_statut"-> o.fk_statut,
+  //         "tva" -> o.tva,
+  //         "total_ht"-> o.total_ht,
+  //         "total_ttc"-> o.total_ttc,
+  //         "note"-> o.note
+  //       )
+  //     }
+  //   }
 
 
+  implicit val orderFormat : Writes[OrderJ] = (
+      ( __ \ 'id).write[Int] and
+      ( __ \ 'ref).write[String] and
+      ( __ \ 'date_modif).write[Option[Timestamp]] and
+      ( __ \ 'fk_soc).write[Int] and
+      ( __ \ 'order_date).write[String] and
+      ( __ \ 'date_creation).write[Timestamp] and
+      ( __ \ 'fk_user_author).write[Int] and
+      ( __ \ 'fk_statut).write[Int] and
+      ( __ \ 'tva).write[Option[Double]] and
+      ( __ \ 'total_ht).write[Option[Double]] and
+      ( __ \ 'total_ttc).write[Option[Double]] and
+      ( __ \ 'note).write[Option[String]]
+    )(unlift(OrderJ.unapply))
  // val orderTable : Table[Order] = table[Order]("t_order")
 
  // val OrderToOrderLines = oneToManyRelation(orderTable, OrderLine.orderlinesTable).via((o,l)=> o.id === l.fk_order_id)
@@ -115,19 +169,19 @@ object Order extends Schema {
 
   }
   /*Fetch order in Json String */
-  def getByIdInJson(id : Int) : String  = {
+  def getByIdInJson(id : Int) : JsValue  = {
     val order : Order = getById(id)
     val lines : List[OrderLine] = OrderLine.getLines(id)
     val customer: Customer = Customer.getById(order.id)
-    val order_json_object = Json.generate(Map("ord"->order,"customer"->customer,"lines"->lines))
+    val order_json_object = Json.toJson(Map("ord"->Json.toJson(toOrderJ(order)),"customer"->Json.toJson(customer),"lines"->Json.toJson(lines)))
     //Json.generate(order)
     order_json_object
   }
   /*Fetch all orders in Json String*/
-  def getAllJson : String = {
+  def getAllJson : JsValue = {
     val json = inTransaction{
-    val orders = from(OrderDB.orderTable)(orders => select(orders))
-      Json.generate(orders)
+    val orders: List[OrderJ] = from(OrderDB.orderTable)(orders => select(orders)).toList map (o=>toOrderJ(o))
+      Json.toJson(orders)
     }
 
      json
@@ -155,13 +209,21 @@ object Order extends Schema {
     })
     "doc/"+order.ref+".csv"
   }
+
+  // transform Order object to OrderJ object to perform JSON deserialisation with orderFormat,
+  //we need this to have id, ref, date_modif fields in generated json
+  def toOrderJ(o : Order): OrderJ = {
+    OrderJ(o.id,o.ref,o.date_modif, o.fk_soc, o.order_date, o.date_creation, o.fk_uther_author,
+      o.fk_statut,o.tva, o.total_ht, o.total_ttc, o.note)
+  }
 }
 
 object OrderLine extends Schema {
   val orderlinesTable : Table[OrderLine] = table[OrderLine]("t_orderlines")
+  implicit val orderLineFormat = Json.format[OrderLine]
 
     /*Fetch lines in Json String for given order_id*/
-    def getLinesJson (order_id: Int) : String= {
+    def getLinesJson (order_id: Int) : JsValue = {
     val json = inTransaction{
     /* val orderlines = from(orderlinesTable)(ln =>
        where (order_id in
@@ -169,9 +231,9 @@ object OrderLine extends Schema {
          select(ln)
          )*/
 
-      val orderlines = from(OrderDB.orderlinesTable)(l => where(l.fk_order_id === order_id) select(l))
+      val orderlines : List[OrderLine] = from(OrderDB.orderlinesTable)(l => where(l.fk_order_id === order_id) select(l)).toList
 
-      Json.generate(orderlines)
+      Json.toJson(orderlines)
     }
     json
   }

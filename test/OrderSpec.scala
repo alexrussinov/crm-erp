@@ -1,18 +1,19 @@
-import controllers.{Orders, routes}
+import controllers._
 import org.scalatest.FlatSpec
 import org.scalatest.matchers.ShouldMatchers
 import models._
 import play.api.http.HeaderNames
-//import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json._
+import play.api.test._
+import play.api.test.Helpers._
 import play.api.test.{FakeHeaders, FakeRequest, FakeApplication}
 import play.api.test.Helpers._
 import org.squeryl.PrimitiveTypeMode.inTransaction
 import org.scala_tools.time.Imports._
 import java.sql.Timestamp
-import com.codahale.jerkson.Json._
 import play.test.Helpers
-import play.api.libs.json._
-
+import scala.Some
+import scala.Some
 
 
 /**
@@ -213,23 +214,23 @@ class OrderSpec extends FlatSpec with ShouldMatchers{
       val t =  new Timestamp(DateTime.now.getMillis)
       val id = Order.createOrder(1,"2002-01-22", t,1,1,Some(0.0),Some(0.0),Some(0.0),Some("xxx"))
 
-      val map  = generate(Map("user_id"->1,"order_id"->1,"product_id"->1, "qty"->"5.0") )
+      val map  = Json.toJson(Map("user_id"->Json.toJson(1),"order_id"->Json.toJson(1),"product_id"->Json.toJson(1), "qty"->Json.toJson("5.0")) )
       val jsnstr : JsValue  = Json.parse("""{"user_id":"1", "order_id":"1", "product_id": "5", "qty": "2.0"}""")
-      val jsn = Json.parse(map)
-      val request = FakeRequest().copy(body = jsnstr).withHeaders(HeaderNames.CONTENT_TYPE -> "application/json");
+//      val jsn = Json.parse(map)
+//      val request = FakeRequest().copy(body = jsnstr).withHeaders(HeaderNames.CONTENT_TYPE -> "application/json");
       val fakeRequest = FakeRequest(Helpers.POST, routes.Orders.addLineInJson().url, FakeHeaders(), jsnstr)
 
 
 
-      val req = FakeRequest(
-        method = "POST",
-        uri = routes.Orders.addLineInJson.url,
-        headers = FakeHeaders(
-          Map("Content-type"->Seq("application/json"))
-        ),
-        body =  jsn
-      )
-      val r = FakeRequest().withJsonBody(jsn)
+//      val req = FakeRequest(
+//        method = "POST",
+//        uri = routes.Orders.addLineInJson.url,
+//        headers = FakeHeaders(
+//          Map("Content-type"->Seq("application/json"))
+//        ),
+//        body =  jsn
+//      )
+      val r = FakeRequest().withJsonBody(map)
 
       val result = controllers.Orders.addLineInJson()(r)
       status(result) should equal (OK)
@@ -243,9 +244,9 @@ class OrderSpec extends FlatSpec with ShouldMatchers{
       val id = Order.createOrder(1,"2002-01-22", t,1,1,Some(0.0),Some(0.0),Some(0.0),Some("xxx"))
       val line_id = OrderLine(id,1,"xxx","xxx",5.5,2.0,"kg", 1.0, 2.0).insertLine
 
-      val map  = generate(Map("order_id"->1,"line_id"->line_id, "qty"->"5.0") )
-      val jsn = Json.parse(map)
-      val r = FakeRequest().withJsonBody(jsn)
+      val map  = Json.toJson(Map("order_id"->Json.toJson(1),"line_id"->Json.toJson(line_id), "qty"->Json.toJson("5.0")) )
+//      val jsn = Json.parse(map)
+      val r = FakeRequest().withJsonBody(map)
 
       val result = controllers.Orders.updateLineInJson()(r)
       status(result) should equal (OK)
@@ -286,7 +287,7 @@ class OrderSpec extends FlatSpec with ShouldMatchers{
       val result = controllers.Orders.deleteOrder(id)(FakeRequest())
       status(result) should equal(SEE_OTHER)
       val orders = Order.getAllJson
-      orders.length should equal(2)
+      Json.stringify(orders).length should equal(2)
     }
   }
   "A request to sendOrder" should "respond with Action" in {

@@ -18,9 +18,9 @@ def prse[T: ParseOp] (s: String) = {
 try {
 Some (implicitly[ParseOp[T]].op (s) )
 }
-catch {
-case _ => None
-}
+//catch {
+//  case _ => None
+//}
 }
 
 }

@@ -1,11 +1,14 @@
 package controllers
 
 import play.api.mvc.{Action, Controller}
-import jp.t2v.lab.play20.auth.{Auth, LoginLogout}
+import jp.t2v.lab.play2.auth._
 import play.api.libs.ws.{Response, WS}
 import play.api.libs.concurrent.Promise
 import scala.xml.{Elem, NodeSeq}
 import models.ProductPresta
+import play.api.libs.concurrent._
+import scala.concurrent.Future
+import play.api.libs.concurrent.Execution.Implicits._
 
 /**
  * Created with IntelliJ IDEA.
@@ -20,10 +23,10 @@ object PrestashopClient extends Controller with LoginLogout with AuthConf with A
 
   def productList = Action {
 
-    val products : Promise[Response] = WS.url("http://localhost:8080/prestashop_1.5.4.1/prestashop/api/products/")
+    val products : Future[Response] = WS.url("http://localhost:8080/prestashop_1.5.4.1/prestashop/api/products/")
       .withAuth("LXQBK5G67CMX6H3SXZCD24AJ9I9VBAAD", "", com.ning.http.client.Realm.AuthScheme.BASIC)
       .get
-   val result : Promise[List[NodeSeq]] = products flatMap {resA =>
+   val result : Future[List[NodeSeq]] = products flatMap {resA =>
     val lst : List[scala.xml.Node] = resA.xml \\ "@id" toList
      val result = lst map {id =>
      val repB = WS.url("http://localhost:8080/prestashop_1.5.4.1/prestashop/api/products/"+id)
@@ -45,7 +48,7 @@ object PrestashopClient extends Controller with LoginLogout with AuthConf with A
 
   def getProduct = Action {
     Async {
-      val product : Promise[Response] = WS.url("http://localhost:8080/prestashop_1.5.4.1/prestashop/api/products/1")
+      val product : Future[Response] = WS.url("http://localhost:8080/prestashop_1.5.4.1/prestashop/api/products/1")
         .withAuth("LXQBK5G67CMX6H3SXZCD24AJ9I9VBAAD", "", com.ning.http.client.Realm.AuthScheme.BASIC)
         .get
 

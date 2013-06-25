@@ -8,15 +8,15 @@ import play.api.data.Forms._
 import models._
 import java.sql.Timestamp
 import org.scala_tools.time.Imports._
-import jp.t2v.lab.play20.auth.{Auth, LoginLogout}
+import jp.t2v.lab.play2.auth._
 import play.api.Play._
 import play.api.mvc.Results._
-import com.codahale.jerkson.Json
+import play.api.libs.json._
+import play.api.libs.functional.syntax._
+//import com.codahale.jerkson.Json
 import org.squeryl.PrimitiveTypeMode._
 import scala.Some
 import play.api.Play.current
-
-//import play.api.libs.json._
 import lib._
 import com.typesafe.plugin._
 import org.apache.commons.mail._
@@ -196,16 +196,25 @@ object Orders extends  Controller with LoginLogout with AuthConf with Auth with 
   }
 
   def searchProducts(value : Option[String], customer_id : Int) = Action {
+    implicit val productsFormatTuple5 = (
+      (__ \ '_1).write[Int] and
+        (__ \ '_2).write[Option[String]] and
+          (__ \ '_3).write[Option[String]] and
+            (__ \ '_4).write[Double] and
+              (__ \ '_5).write[Double]
+      ).tupled : Writes[(Int,Option[String],Option[String],Double,Double)]
+
     val customer = Customer.getById(customer_id)
     val json = transaction(DollConn.doll_session(current)){
       //val products = from(Product.productTable) ( s => where ( (s.ref like value.map(_+ "%").?) or
       //  (s.label like value.map("%"+ _ + "%").?) ) select(s))
 
-      val products = from(ProductDoll.productTable, ProductDoll.productpriceTable) ((s,p) => where((s.ref like value.map(_+ "%").?) or
+      val products  = from(ProductDoll.productTable, ProductDoll.productpriceTable) ((s,p) => where((s.ref like value.map(_+ "%").?) or
         (s.label like value.map("%"+ _ + "%").?) and (p.fk_product === s.id) and (p.price_level === customer.price_level))
        select(s.id, s.ref, s.label, p.price, p.tva_tx))
       //select(s))
-      Json.generate(products)
+
+      Json.toJson(products)
     }
 
     Ok(json).as(JSON)

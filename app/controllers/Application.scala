@@ -7,13 +7,17 @@ import play.api.data.Forms._
 import db.DB
 import play.api.mvc._
 import play.api.mvc.Results._
+import play.api.libs.json._
+import reflect.classTag
+
+
+//import com.codahale.jerkson.Json
 import org.squeryl.PrimitiveTypeMode._
-import com.codahale.jerkson.Json
 import play.api.Play.current
-import jp.t2v.lab.play20.auth._
+import jp.t2v.lab.play2.auth._
 import play.api.Play._
 import play.api.Routes
-// import scala.reflect.classTag
+
 
 
 object Application extends Controller with LoginLogout with AuthConf with Auth{
@@ -24,11 +28,12 @@ object Application extends Controller with LoginLogout with AuthConf with Auth{
 
 
   def getProducts = Action {
+
     val json = transaction(DollConn.doll_session(current)) {
       val products = from(ProductDoll.productTable)(productTable =>
         select(productTable)
       )
-      Json.generate(products)
+      Json.toJson(products)
     }
     Ok(json).as(JSON)
   }
@@ -37,7 +42,7 @@ object Application extends Controller with LoginLogout with AuthConf with Auth{
     val json = transaction(DollConn.doll_session(current)){
       val products = from(ProductDoll.productTable) ( s => where ( (s.ref like value.map(_+ "%").?) or
         (s.label like value.map("%"+ _ + "%").?) ) select(s))
-      Json.generate(products)
+      Json.toJson(products)
     }
 
     Ok(json).as(JSON)
@@ -130,9 +135,9 @@ trait AuthConf extends AuthConfig {
    * A `ClassManifest` is used to retrieve an id from the Cache API.
    * Use something like this:
    */
-   val idManifest: ClassManifest[Id] = classManifest[Id]  // This working with play 2.0.4
+  // val idManifest: ClassManifest[Id] = classManifest[Id]  // This working with play 2.0.4
 
-  // val idTag = classTag[Id]     // This for play 2.1.0
+  val idTag = classTag[Id]
 
   /**
    * The session timeout in seconds
