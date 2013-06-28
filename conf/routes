@@ -3,47 +3,52 @@
 # ~~~~
 
 # Home page
-GET     /                           controllers.Application.index
-GET     /login                      controllers.Application.login
+GET      /                                  controllers.Application.index
+GET      /login                             controllers.Application.login
 # GET     /index                    controllers.Application.index
-GET     /getproducts                controllers.Application.getProducts
-GET     /products                   controllers.Application.showProducts
-GET     /searchproducts/            controllers.Orders.searchProducts(term : Option[String] ?= None, customer_id: Int ?= 0 )
+GET      /getproducts                       controllers.Application.getProducts
+GET      /products                          controllers.Application.showProducts
+GET      /searchproducts/                   controllers.Orders.searchProducts(term : Option[String] ?=     None,     customer_id:     Int     ?= 0     )
 
 # Javascript routing
-GET     /assets/javascripts/routes        controllers.Application.javascriptRoutes
+GET     /assets/javascripts/routes         controllers.Application.javascriptRoutes
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.at(path="/public", file)
+GET      /assets/*file                      controllers.Assets.at(path="/public", file)
 
 
-POST    /login                      controllers.Application.authenticate
-GET     /logout                     controllers.Application.logout
+POST     /login                             controllers.Application.authenticate
+GET      /logout                            controllers.Application.logout
 
-GET     /account                    controllers.AccountCreation.createAccountForm
-POST    /createaccount              controllers.AccountCreation.createAccount
+GET      /account                           controllers.AccountCreation.createAccountForm
+POST     /createaccount                     controllers.AccountCreation.createAccount
 
 
-GET     /create                     controllers.Orders.showCreateOrderForm
-POST    /create                     controllers.Orders.createOrder
-POST    /addLine                    controllers.Orders.addLine
-POST    /addLineJson                controllers.Orders.addLineInJson
-POST    /updateline                 controllers.Orders.updateLine
-POST    /updateline/json            controllers.Orders.updateLineInJson
-GET     /getorders                  controllers.Orders.listOrders
-GET     /getcustomers               controllers.Orders.getCustomersInJson
-GET     /order:id                   controllers.Orders.orderFiche(id : Int)
-GET     /order                      controllers.Orders.getOrderInJson(id : Int)
-GET     /showorders                 controllers.Orders.showListOrders
-GET     /lines:id                   controllers.Orders.getOrderLinesInJson(id : Int)
-POST    /delete/line                controllers.Orders.deleteLine(id : Int, order_id : Int)
-GET     /order/validate             controllers.Orders.validateOrder(id : Int)
-GET     /order/send                 controllers.Orders.sendOrder(id : Int)
-# GET     /order/pdf                  controllers.Orders.generatePdf(id : Int)
+GET      /create                            controllers.Orders.showCreateOrderForm
+POST     /create                            controllers.Orders.createOrder
+POST     /addLine                           controllers.Orders.addLine
+POST     /addLineJson                       controllers.Orders.addLineInJson
+POST     /updateline                        controllers.Orders.updateLine
+POST     /updateline/json                   controllers.Orders.updateLineInJson
+GET      /getorders                         controllers.Orders.listOrders
+GET      /getorders/customer                controllers.Orders.listCustomerOrdersJson(id : Int)
+GET      /getcustomers                      controllers.Orders.getCustomersInJson
+GET      /customer/json                     controllers.Orders.getCustomerInJson(id : Int)
+GET      /order:id                          controllers.Orders.orderFiche(id : Int)
+GET      /order                             controllers.Orders.getOrderInJson(id : Int)
+GET      /showorders                        controllers.Orders.showListOrders
+GET      /lines:id                          controllers.Orders.getOrderLinesInJson(id : Int)
+POST     /delete/line                       controllers.Orders.deleteLine(id : Int, order_id : Int)
+GET      /order/validate                    controllers.Orders.validateOrder(id : Int)
+GET      /order/modify                      controllers.Orders.modifyOrder(id : Int)
+POST     /order/delete                      controllers.Orders.deleteOrder(id : Int)
+GET      /order/send                        controllers.Orders.sendOrder(id : Int)
+GET      /order/pdf                         controllers.Orders.generatePdf(id : Int)
+GET      /testpdftpl                        controllers.Orders.testPdf(id : Int)
 
-GET     /otherproducts              controllers.PrestashopClient.productList
-GET     /otherproduct               controllers.PrestashopClient.getProduct
-GET     /catalogue/json             controllers.Catalogue.getProductsWithPricesInJson(id: Int)
-GET     /catalogue                  controllers.Catalogue.listProducts
+GET      /otherproducts                     controllers.PrestashopClient.productList
+GET      /otherproduct                      controllers.PrestashopClient.getProduct
+GET      /catalogue/json                    controllers.Catalogue.getProductsWithPricesInJson(id: Int)
+GET      /catalogue                         controllers.Catalogue.listProducts
 
 

@@ -1,6 +1,7 @@
 package controllers
 
 
+import _root_.util.pdf.PDF
 import play.api.data.format.Formats._
 import play.api.mvc._
 import play.api.data.Form
@@ -20,7 +21,6 @@ import play.api.Play.current
 import lib._
 import com.typesafe.plugin._
 import org.apache.commons.mail._
-//import util.pdf.PDF
 
 
 
@@ -60,11 +60,25 @@ object Orders extends  Controller with LoginLogout with AuthConf with Auth with 
     Ok(json).as(JSON)
   }
 
+  // return orders for a specic customer
+  def listCustomerOrdersJson(id : Int) = Action { implicit request =>
+    val json = Order.getAllCustomerOrdersJson(id)
+    Ok(json).as(JSON)
+  }
+  // Retrieve list of avaiable customers
   def getCustomersInJson =  authorizedAction(NormalUser) { user => implicit request =>
     val json = Customer.getAllJson
     Ok(json).as(JSON)
    }
 
+  // Fetch customer in json by id
+
+  def getCustomerInJson(id : Int)= authorizedAction(NormalUser) { user => implicit request =>
+    val json = Customer.getByIdInJson(id)
+    Ok(json).as(JSON)
+  }
+
+ // Fetch order lines in Json by order id
   def getOrderLinesInJson(order_id : Int) = /*authorizedAction(NormalUser) */Action {/* user => */ implicit request =>
     val json = OrderLine.getLinesJson(order_id)
     Ok(json).as(JSON)
@@ -98,6 +112,7 @@ object Orders extends  Controller with LoginLogout with AuthConf with Auth with 
 
   def orderFiche(id : Int) = authorizedAction(NormalUser) { user => implicit request =>
     val order = Order.getById(id)
+    val customer = Customer.getById(order.fk_soc)
     //Ok(views.html.orderfiche(order, user, addlineform, update_line_form ))
     Ok(views.html.orderfiche3(order, user))
   }
@@ -238,13 +253,21 @@ object Orders extends  Controller with LoginLogout with AuthConf with Auth with 
     Ok(order).as(JSON)
 
   }
+
+  // make order editable
+  def modifyOrder(order_id : Int) = Action {
+    Order.modify(order_id)
+    val order = Order.getByIdInJson(order_id)
+
+    Ok(order).as(JSON)
+  }
   // delete an order from the database
-  def deleteOrder(order_id: Int) = Action {
+  def deleteOrder(order_id: Int) = Action { request =>
     Order.delete(order_id)
-    Redirect(routes.Orders.showListOrders)
+    Redirect(routes.Orders.showListOrders())
   }
 
-  def sendOrder(order_id: Int) = Action {
+  def sendOrder(order_id: Int) = authorizedAction(NormalUser) {user => implicit request =>
 
    val order = Order.getById(order_id)
    val client = Customer.getById(order.fk_soc)
@@ -265,7 +288,7 @@ object Orders extends  Controller with LoginLogout with AuthConf with Auth with 
     email.addTo("imexbox@gmail.com")
     email.setFrom("imexbox@gmail.com","Commandes")
     email.setSubject("Commande de "+client.nom.get)
-    email.setMsg("Veuillez trouver ci-joint commande "+order.ref + " de "+"client.nom.get")
+    email.setMsg("Veuillez trouver ci-joint la commande "+order.ref + " de "+client.nom.get+"Author: "+user.email)
 
     // add the attachment
     email.attach(attachment)
@@ -274,16 +297,27 @@ object Orders extends  Controller with LoginLogout with AuthConf with Auth with 
     email.send()
     Ok("Email sended correctly")
 }
+ // generates pdf for the order and render it in the browser
+  def generatePdf(order_id: Int) = Action {
+    val order = Order.getById(order_id)
+    val lines = OrderLine.getLines(order_id)
+    val total_qty = Order.totalQty(order_id)
+    val customer = Customer.getById(order.fk_soc)
+    Ok(PDF.toBytes(views.html.tpl_pdf_customer_oder.render(order,lines,customer,total_qty))).as("application/pdf")
+  }
 
-//  def generatePdf(order_id: Int) = Action {
-//    //PDF.ok(views.html.testpdf.render("Your new application is ready."))
-//    Ok(PDF.toBytes(views.html.testpdf.render("Your new application is ready."))).as("application/pdf")
-//  }
+  // create this controller for test purposes only
 
-//  TODO Add controller for deleting an order
-//  TODO Add controller for validating an order
-//  TODO Add controller for sending an order
-//  TODO Add controller for PDF and CSF generating
+  def testPdf(id : Int) = Action {
+
+    val order = Order.getById(id)
+    val lines = OrderLine.getLines(id)
+    val total_qty = Order.totalQty(id)
+    val customer = Customer.getById(order.fk_soc)
+    Ok(views.html.tpl_pdf_customer_oder(order,lines,customer,total_qty))
+  }
+
+//  TODO PDF generation doesn't work
 //  TODO list of orders must depend on type of the user (admin or  normal user)
 
 }

@@ -148,21 +148,35 @@ order.directive('orderLines',function($http,calculateTotalQtyService,$compile){
 
 });
 
-order.directive('orderControls',function($http){
+order.directive('orderControls',function($http,$location){
    return {
        restrict: 'A',
        link: function($scope){
            $scope.modifyAction = function(order){
                alert ('modify'+order.id);
+               $http.get('/order/modify?id='+order.id).success(function(data){
+                   $scope.order = data.ord;
+                   $scope.order.customer = data.customer;
+                   $scope.order.lines = data.lines;
+               });
            }
            $scope.sendAction = function(order){
                alert ('send'+order.id);
+               $http.get('/order/send?id='+order.id).success(function(data){
+                     alert("Commande "+order.ref+" envoyée")
+               });
            }
            $scope.deleteAction = function (order){
-               alert ('delete'+order.id);
+               $http.post('/order/delete?id='+order.id).success(function(data){
+                   window.location='/showorders';
+               });
            }
            $scope.validateAction = function(order){
-               alert ('validate'+order.id);
+               $http.get('/order/validate?id='+order.id).success(function(data){
+                   $scope.order = data.ord;
+                   $scope.order.customer = data.customer;
+                   $scope.order.lines = data.lines;
+               });
            }
 
        },

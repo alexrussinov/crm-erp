@@ -202,7 +202,8 @@ object AccountCreation extends Controller with LoginLogout with AuthConf with Au
   mapping(
   "email" -> email.verifying("User with such email existe", e => !Users.findByEmail(e).isDefined),
   "password" -> nonEmptyText(minLength = 6),
-  "admin" -> number
+  "admin" -> number,
+  "customer_id"-> optional(number)
   )(Users.apply)(Users.unapply)
 
   )
@@ -215,7 +216,7 @@ object AccountCreation extends Controller with LoginLogout with AuthConf with Au
      createaccountform.bindFromRequest.fold(
        formWithErrors => BadRequest(views.html.createaccount(formWithErrors, "Errors!!!", user)),
        user => {
-         Users.createUser(user.email, user.pass, user.admin)
+         Users.createUser(user.email, user.pass, user.admin, user.customer_id)
          Redirect(routes.Application.showProducts)
        }
      )
@@ -223,12 +224,12 @@ object AccountCreation extends Controller with LoginLogout with AuthConf with Au
 }
 
 object Catalogue extends Controller with LoginLogout with AuthConf with Auth {
-  def getProductsWithPricesInJson(customer_id: Int) = authorizedAction(Administrator){ user => implicit request =>
+  def getProductsWithPricesInJson(customer_id: Int) = authorizedAction(NormalUser){ user => implicit request =>
                 val result = ProductDoll.getProductsWithPrices(customer_id,0,10000)
     Ok(result).as(JSON)
   }
 
-  def listProducts = authorizedAction(Administrator){ user => implicit request =>
+  def listProducts = authorizedAction(NormalUser){ user => implicit request =>
     Ok(views.html.catalogue(user))
   }
 }

@@ -1,0 +1,79 @@
+@(order: Order, lines : List[OrderLine], customer : Customer, total_qty: Map[String,Double])
+@import lib.mat
+
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>PDF Sample</title>
+        @*<link rel="stylesheet"  href="/public/stylesheets/bootstrap/bootstrap.min.css"/>*@
+        <link rel="stylesheet"  href="/public/stylesheets/orderpdftpl.css"/>
+    </head>
+    <body>
+
+
+         <div class="company-info">
+            <dl class="dl-horizontal">
+                <dt>SARL ITC PLUS</dt>
+                <dt>5 RUE DU VIGNEAU</dt>
+                <dt>85310, NESMY</dt>
+                <dt>Tel.: +33(0)251 94 66 83 / Portable: +33(0)688 95 61 61</dt>
+                <dt>Email: imexbox@@gmail.com</dt>
+                <dt>www.staremiasto.fr</dt>
+           </dl>
+         </div>
+         <div class="tpl-header"><h3>Bon de commande: @order.ref</h3>
+         </div>
+
+         <div class="customer-info">
+              @*<dl>*@
+                  @*<dt><span>Client :&nbsp</span>@customer.nom</dt>*@
+                  @*<dt><span>Adresse:&nbsp</span>@customer.address</dt>*@
+                      @*<dt>&nbsp &nbsp &nbsp &nbsp @customer.cp, @customer.ville</dt>*@
+                  @*<dt><span>Date: </span>@order.order_date</dt>*@
+              @*</dl>*@
+             <table style="width: 300px; border: none;">
+                 <tr><td style="width: 30px; border: none"><span>Client :</span></td><td style="width: 70px; border: none">@customer.nom</td></tr>
+                 <tr><td style="width: 30px; border: none"><span>Adresse :</span></td><td style="width: 70px; border: none">@customer.address, @customer.cp, @customer.ville</td></tr>
+                 <tr><td style="width: 30px; border: none"><span>Date :</span></td><td style="width: 70px; border: none">@order.order_date</td></tr>
+             </table>
+         </div>
+         <div class="lines">
+            <table class="table-bordered" id="order_lines">
+                    <th id="sn">S.N.</th>
+                    <th id="ref">Ref.</th>
+                    <th id="label">Label</th>
+                    <th id="tva">Tva</th>
+                    <th id="qty">Qty</th>
+                    <th id="unity">Ute</th>
+                    <th id="price">Prix HT</th>
+                    <th id="total">Total HT</th>
+                    @for((line,index) <- lines.view.zipWithIndex){
+                    <tr>
+                        <td>@(index+1)</td>
+                        <td class='line-ref'>@line.product_ref</td>
+                        <td>@line.label</td>
+                        <td class='line-tva'>@line.tva</td>
+                        <td class='line-qty'>@line.qty</td>
+                        <td class='line-unity'>@line.unity</td>
+                        <td class='line-prix_ht'>@line.prix_ht</td>
+                        <td>@(mat.round(line.prix_ht*line.qty))</td>
+                    </tr>
+                    }
+            </table>
+         </div>
+
+         <div class="qty">
+             <dl><dt><span style="font-weight: bold ">Total Qty:</span> @total_qty("kg") Kg @total_qty("piece") Piece</dt></dl>
+         </div>
+         <div class="total">
+             <dl class="dl-horizontal pull-right">
+                 <dt><span>Total HT: </span>@order.total_ht</dt>
+                 <dt><span>Total TTC: </span>@order.total_ttc </dt>
+                 <dt><span>TVA: </span>@(mat.round(order.total_ttc.getOrElse(0.0)-order.total_ht.getOrElse(0.0)))</dt>
+              </dl>
+         </div>
+
+
+  </body>
+</html>

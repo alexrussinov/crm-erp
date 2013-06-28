@@ -1,7 +1,7 @@
 @(user : Users)
 @main("Catalogue", user){
-    <script src="@routes.Assets.at("javascripts/controllers.js")" type="text/javascript"></script>
-    <div class="span12 products-list" ng-app>
+    @*<script src="@routes.Assets.at("javascripts/controllers.js")" type="text/javascript"></script>*@
+    <div class="span12 products-list"  ng-init="customer_id=@user.customer_id.getOrElse(0)">
       <div ng-controller="GetProductsCtrl">
         <div><input type="text" class="span2 search-query" ng-model="query" ng-change="search()"><hr></div>
         <div class="container-list-products-table">

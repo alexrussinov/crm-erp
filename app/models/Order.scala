@@ -73,7 +73,6 @@ case class OrderLine (fk_order_id : Int, product_id : Int, product_ref: String, 
 //    }
 //  }
 
-
   def insertLine : Int = inTransaction {
     val line : OrderLine = OrderDB.orderlinesTable insert (this)
     val order = Order.getById(this.fk_order_id)
@@ -90,6 +89,10 @@ case class OrderLine (fk_order_id : Int, product_id : Int, product_ref: String, 
  // lazy val order : ManyToOne[Order] = OrderDB.OrderToOrderLines.right(this)
 
 }
+
+// we need this class that represents an order line for generating JSON
+case class OrderLineJ(id : Int, fk_order_id : Int, product_id : Int, product_ref: String, label: String, tva: Double, qty : Double, unity :String, prix_ht : Double,
+                       prix_ttc : Double)
 
 object Order extends Schema {
   //   implicit val orderWrites = new Writes[Order] {
@@ -168,12 +171,13 @@ object Order extends Schema {
     }
 
   }
-  /*Fetch order in Json String */
+  /*Fetch order in Json String with lines and customer information */
   def getByIdInJson(id : Int) : JsValue  = {
     val order : Order = getById(id)
-    val lines : List[OrderLine] = OrderLine.getLines(id)
-    val customer: Customer = Customer.getById(order.id)
-    val order_json_object = Json.toJson(Map("ord"->Json.toJson(toOrderJ(order)),"customer"->Json.toJson(customer),"lines"->Json.toJson(lines)))
+//    val lines : List[OrderLine] = OrderLine.getLines(id)
+    val lines : JsValue =OrderLine.getLinesJson(id)
+    val customer: Customer = Customer.getById(order.fk_soc)
+    val order_json_object = Json.toJson(Map("ord"->Json.toJson(toOrderJ(order)),"customer"->Json.toJson(customer),"lines"->lines))
     //Json.generate(order)
     order_json_object
   }
@@ -187,9 +191,24 @@ object Order extends Schema {
      json
   }
 
+  def getAllCustomerOrdersJson(id : Int) : JsValue = {
+    val json = inTransaction{
+      val orders: List[OrderJ] = from(OrderDB.orderTable)(orders => where(orders.fk_soc === id) select(orders)).toList map (o=>toOrderJ(o))
+      Json.toJson(orders)
+    }
+
+    json
+  }
+
   def validate(id : Int):Int={
     inTransaction{
      val r = update(OrderDB.orderTable)(o => where(o.id===id)set(o.fk_statut :=  1))
+      r
+    }
+  }
+  def modify(id : Int):Int={
+    inTransaction{
+      val r = update(OrderDB.orderTable)(o => where(o.id===id)set(o.fk_statut :=  0))
       r
     }
   }
@@ -216,11 +235,24 @@ object Order extends Schema {
     OrderJ(o.id,o.ref,o.date_modif, o.fk_soc, o.order_date, o.date_creation, o.fk_uther_author,
       o.fk_statut,o.tva, o.total_ht, o.total_ttc, o.note)
   }
+
+  def totalQty(order_id: Int): Map[String,Double] = {
+    var total_kg : Double = 0.0
+    var total_piece : Double = 0.0
+    val lines = OrderLine.getLines(order_id)
+    for (line <- lines){
+      if(line.unity == "kg")
+        total_kg+=line.qty
+      if(line.unity == "piece")
+        total_piece+=line.qty
+    }
+    Map("kg"->total_kg,"piece"->total_piece)
+  }
 }
 
 object OrderLine extends Schema {
   val orderlinesTable : Table[OrderLine] = table[OrderLine]("t_orderlines")
-  implicit val orderLineFormat = Json.format[OrderLine]
+  implicit val orderLineFormat = Json.format[OrderLineJ]
 
     /*Fetch lines in Json String for given order_id*/
     def getLinesJson (order_id: Int) : JsValue = {
@@ -231,7 +263,7 @@ object OrderLine extends Schema {
          select(ln)
          )*/
 
-      val orderlines : List[OrderLine] = from(OrderDB.orderlinesTable)(l => where(l.fk_order_id === order_id) select(l)).toList
+      val orderlines : List[OrderLineJ] = from(OrderDB.orderlinesTable)(l => where(l.fk_order_id === order_id) select(l)).toList map (l=>toLineJ(l))
 
       Json.toJson(orderlines)
     }
@@ -272,6 +304,10 @@ object OrderLine extends Schema {
         s.total_ttc:= Some(mat.round( totals("total_ttc")) ) ) )
       result
 
+  }
+
+  def toLineJ(line : OrderLine): OrderLineJ = {
+    OrderLineJ(line.id,line.fk_order_id,line.product_id, line.product_ref,line.label,line.tva,line.qty,line.unity,line.prix_ht,line.prix_ttc)
   }
   // convert json value in to OrderLine
 //  def readJs(json : JsValue)(implicit  reads : Reads[T]): OrderLine = {

@@ -51,4 +51,11 @@ object Customer extends Schema {
     }
 
   }
+
+  def getByIdInJson(id : Int) : JsValue = {
+   val json = transaction(DollConn.doll_session(current)){
+     from(customerTable)(c => where(c.id === id) select(c))
+    }
+    Json.toJson(json)
+  }
 }

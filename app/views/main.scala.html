@@ -1,6 +1,6 @@
 @(title: String, user : Users)(content: Html)
 <!DOCTYPE html>
-<html>
+<html ng-app="orderModule" ng-init="user={email:'@user.email',admin:'@user.admin',customer_id:'@user.customer_id'}">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@title</title>
@@ -14,7 +14,8 @@
     <script src="@routes.Assets.at("javascripts/bootstrap-datepicker.js")" type="text/javascript"></script>
     <script src="@routes.Assets.at("javascripts/angular.js")" type="text/javascript"></script>
     <script src="@routes.Assets.at("javascripts/lib.js")" type="text/javascript"></script>
-    @*<script src="@routes.Assets.at("javascripts/app.js")" type="text/javascript"></script>*@
+    <script src="@routes.Assets.at("javascripts/app.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("javascripts/controllers.js")" type="text/javascript"></script>
     @*<script src="@routes.Assets.at("javascripts/customers.min.js")" type="text/javascript"></script>*@
     <script src="@routes.Assets.at("javascripts/bootstrap/bootstrap-alert.min.js")"></script>
     <script src="@routes.Assets.at("javascripts/bootstrap/bootstrap-button.min.js")"></script>
@@ -30,7 +31,7 @@
     <script src="@routes.Assets.at("javascripts/bootstrap/bootstrap-typeahead.min.js")"></script>
     <title></title>
 </head>
-<body>
+<body ng-controller="MainCtrl">
     <nav class="navbar navbar-fixed-top">
         <div class="navbar-inner">
             <div class="container">
@@ -42,22 +43,30 @@
                 </p>
 
                 <ul class="nav">
-                    <li class="active"><a href="@routes.Catalogue.listProducts">Catalogue</a></li>
+                    <li class="active"><a href="#tableau">Tableau de Bord</a></li>
+                    <li><a href="@routes.Catalogue.listProducts">Catalogue</a></li>
                     <li class="dropdown"><a href="" class="dropdown-toggle" data-toggle="dropdown">
-                        Order
+                        Commandes
                         <b class="caret"></b>
                     </a>
                         <ul class="dropdown-menu">
-                            <li><a href="@routes.Orders.showCreateOrderForm" data-toggle="modal">Create order</a></li>
-                            <li><a href="@routes.Orders.showListOrders">List orders</a></li>
-                            <li><a href="#">Something else here</a></li>
-                            <li class="divider"></li>
-                            <li class="nav-header">Nav header</li>
-                            <li><a href="#">Separated link</a></li>
-                            <li><a href="#">One more separated link</a></li>
+                            <li><a href="@routes.Orders.showCreateOrderForm" data-toggle="modal">Nouvelle Commande</a></li>
+                            <li><a href="@routes.Orders.showListOrders">Liste de Commandes</a></li>
+                            @*<li><a href="#">Something else here</a></li>*@
+                            @*<li class="divider"></li>*@
+                            @*<li class="nav-header">Nav header</li>*@
+                            @*<li><a href="#">Separated link</a></li>*@
+                            @*<li><a href="#">One more separated link</a></li>*@
                         </ul>
                     </li>
-                    <li><a href="#contact">Contact</a></li>
+                    <li><a href="#factures">Factures</a></li>
+                    @if(user.admin==1){
+                    <li class="dropdown">
+                        <a href="" class="dropdown-toggle" data-toggle="dropdown">Utils<b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="@routes.AccountCreation.createAccountForm">Créer Utilisateur</a></li>
+                        </ul>
+                    </li>}
                 </ul>
             </div><!--/.nav-collapse -->
         </div>

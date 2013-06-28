@@ -1,3 +1,7 @@
+function MainCtrl($scope,$http){
+
+}
+
 function GetLinesCtrl($scope, $http){
 
   var kg=0;
@@ -37,7 +41,7 @@ function GetProductsCtrl($scope, $http, $filter){
 
     // ajax request for products in database
     // TODO user id is hard coded, must correspond for current user loged in
-    $http.get('/catalogue/json?id=1').success(function(data){
+    $http.get('/catalogue/json?id='+$scope.customer_id).success(function(data){
     $scope.products =  data;
         $scope.search();
     });
@@ -113,7 +117,7 @@ function GetProductsCtrl($scope, $http, $filter){
         $scope.orders=[];
 
         $scope.current_product_id = product._1
-
+        if($scope.isAdmin == 1){
         $http.get('/getorders').success(function(data){
 
             if (!$.isEmptyObject(data)){
@@ -127,6 +131,22 @@ function GetProductsCtrl($scope, $http, $filter){
             else
                 $('#addAlertModal').modal('toggle');
         });
+        }
+        else {
+            $http.get('/getorders/customer?id='+$scope.customer_id).success(function(data){
+
+                if (!$.isEmptyObject(data)){
+//               for (var item in data ){
+//                   if(item.fk_statut == 0)
+//                   $scope.orders.push(item);
+//               }
+                    $scope.orders=data
+                    $('#orderChoice').modal('toggle');
+                }
+                else
+                    $('#addAlertModal').modal('toggle');
+            });
+        }
     }
  /*insert line to order from catalog*/
     $scope.insertProduct = function (){
@@ -219,6 +239,53 @@ function OrderCtrl($scope,$http, calculateTotalQtyService){
         $scope.total_kg = total_kg ;
         $scope.total_piece = total_piece;
 
+    }
+}
+// controller for order pdf  template generation
+
+function OrderPdfTplCtrl($scope, $http){
+    $scope.total_piece = 0;
+    $scope.total_kg = 0;
+
+    //initialising order scope
+    $http.get('/order?id='+$scope.order_id).success(function(data){
+
+        $scope.order = data.ord;
+        $scope.order.customer = data.customer;
+        $scope.order.lines = data.lines;
+        $scope.setTotalQty = setTotalQty(data.lines);
+
+    });
+
+    function setTotalQty(lines){
+        var total_kg =0;
+        var total_piece = 0;
+        for(var i = 0; i<lines.length; i++){
+            if(lines[i].unity == "piece")
+                total_piece+=lines[i].qty ;
+            if(lines[i].unity == "kg")
+                total_kg+=lines[i].qty ;
+        }
+        $scope.total_kg = total_kg ;
+        $scope.total_piece = total_piece;
+
+    }
+}
+
+// List Orders Controller, fetch orders of the customer or all orders if admin
+
+function ListOrdersCtrl($scope,$http){
+    if($scope.user.admin == 1){
+        $http.get('/getorders').success(function(data){
+               $scope.orders=data;
+        });
+    }
+    else {
+        $http.get('/getorders/customer?id='+$scope.user.customer_id).success(function(data){
+
+                $scope.orders=data
+
+        });
     }
 }
 

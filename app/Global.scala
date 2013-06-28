@@ -26,7 +26,7 @@ object Global extends GlobalSettings {
 
     if (Users.findAll.isEmpty) {
       Seq(
-        Users("test@test.com", "12345", 1)
+        Users("test@test.com", "12345", 1,Some(1))
 
       ) foreach Users.create
     }
