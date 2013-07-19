@@ -1,0 +1,22 @@
+@(user : Users)
+
+@main("List of suppliers", user){
+ <div class="row-fluid">
+    <div class="span12 list-suppliers" ng-controller="SupplierCtrl">
+        <table class="table table-striped">
+            <thead>
+                <tr><th>Fournisseur</th><th>Address</th><th>Telephones</th><th>Email</th></tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="supplier in suppliers">
+                    <td>{{ supplier.name }}</td>
+                    <td>{{ supplier.address }}</td>
+                    <td>{{ supplier.tel }}</td>
+                    <td>{{ supplier.email }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+ </div>
+
+}

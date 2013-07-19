@@ -1,4 +1,4 @@
-import models.Users
+import models.{Product, ProductTable, Users}
 import org.squeryl.adapters.{H2Adapter, PostgreSqlAdapter, MySQLAdapter}
 import org.squeryl.internals.DatabaseAdapter
 import org.squeryl.{Session, SessionFactory}
@@ -6,6 +6,9 @@ import play.api.db.DB
 import play.api.GlobalSettings
 
 import play.api.Application
+import play.api.db.slick.Config.driver.simple._
+import play.api.db.slick._
+import play.api.Play.current
 
 /**
  * Created with IntelliJ IDEA.
@@ -30,9 +33,20 @@ object Global extends GlobalSettings {
 
       ) foreach Users.create
     }
+
+    play.api.db.slick.DB.withSession { implicit session =>
+      if (ProductTable.count == 0) {
+          Seq(
+            Product(None, "some ref", "some label","some desc.","image url","kg",
+              None,1,Some("Some manufacture"),Some("Suppl. Ref."), false, 5.5, 7.99, 14.99)
+          ).foreach(ProductTable.insert)
+      }
+    }
+
   }
 
   def getSession(adapter:DatabaseAdapter, app: Application) = Session.create(DB.getConnection()(app), adapter)
+
 
 }
 

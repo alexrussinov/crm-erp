@@ -19,6 +19,8 @@ object ApplicationBuild extends Build {
       "org.jsoup" % "jsoup" % "1.7.2",
       "com.typesafe" %% "play-plugins-mailer" % "2.1.0",
       "pdf" % "pdf_2.10" % "0.5",
+
+      "com.typesafe.play" %% "play-slick" % "0.3.3",
       "mysql" % "mysql-connector-java" % "5.1.18"
     )
     // Only compile the bootstrap bootstrap.less file and any other *.less file in the stylesheets directory

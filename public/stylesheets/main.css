@@ -103,6 +103,11 @@ text-align : center;
     padding-top: 20px;
 }
 
+div.list-suppliers {
+    width : 95%;
+    margin-top: 60px;
+}
+
 /*[class="span10 main"] {*/
   /*background-color: #eef0f0;*/
   /*margin-bottom: 10px;*/

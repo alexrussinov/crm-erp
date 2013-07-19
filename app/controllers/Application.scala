@@ -4,6 +4,8 @@ import models._
 import play.api._
 import data.Form
 import play.api.data.Forms._
+import data._
+import play.api.data.validation.Constraints._
 import db.DB
 import play.api.mvc._
 import play.api.mvc.Results._
@@ -60,7 +62,7 @@ object Application extends Controller with LoginLogout with AuthConf with Auth{
 
   /** Alter the login page action to suit your application. */
   def login = Action { implicit request =>
-    Ok(views.html.login(loginForm, Users("", "", 0)))
+    Ok(views.html.login(loginForm, Users("", "", 0,Some(0))))
   }
 
   /**
@@ -89,7 +91,7 @@ object Application extends Controller with LoginLogout with AuthConf with Auth{
    */
   def authenticate = Action { implicit request =>
     loginForm.bindFromRequest.fold(
-      formWithErrors => BadRequest(views.html.login(formWithErrors, Users("","", 0))),
+      formWithErrors => BadRequest(views.html.login(formWithErrors, Users("","", 0,Some(0)))),
       user => gotoLoginSucceeded(user.get.id)
     )
   }
@@ -103,6 +105,44 @@ object Application extends Controller with LoginLogout with AuthConf with Auth{
       )
     ).as(JAVASCRIPT)
   }
+
+
+  // create new supplier
+  // TODO Create supplier form doesn't work
+
+  val createsupplierform : Form[Supplier] = Form(
+  mapping(
+  "name" -> nonEmptyText,
+  "address"-> nonEmptyText,
+  "tel" -> nonEmptyText,
+  "email"-> email.verifying(nonEmpty)
+  )(Supplier.apply)(Supplier.unapply)
+  )
+
+  def createSupplierForm = authorizedAction(Administrator){ user => implicit request =>
+      Ok(views.html.createsupplier(createsupplierform,user))
+  }
+
+  def createSupplier = authorizedAction(Administrator) { user => implicit request =>
+  createsupplierform.bindFromRequest.fold(
+  formWithErrors => BadRequest(views.html.createsupplier(formWithErrors,user)),
+  supplier => {
+    Supplier(supplier.name,supplier.address, supplier.tel, supplier.email).create_supplier
+    Redirect(routes.Application.listSuppliers)
+  }
+  )
+
+
+  }
+
+  def listSuppliers = authorizedAction(Administrator) {user => implicit request =>
+             Ok(views.html.listsuppliers(user))
+  }
+
+  def getSuppliersInJson = Action {
+        Ok(Supplier.getAllInJson)
+  }
+
 
 
 }

@@ -14,7 +14,7 @@ import org.mindrot.jbcrypt.BCrypt
  * Time: 18:47
  * To change this template use File | Settings | File Templates.
  */
-case class Users (email : String, pass: String, admin : Int, customer_id: Option[Int]= None ) extends KeyedEntity[Int]{
+case class Users (email : String, pass: String, admin : Int, customer_id: Option[Int] ) extends KeyedEntity[Int]{
    val id : Int = 0
 
 
@@ -56,7 +56,7 @@ object Users extends Schema {
 
   def create (user : Users): Option[Users] = {
 
-    val uss = inTransaction(usersTable insert Users(user.email,BCrypt.hashpw(user.pass, BCrypt.gensalt()),1 ) )
+    val uss = inTransaction(usersTable insert Users(user.email,BCrypt.hashpw(user.pass, BCrypt.gensalt()),user.admin,user.customer_id) )
 
     Some(uss)
   }

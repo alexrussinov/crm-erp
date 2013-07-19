@@ -289,6 +289,12 @@ function ListOrdersCtrl($scope,$http){
     }
 }
 
+function SupplierCtrl($http,$scope){
+    $http.get('/suppliers/json').success(function(data){
+        $scope.suppliers = data;
+    })
+}
+
 // TODO may be it would be better to realise search et pagination on server side
 // TODO add filter by group, by manufacturer
 // TODO Action create new order is possible only if there are no unvalidated orders, or Alert!!!

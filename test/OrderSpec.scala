@@ -14,6 +14,10 @@ import java.sql.Timestamp
 import play.test.Helpers
 import scala.Some
 import scala.Some
+import play.api.db.slick.Config.driver.simple._
+import play.api.db.slick._
+import play.api.Play.current
+
 
 
 /**
@@ -56,7 +60,7 @@ class OrderSpec extends FlatSpec with ShouldMatchers{
   "A User" should "be creatable" in {
     running(FakeApplication(additionalConfiguration = inMemoryDatabase()))
     {
-     val user_id = Users.createUser("test@test.com", "12345",1)
+     val user_id = Users.createUser("test@test.com", "12345",1,Some(1))
       val user = Users.authenticate("test@test.com", "12345")
         user_id should not equal(0)
         user.isDefined
@@ -290,12 +294,34 @@ class OrderSpec extends FlatSpec with ShouldMatchers{
       Json.stringify(orders).length should equal(2)
     }
   }
-  "A request to sendOrder" should "respond with Action" in {
+//  "A request to sendOrder" should "respond with Action" in {
+//    running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
+//      val result = controllers.Orders.sendOrder(1)(FakeRequest())
+//      status(result) should equal(OK)
+//    }
+//  }
+
+  "A Supplier" should "be creatable" in {
     running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
-      val result = controllers.Orders.sendOrder(1)(FakeRequest())
-      status(result) should equal(OK)
+
+     val id : Int = Supplier("Bac-Pol", "some address", "some tel", "some@email.com").create_supplier
+     val supplier = Supplier.getById(id)
+      supplier.id should not equal(0)
     }
   }
+
+  "A Product" should "be creatable" in {
+    running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
+     DB.withSession { implicit session =>
+       ProductTable.insert(
+         Product(None, "some ref", "some label","some desc.","image url","kg",
+           None,1,Some("Some manufacture"),Some("Suppl. Ref."), false, 5.5, 7.99, 14.99))
+       val prod  = for (p <- ProductTable) yield p
+      prod.first.id.get should equal(1)
+    }
+  }
+  }
+
 
 }
 

@@ -1,0 +1,35 @@
+@(form : Form[Supplier], user : Users)
+@import helper.twitterBootstrap._
+
+@main("Supplier creation", user){
+    @helper.form(routes.Application.createSupplier, args = 'class -> "form-horizontal") {
+      <fieldset style="margin-top: 60px">
+          <legend>New supplier</legend>
+          <div class="control-group">
+              <div class="controls">
+              @helper.inputText(form("name"), '_label -> "Supplier Name ", '_help -> "Enter supplier name.")
+              </div>
+          </div>
+          <div class="control-group">
+              <div class="controls">
+              @helper.inputText(form("address"), '_label -> "Address ", '_help -> "Enter supplier addrress.")
+              </div>
+          </div>
+          <div class="control-group">
+              <div class="controls">
+              @helper.inputText(form("tel"), '_label -> "Telephones ", '_help -> "Enter supplier telephones.")
+              </div>
+          </div>
+          <div class="control-group">
+              <div class="controls">
+              @helper.inputText(form("email"), '_label -> "Email ", '_help -> "Enter a valid email address.")
+              </div>
+          </div>
+          <div class="control-group">
+              <div class="controls">
+              <input type="submit" class="btn primary" value="Create ">
+              </div>
+          </div>
+      </fieldset>
+    }
+}

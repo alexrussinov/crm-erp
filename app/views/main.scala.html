@@ -65,6 +65,8 @@
                         <a href="" class="dropdown-toggle" data-toggle="dropdown">Utils<b class="caret"></b></a>
                         <ul class="dropdown-menu">
                             <li><a href="@routes.AccountCreation.createAccountForm">Créer Utilisateur</a></li>
+                            <li><a href="@routes.Application.createSupplierForm">Créer Fournisseur</a></li>
+                            <li><a href="@routes.Application.listSuppliers">List Fournisseur</a></li>
                         </ul>
                     </li>}
                 </ul>
@@ -76,11 +78,12 @@
         <div class="span2 sidebar2">
         </div>
         <!--/span-->
-        <div class="span10 main">
+        <div class="span8 main">
         <!--page content here-->
             @content
         </div>
         <!--/span-->
+        <div class="span2"></div>
     </div>
     <!--/row-->
 </div>

@@ -295,6 +295,7 @@ object Orders extends  Controller with LoginLogout with AuthConf with Auth with 
 
     // send the email
     email.send()
+
     Ok("Email sended correctly")
 }
  // generates pdf for the order and render it in the browser
