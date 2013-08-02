@@ -6,7 +6,7 @@
 
 @helper.form(routes.AccountCreation.createAccount, args = 'class -> "form-horizontal") {
 <script src="@routes.Assets.at("javascripts/customers.min.js")" type="text/javascript"></script>
-
+<div class="create-customer">
 <fieldset>
     <legend>Create new user</legend>
 <div class="control-group">
@@ -41,5 +41,7 @@
       </div>
         </div>
 </fieldset>
+</div>
+
 }
 }

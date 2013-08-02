@@ -1,0 +1,56 @@
+
+div.customer-info{
+
+    font-weight: normal;
+    float: right;
+    background-color: #c4c6c6;
+    padding: 10px;
+}
+span{font-weight: bold;}
+
+div.company-info {
+    width: 100%;
+    font-weight: normal;
+    display: inline;
+}
+
+span{
+    /*font-size: larger;*/
+}
+
+div.tpl-header{
+    width: 100%;
+    text-align: right;
+    padding-top: 20px;
+}
+div.wrapper{
+    width:100%;
+    clear: both;
+}
+
+div.lines{
+    padding-top: 40px;
+    width: 100%;
+    clear: both;
+}
+div.qty{
+    width: 30%;
+}
+div.total{
+    float: right;
+    clear: both;
+}
+table,th,tr,td{
+    border:1px solid black;
+    border-collapse: collapse;
+}
+
+
+#sn{width: 2.5%;}
+#ref{width: 10%;}
+#label{width: 30%;}
+#tva{width: 2.5%;}
+#qty{width: 2.5%;}
+#unity{width: 2.5%;}
+#price{width: 7%;}
+#total{width: 7%;}

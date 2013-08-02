@@ -1,58 +1,60 @@
-@(form: Form[Option[Users]], user : Users)(implicit flash: Flash)
+@(form: Form[Option[Users]], user: Users)(implicit flash: Flash)
 @import helper.twitterBootstrap._
-        @main("Login you", user){
-@helper.form(routes.Application.authenticate, args = 'class -> "form-horizontal") {
-<!-- Modal -->
-<script>
-    $(function(){
-    $('#loginModal').modal('toggle');
-    });
-</script>
-<div id="loginModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-      <div class="modal-header">
-          <!--<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>-->
-          <h3 id="myModalLabel">Log in</h3>
-      </div>
+@main("Login you", user) {
+    @helper.form(routes.Application.authenticate, args = 'class -> "form-horizontal") {
+        <!-- Modal -->
+        <script>
+            $(function(){
+            $('#loginModal').modal('toggle');
+            });
+        </script>
+        <div id="loginModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                            <!--<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>-->
+                        <h3 id="myModalLabel">CONNECTEZ-VOUS</h3>
+                    </div>
 
- <div class="modal-body">
-    @form.globalError.map { error =>
-       <p class="error">
-        @error.message
-      </p>
-      }
+                    <div class="modal-body">
+                        @form.globalError.map { error =>
+                            <p class="error">
+                                @error.message
+                            </p>
+                        }
 
-     @flash.get("success").map { message =>
-       <p class="success">
-         @message
-       </p>
-       }
-  <fieldset>
-    <!--<legend>Sign in</legend>-->
-    <div class="control-group">
-      <div class="controls">
-       <input type="email" name="email" placeholder="Email" id="email" value="@form("email").value">
-      </div>
-    </div>
+                        @flash.get("success").map { message =>
+                            <p class="success">
+                                @message
+                            </p>
+                        }
+                        <div class="form-group">
+                                <!--<legend>Sign in</legend>-->
+                            <div class="col-lg-4"></div>
+                            <div class="col-lg-8">
+                                 <input type="email" name="email" placeholder="Email" id="email" value="@form("email").value">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                                <div class="col-lg-4"></div>
+                                <div class="col-lg-8">
+                                    <input type="password" name="password" id="password" placeholder="Password">
+                                </div>
+                        </div>
 
-    <div class="control-group">
-      <div class="controls">
-      <input type="password" name="password" id="password" placeholder="Password">
-      </div>
-    </div>
+                    </div>
 
-      </fieldset>
+                    <div class="modal-footer">
+                        <div class="control-group">
+                            <div class="controls">
+                                <button type="submit" class="btn" id="loginbutton">Login</button>
+                            </div>
+                        </div>
+                    </div>
 
- </div>
-
-    <div class="modal-footer">
-      <div class="control-group">
-        <div class="controls">
-          <button type="submit" class="btn" id="loginbutton">Login</button>
-        </div>
-      </div>
-    </div>
-
-  <!--</fieldset>-->
-</div>
+                        <!--</fieldset>-->
+                </div> <!-- content -->
+            </div> <!-- dialog -->
+        </div> <!-- modal -->
+    }
 }
-<!--}-->

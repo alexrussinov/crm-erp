@@ -2,12 +2,19 @@ package controllers
 
 import play.api.mvc._
 import jp.t2v.lab.play2.auth.{Auth, LoginLogout}
-import models.{Product, ProductTable}
+import models._
 import play.api.db.slick.Config.driver.simple._
 import play.api.db.slick._
 import play.api.libs.json._
 import play.api.libs.json.Json
+import play.api.libs.functional.syntax._
 import play.api.Play.current
+import play.api.data.Form
+import play.api.data.Forms._
+import org.scala_tools.time.Imports._
+import lib.CustomIO
+import play.api.Play
+
 
 /**
  * Created with IntelliJ IDEA.
@@ -18,13 +25,66 @@ import play.api.Play.current
  */
 object Products extends  Controller with LoginLogout with AuthConf with Auth {
 
-  def getProductsInJson = Action {
+  implicit val productWithCustomerPriceFormat = (
+    (__ \ 'id).write[Option[Int]]and
+      (__ \ 'reference).write[String]and
+      (__ \ 'label).write[String]and
+      (__ \ 'description).write[Option[String]]and
+      (__ \ 'image_url).write[Option[String]]and
+      (__ \ 'unity).write[String]and
+      (__ \ 'category_id).write[Option[Int]]and
+      (__ \ 'supplier_id).write[Int]and
+      (__ \ 'manufacture).write[Option[String]]and
+      (__ \ 'tva_rate).write[Double]and
+      (__ \ 'price).write[Double]
+    ).tupled : Writes[(Option[Int], String, String, Option[String], Option[String], String, Option[Int], Int, Option[String], Double, Double)]
+
+  def getProductsInJson = authorizedAction(NormalUser){ user => implicit request =>
     val json = DB.withSession { implicit session =>
-     val products : List[Product] = (for (p <- ProductTable) yield (p)).list
-      Json.toJson(products)
+
+      val result = ProductTable.getAllProductsWithCustomerPrices(user.customer_id.getOrElse(0))
+      Json.toJson(result)
     }
     Ok(json)
+
   }
+
+  // Action that provide a view with a form for importing products from CSV
+  def uploadProductsCsvForm = authorizedAction(Administrator){ user => implicit request =>
+    Ok(views.html.importproducts(user))
+  }
+
+  // Action that performs upload and import
+
+  def uploadFile = Action(parse.multipartFormData) { request =>
+    val result   = request.body.file("products") map {tmp =>
+    val dt  = new DateTime
+    val filename = tmp.filename
+      import java.io.File
+      tmp.ref.moveTo(new File("imports/"+filename.split("\\.")(0)+dt.toString("YYMMDDHMS")+".csv"))
+      CustomIO.getFileTree(new File("imports/")) filter (_.isFile) map (f=>Map(f.getName->("imports/"+f.getName)))
+    }
+    Ok(Json.toJson(result))
+    }
+
+   def getFilesToImportJson = Action {request =>
+     import java.io.File
+       Ok(Json.toJson(CustomIO.getFileTree(new File("imports/")) filter (_.isFile) map (f=>FileImp(f.getName,("imports/"+f.getName)))))
+   }
+
+  def importProductsFromCsv(path : String) = Action {request =>
+    val res = Imports.importFromCsvWithHeaders(path,";")
+    val products = Product.productsFromSource(res)
+    try {  DB.withSession { implicit session =>
+           products.foreach(ProductTable.insert)
+      }
+      Ok(""+products.length)
+    }
+    catch{
+      case e: Exception => BadRequest(e.toString)
+    }
+  }
+
 
 
 }

@@ -52,5 +52,9 @@ POST        /suppliers/create                 controllers.Application.createSupp
 GET         /suppliers/list                   controllers.Application.listSuppliers
 GET         /suppliers/json                   controllers.Application.getSuppliersInJson
 GET         /products/json                    controllers.Products.getProductsInJson
+GET         /products/import/upload           controllers.Products.uploadProductsCsvForm
+POST        /products/import                  controllers.Products.uploadFile
+GET         /products/import/files            controllers.Products.getFilesToImportJson
+GET         /products/import/file             controllers.Products.importProductsFromCsv(path : String)
 
 

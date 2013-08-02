@@ -4,43 +4,72 @@ body {
     /* The html and body elements cannot have any padding or margin. */
 }
 
-.row-fluid {
-    height: inherit;
-}
-
-.fill {
-    min-height: 100%;
-    height: 100%;
-    padding-left: 0px;
-    padding-right: 0px;
-}
-.sidebar2 {
-    height: inherit;
-    background-color: rgb(230, 230, 230);
-}
-
-.main {
-    height: inherit;
-}
-
-
-.sidebar {
+#wrap {
     min-height: 100%;
     height: auto !important;
     height: 100%;
-    margin-top: 60px;
-    margin-bottom: -60px;
-}
-div.products-list {
-    margin-top: 60px;
-    height: inherit;
-    max-width: 80%;
+    /* Negative indent footer by its height */
+    margin: 0 auto -60px;
+    /* Pad bottom by footer height */
+    padding: 0 0 60px;
 }
 
-div.container-list-products-table {
-    max-height: 80%;
-    overflow: auto;
+
+
+/* Set the fixed height of the footer here */
+#footer {
+    height: 60px;
+    background-color: #777777;
 }
+
+/* Lastly, apply responsive CSS fixes as necessary */
+@media (max-width: 767px) {
+    #footer {
+        margin-left: -20px;
+        margin-right: -20px;
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+}
+
+
+
+/* Custom page CSS
+-------------------------------------------------- */
+/* Not required for template or sticky footer method. */
+
+#wrap > .container {
+    padding: 60px 15px 0;
+}
+.container .credit {
+    margin: 20px 0;
+}
+
+code {
+    font-size: 80%;
+}
+
+
+/* Catalogue style
+---------------------------------------------------- */
+
+.page-totals {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    text-align: right;
+}
+
+div.products-list {
+    margin-top: 60px;
+    /*height: 80%;*/
+    /*max-height: 80%;*/
+    max-width: 100%;
+}
+
+/*div.container-list-products-table {*/
+/*max-height: 80%;*/
+/*overflow: auto;*/
+/*}*/
 .list-products-header{
     margin-top: 60px;
     max-width: 80%;
@@ -49,7 +78,8 @@ list-products-header table{
     width: 100%;
 }
 table.list-products {
-    max-height: 80%;
+    height: 200px;
+    /*max-height: 80%;*/
     width: 100%;
 }
 table.list-products tbody {
@@ -59,17 +89,23 @@ table.list-products tbody {
     /*overflow: auto;*/
 }
 
+table.list-products .photo {
+    margin-right: 10px;
+}
 /*.list-products thead {*/
-    /*display: block;*/
+/*display: block;*/
 /*}*/
 
 
+/* Order section
+----------------------------------------------*/
+
 table.order{
 
-border-collapse : collapse;
-background-color:  transparent;
-width: 100%;
-border : 1px solid #a2abc0;
+    border-collapse : collapse;
+    background-color:  transparent;
+    width: 100%;
+    border : 1px solid #a2abc0;
 }
 table.order td{
     border : 1px solid #a2abc0;
@@ -77,12 +113,12 @@ table.order td{
 }
 
 /*table.order .qty, .ref, .client, .date, .total_ht, .total_ttc{*/
-    /*width: 25%;*/
+/*width: 25%;*/
 
 /*}*/
 table.order th {
-border : 1px solid #a2abc0;
-text-align : center;
+    border : 1px solid #a2abc0;
+    text-align : center;
 }
 .list-orders {
     width: 95%;
@@ -97,10 +133,12 @@ text-align : center;
     width: 95%;
     max-height: 50%;
     overflow: auto;
+    padding: 0;
 }
 .order-controls {
     width: 95%;
     padding-top: 20px;
+    padding-bottom: 20px;
 }
 
 div.list-suppliers {
@@ -108,55 +146,21 @@ div.list-suppliers {
     margin-top: 60px;
 }
 
-/*[class="span10 main"] {*/
-  /*background-color: #eef0f0;*/
-  /*margin-bottom: 10px;*/
-  /*border-radius: 5px 5px 5px 5px;*/
-  /*box-shadow: -2px 2px 5px 2px rgba(0, 0, 0, 0.2);*/
+div.products-upload {
+    width: 95%;
+    margin-top: 60px;
+}
 
+div.create-customer {
+    margin-top: 60px;
+    max-height: 80%;
+    overflow: auto;
+}
 
+i.edit-line, .delete-line, .update-line, .cancel-line {
+    cursor: pointer;
+}
 
-    /*line-height: 80px;*/
- /*text-align: center;*/
-/*}*/
-
-/*[class="span2 sidebar"]{*/
- /*background-color: #eef0f0;*/
- /*line-height: 100px;*/
- /*text-align: center;*/
- /*box-shadow: -2px 2px 5px 2px rgba(0, 0, 0, 0.2);*/
-
-/*}*/
-
-/*[class="smallInput"]{*/
-    /*width: 30px;*/
-/*}*/
-
-/*[class="table table-bordered"]{*/
-    /*background-color: WhiteSmoke;*/
-/*}*/
-
-/*[class= "header_lines"]{*/
-/*background-color: #a2abc0;*/
-    /*text-align: center;*/
-/*}*/
-
-/*[class= "add_line_header"]{*/
-    /*background-color: #a2abc0;*/
-    /*height: 25px;*/
-/*}*/
-
-/*[class= "add_line"] {*/
-    /*box-shadow: -1px 2px 5px 1px rgba(0, 0, 0, 0.7);*/
-
-/*}*/
-/*#order_controls {*/
-    /*margin: 5px;*/
-    /*text-align: right;*/
-/*}*/
-
-/*#add_line_form {*/
-/*padding: 10px;*/
-    /*background-color: WhiteSmoke;*/
-/*}*/
-
+input.line-qty {
+    width: 3em;
+}

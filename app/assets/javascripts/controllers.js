@@ -35,7 +35,7 @@ function GetLinesCtrl($scope, $http){
 
 // Retrieve products from database
 function GetProductsCtrl($scope, $http, $filter){
-    $scope.itemsPerPage = 20;
+    $scope.itemsPerPage = 15;
     $scope.pagedItems = [];
     $scope.currentPage = 0;
 
@@ -115,9 +115,13 @@ function GetProductsCtrl($scope, $http, $filter){
    /*add product action from catalog*/
     $scope.addProduct = function (product) {
         $scope.orders=[];
+          //we use this with old implementation of json response from the server
+        //$scope.current_product_id = product._1
 
-        $scope.current_product_id = product._1
-        if($scope.isAdmin == 1){
+        //for new json implementation
+        $scope.current_product_id = product.id
+
+        if($scope.user.admin == 1){
         $http.get('/getorders').success(function(data){
 
             if (!$.isEmptyObject(data)){
@@ -292,9 +296,17 @@ function ListOrdersCtrl($scope,$http){
 function SupplierCtrl($http,$scope){
     $http.get('/suppliers/json').success(function(data){
         $scope.suppliers = data;
-    })
+    });
+}
+
+function ImportProductsFromCsvCtrl($http,$scope){
+    $http.get('/products/import/files').success(function(data){
+
+        $scope.filesToImport = data;
+    });
 }
 
 // TODO may be it would be better to realise search et pagination on server side
 // TODO add filter by group, by manufacturer
 // TODO Action create new order is possible only if there are no unvalidated orders, or Alert!!!
+// TODO Create controller to show files for import from in importproducts.scala.html

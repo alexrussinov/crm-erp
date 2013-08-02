@@ -14,6 +14,8 @@ import play.api.Play._
 import play.api.mvc.Results._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
+import play.api.db.slick.DB
+
 //import com.codahale.jerkson.Json
 import org.squeryl.PrimitiveTypeMode._
 import scala.Some
@@ -166,9 +168,16 @@ object Orders extends  Controller with LoginLogout with AuthConf with Auth with 
         val qty = (json \ "qty").asOpt[String]
 
         val client : Customer = Customer.getById(client_id.head )
-        val product_price : ProductPrice = ProductDoll.getProductPrice(product_id.head, client.price_level.head)
-        val product : ProductDoll = ProductDoll.getById(product_id.head)
-        val line_id =OrderLine(order_id.head,product.id,product.ref.head,product.label.head,product.tva_tx.head, qty.head.toDouble, product.unite,product_price.price,product_price.price_ttc).insertLine
+        //val product_price : ProductPrice = ProductDoll.getProductPrice(product_id.head, client.price_level.head)
+        // we have used this to work with dolibarr database
+        //val product : ProductDoll = ProductDoll.getById(product_id.head)
+        //val line_id =OrderLine(order_id.head,product.id,product.ref.head,product.label.head,product.tva_tx.head, qty.head.toDouble, product.unite,product_price.price,product_price.price_ttc).insertLine
+
+        // these new implementation  to use with native database
+        val product : ProductCustomer = DB.withSession { implicit session =>
+        ProductTable.getProductById(product_id.head,client.id)
+        }
+        val line_id = OrderLine(order_id.head,product.id.get,product.reference,product.label,product.tva_rate, qty.head.toDouble, product.unity, product.price, product.price_ttc).insertLine
         val order = Order.getByIdInJson(order_id.head)
         Ok(order).as(JSON)
     }.getOrElse{BadRequest}
@@ -320,6 +329,7 @@ object Orders extends  Controller with LoginLogout with AuthConf with Auth with 
 
 //  TODO PDF generation doesn't work
 //  TODO list of orders must depend on type of the user (admin or  normal user)
+// TODO Doesn't count total_ttc + Total qty corectly
 
 }
 

@@ -87,7 +87,7 @@ order.directive('orderHeader', function($http){
 //             }
 //          });
         },
-        template: '<div class="span12 order-summary">' +
+        template: '<div class="col-lg-12 order-summary">' +
             '<table id="order_totals" class="order">' +
             '<tr><td class="ref">Ref.</td><td>{{order.ref}}</td></tr>' +
             '<tr><td class="client">Client:</td><td>{{order.customer.nom}}</td></tr>' +

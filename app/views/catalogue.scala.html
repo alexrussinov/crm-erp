@@ -1,99 +1,89 @@
-@(user : Users)
-@main("Catalogue", user){
+@(user: Users)
+@main("Catalogue", user) {
     @*<script src="@routes.Assets.at("javascripts/controllers.js")" type="text/javascript"></script>*@
-    <div class="span12 products-list"  ng-init="customer_id=@user.customer_id.getOrElse(0)">
-      <div ng-controller="GetProductsCtrl">
-        <div><input type="text" class="span2 search-query" ng-model="query" ng-change="search()"><hr></div>
-        <div class="container-list-products-table">
-            <table class="list-products">
-                @*<thead>*@
-                    @*<tr>*@
-                        @*<th></th><th>Ref.</th><th>Label</th><th>TVA</th><th>Prix</th><th></th>*@
-                    @*</tr>*@
-                @*</thead>*@
-                <tbody>
-                    <tr ng-repeat="product in pagedItems[currentPage]" id="{{product._1}}">
-                        <td><img src=""></td>
-                        <td>{{product._2}}</td>
-                        <td>{{product._3}}</td>
-                        <td>{{product._5}}</td>
-                        <td><button class="btn-small" ng-click="addProduct(product)"><i class="icon-shopping-cart"></i></button> </td>
-                    </tr>
-                </tbody>
-                <tfoot>
-                    <td colspan="6">
-                        <div class="pagination pull-right">
-                            <p>{{filteredItems.length}} Product(s)
-                               {{currentPage +1}} sur {{pagedItems.length}}</p>
-                            <ul>
-                                <li ng-class="{disabled: currentPage == 0}">
-                                    <a href ng-click="prevPage()">« Prev</a>
-                                </li>
-                                @*<li ng-repeat="n in range(products.length)"*@
-                                @*ng-class="{active: n == currentPage}"*@
-                                @*ng-click="setPage()">*@
-                                    @*<a href ng-bind="n + 1">1</a>*@
-                                @*</li>*@
-                                <li ng-class="{disabled: currentPage == pagedItems.length - 1 || pagedItems.length <= itemsPerPage}">
-                                    <a href ng-click="nextPage()">Next »</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </td>
-                </tfoot>
-            </table>
+    <div class="col-lg-12 products-list" ng-init="customer_id=@user.customer_id.getOrElse(0)">
+        <div ng-controller="GetProductsCtrl">
+            <div class="row">
+                <div class="col-lg-4">
+                <div class="input-group">
+                    <span class="input-group-addon input-small"><i class="glyphicon glyphicon-search"></i></span>
+                    <input type="text" class="form-control input-small" ng-model="query" ng-change="search()">
+                </div>
+                </div>
+            </div>
+            <div><hr></div>
+            @*<div><input type="text" class="form-control" ng-model="query" ng-change="search()"><hr></div>*@
+            <div class="row">
+                <div class="container-list-products-table">
+                    <table class="list-products">
+                        <tr ng-repeat="product in pagedItems[currentPage]" id="{{product.id}}">
+                            <td><img src=""><i class="glyphicon glyphicon-camera photo"></i> </td>
+                            <td>{{product.reference}}</td>
+                            <td>{{product.label}}</td>
+                            <td>{{product.price}}</td>
+                            <td><button class="btn-small" ng-click="addProduct(product)"><i class="glyphicon glyphicon-shopping-cart"></i></button> </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-6"><div class="page-totals"><p>{{filteredItems.length}} Product(s) {{currentPage +1}} sur {{pagedItems.length}}</p></div></div>
+                <div class="col-lg-6">
+                    <ul class="pager">
+                        <li ng-class="{disabled: currentPage == 0}">
+                            <a href ng-click="prevPage()">« Prev</a>
+                        </li>
+                        <li ng-class="{disabled: currentPage == pagedItems.length - 1 || pagedItems.length <= itemsPerPage}">
+                            <a href ng-click="nextPage()">Next »</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </div>
-              <!-- Modal Choose an order -->
-          <div id="orderChoice" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-              <div class="modal-header">
-                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                  <h2 id="myModalLabel">Choisisez une commande...</h2>
-              </div>
-              <div class="modal-body">
-                  @*<table class="table">*@
-                      @*<thead><th></th><th>Ref.</th><th>Date</th><th>Total HT</th></thead>*@
-                      @*<tbody>*@
-                      @*<tr ng-repeat="order in orders">*@
-                          @*<td><input type="checkbox" value=''></td>*@
-                          @*<td id='{{order.id}}'>{{order.ref}}</td>*@
-                          @*<td>{{order.order_date}}</td>*@
-                          @*<td>{{order.total_ht}}</td>*@
-                          @*<td><input type="text" name="qty"></td>*@
-                      @*</tr>*@
-                      @*</tbody>*@
-                  @*</table>*@
-                  <select class="select-order" ng-model="order" ng-options="o.ref for o in orders">
-                      @*<option ng-repeat="order in orders" value="{{order.id}}">{{order.ref}} {{order.order_date}}</option>*@
-                  </select>
-                  <input type="text" ng-required="Indiquez la quantité" ng-model="current_order_product_qty">
-                  <input type="hidden" value="{{order.fk_soc}}" ng-model="current_order_client_id">
-              </div>
-              <div class="modal-footer">
-                  <button class="btn" data-dismiss="modal" aria-hidden="true">Anuler</button>
-                  <button class="btn btn-primary" ng-click="insertProduct()">Ajouter</button>
-              </div>
-          </div>
+    </div>
 
-      </div> @*close ng-controller*@
-    </div>   @*close span12 *@
-
-    <!-- Modal Alert There is no created orders yet -->
-    <div id="addAlertModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <!-- Modal Choose an order -->
+    <div id="orderChoice" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+     <div class="modal-dialog">
+      <div class="modal-content">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            <h2 id="myModalLabel">Attention, there is no created order yet...</h2>
+            <h3 id="myModalLabel">Choisisez une commande...</h3>
         </div>
         <div class="modal-body">
-            <p>You can't add a product because you have not yet created any orders. To create an order, click "Create order" button
-            or use menu "Order/Create Order" then you can add products to any created order.
-            </p>
+            <select class="select-order" ng-model="order" ng-options="o.ref for o in orders">
+                <option ng-repeat="order in orders" value="{{order.id}}">{{order.ref}} {{order.order_date}}</option>
+            </select>
+            <input type="text" ng-required="Indiquez la quantité" ng-model="current_order_product_qty">
+            <input type="hidden" value="{{order.fk_soc}}" ng-model="current_order_client_id">
         </div>
         <div class="modal-footer">
-            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-            <a href="@routes.Orders.showCreateOrderForm" class="btn btn-primary">Create an Order</a>
+            <button class="btn" data-dismiss="modal" aria-hidden="true">Anuler</button>
+            <button class="btn btn-primary" ng-click="insertProduct()">Ajouter</button>
+        </div>
+       </div>
+      </div>
+     </div>
+    <!-- Modal Alert There is no created orders yet -->
+    <div id="addAlertModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 id="myModalLabel">Attention, il n'y a pas de commandes en cours...</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Vous ne pouvez pas rajouter un produit car vous n'avez pas encore créé la commande. Pour créer la commande, clickez sur "Nouvelle commande" button
+                        ou utilisez le menu "Commandes/Nouvelle commande" alors vous serez en mesure d'ajouter des produits à une commande ouverte.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn" data-dismiss="modal" aria-hidden="true">Fermer</button>
+                    <a href="@routes.Orders.showCreateOrderForm" class="btn btn-primary">Nouvelle Commande</a>
+                </div>
+            </div>
         </div>
     </div>
     @*TODO Add custom search et pagination, total found in the bottom*@
-    @*TODO  Realize add the product to the order functionality*@
-
+    @*TODO Realize add the product to the order functionality*@
 }

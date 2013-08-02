@@ -57,6 +57,14 @@ create table t_supplier (
      email varchar(128)
 );
 
+create sequence s_customer_discount_id;
+create table t_customer_discount(
+    id INT default nextval ('s_customer_discount_id'),
+    customer_id int,
+    supplier_id int,
+    discount double
+);
+
 # --- !Downs
 
 drop table "t_products";
@@ -68,4 +76,7 @@ drop table t_order;
 drop table t_orderlines;
 drop sequence s_supplier_id;
 drop table t_supplier;
+drop sequence s_customer_discount_id;
+drop t_customer_discount;
+
 

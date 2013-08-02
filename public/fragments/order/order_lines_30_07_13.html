@@ -1,0 +1,36 @@
+<div class="col-lg-12 fiche" id="lines">
+    <!--<form ng-submit="updateLine()" id="update_line" method="post"></form>-->
+    <table class="table table-bordered" id="order_lines">
+        <thead class="header_lines">
+        <th>S.N.</th>
+        <th>Ref.</th>
+        <th>Label</th>
+        <th>Tva</th>
+        <th>Qty</th>
+        <th>Unite</th>
+        <th>Prix HT</th>
+        <th>Total HT</th>
+        <th></th>
+        </thead>
+        <tbody ng-switch="lines.length">
+        <tr id="no_record" ng-show="order.lines.length==0"><th colspan="9"  style="text-align: center" >Votre commande est vide....</th></tr>
+        <tr ng-repeat="line in order.lines">
+            <td>{{$index+1}}</td>
+            <td class='line-ref'>{{line.product_ref}}</td>
+            <td>{{line.label}}</td>
+            <td class='line-tva'>{{line.tva}}</td>
+            <td class='line-qty'><editable text="line.qty"></editable></td>
+            <td class='line-unity'>{{line.unity}}</td>
+            <td class='line-prix_ht'>{{line.prix_ht}}</td>
+            <td>{{(line.prix_ht*line.qty).toFixed(2)}}</td>
+            <td class='control-buttons' ng-hide="editMode">
+                <button type="button"  class='btn btn-default  editline' ng-click="editMode = true"><i class='glyphicon glyphicon-edit'></i></button>
+                <button type="button" class='btn btn-default  deleteline' ng-click="deleteLine($index)"><i class='glyphicon glyphicon-trash'></i></button>
+            </td>
+            <td class='control-buttons' ng-show="editMode">
+                <button ng-click="updateLine(line,order.id)" class='btn' ><i class='glyphicon glyphicon-ok'></i></button>
+                <button id='cancel' class='btn cancel' ng-click="editMode = false" ><i class='glyphicon glyphicon-remove'></i> </button></td>
+        </tr>
+        </tbody>
+    </table>
+</div>

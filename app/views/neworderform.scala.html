@@ -2,60 +2,73 @@
 @*TODO We must verify is a user administrator and if no, choose automaticaly client as user*@
 @import helper.twitterBootstrap._
 @main("Create order", user){
-@helper.form(routes.Orders.createOrder, args = 'class -> "form-horizontal") {
+    @helper.form(routes.Orders.createOrder, args = 'class -> "form-horizontal") {
 
-<!-- Modal -->
-<script src="@routes.Assets.at("javascripts/customers.min.js")" type="text/javascript"></script>
-@*<script src="@routes.Assets.at("javascripts/controllers.js")" type="text/javascript"></script>*@
+        <!-- Modal -->
+        <script src="@routes.Assets.at("javascripts/customers.min.js")" type="text/javascript"></script>
         <script>
             $(function(){
             $('#myModal').modal('toggle');
-            $('#datepicker').datepicker()
+            $( "#datepicker" ).datepicker({
+//            showOn: "button",
+//            buttonImage: "",
+//            buttonImageOnly: true,
+            dateFormat: "yy-mm-dd"
             });
+            });
+
         </script>
-<div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-        <h3 id="myModalLabel">Nouvelle commande</h3>
-    </div>
+        <div id="myModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <h4 id="myModalLabel">Nouvelle commande</h4>
+                    </div>
 
-    <div class="modal-body">
-        <div class="control-group">
-            @if(user.admin == 1){
-            <div class="controls">
-                <select name="societe" id="societe"></select>
+                    <div class="modal-body">
+                        <div class="form-group">
+                        @if(user.admin == 1){
+                                <label class="col-lg-2"></label>
+                                <div class="col-lg-10">
+                                <select class="form-control" name="societe" id="societe"></select>
+                                </div>
+                        } else {
+                                <div class="col-lg-2"></div>
+                                <div class="col-lg-10">
+                                <p>@user.email</p>
+                                <input type="hidden" name="societe" value="@user.customer_id">
+                                </div>
+                        }
+
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-lg-2 control-label">Date</label>
+                            <div class="col-lg-10">
+                            <div class="input-append">
+                                <input class="date-picker" id="datepicker" type="text" name="order_date" required/>
+                                <label for="datepicker" class="add-on"><i class="glyphicon glyphicon-calendar"></i></label>
+                            </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            @*helper.inputText(form("note"),'_class -> "form-control",'_label -> "Note")*@
+                            <label for="note" class="col-lg-2 control-label">Note</label>
+                            <div class="col-lg-10">
+                            <input type="text" name="note" id="note" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <a href="@routes.Application.index" class="btn"  aria-hidden="true">Cancel</a>
+                            <!--  <button class="btn btn-primary">Create</button>  -->
+                        <input type="submit" class="btn btn-default" value="Create ">
+                    </div>
+                </div>
             </div>
-            } else {
-            <div class="controls">
-               <p>@user.email</p>
-                <input type="hidden" name="societe" value="@user.customer_id">
-            </div>
-            }
-
         </div>
-
-        <div class="control-group">
-            <div class="controls">
-               <div class="input-append date" id="datepicker" data-date="<script>new Date();</script>"data-date-format="yyyy-mm-dd">
-                  <input  type="text" name="order_date" id="order_date" value="" readonly>
-                   @*helper.inputText(form("order_date"), 'value -> "2012-02-22", 'readonly -> "readonly")*@
-                  <span class="add-on"><i class="icon-th"></i></span>
-               </div>
-           </div>
-        </div>
-
-        <div class="control-group">
-            <div class="controls">
-                @helper.inputText(form("note"),'_label -> "Note")
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-footer">
-        <a href="@routes.Application.index" class="btn"  aria-hidden="true">Cancel</a>
-      <!--  <button class="btn btn-primary">Create</button>  -->
-        <input type="submit" class="btn primary" value="Create ">
-    </div>
-</div>
-        }
-        }
+    }
+}

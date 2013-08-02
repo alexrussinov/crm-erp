@@ -1,0 +1,24 @@
+@(user : Users)
+@main("Import products", user){
+    <div class="row" ng-controller="ImportProductsFromCsvCtrl">
+        <div class="col-lg-12 products-upload">
+        @helper.form(action = routes.Products.uploadFile, 'enctype -> "multipart/form-data") {
+            <p>Select file to upload:</p>
+            <input type="file" name="products">
+
+            <p>
+                <input type="submit">
+            </p>
+
+        }
+        </div>
+        <div class="col-lg-12">
+               <table>
+                   <tr ng-repeat="file in filesToImport">
+                       <td>{{ file.name }}</td><td><a class="btn btn-primary" href="/products/import/file?path={{ file.path }}">Import</a> </td>
+                   </tr>
+               </table>
+        </div>
+    </div>
+
+}

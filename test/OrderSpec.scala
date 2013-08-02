@@ -314,12 +314,50 @@ class OrderSpec extends FlatSpec with ShouldMatchers{
     running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
      DB.withSession { implicit session =>
        ProductTable.insert(
-         Product(None, "some ref", "some label","some desc.","image url","kg",
+         Product(None, "some ref", "some label",Some("some desc."),Some("image url"),"kg",
            None,1,Some("Some manufacture"),Some("Suppl. Ref."), false, 5.5, 7.99, 14.99))
        val prod  = for (p <- ProductTable) yield p
       prod.first.id.get should equal(1)
     }
+   }
   }
+
+
+  "A Discount" should "be applicable" in {
+    running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
+      CustomerDiscount(1,1,25.00).create_discount
+      CustomerDiscount(1,2,30.00).create_discount
+      DB.withSession { implicit session =>
+        ProductTable.insert(
+          Product(None, "some ref", "some label",Some("some desc."),Some("image url"),"kg",
+            None,2,Some("Some manufacture"),Some("Suppl. Ref."), false, 5.5, 7.99, 10.00))
+
+        val result = ProductTable.getAllProductsWithCustomerPrices(1)
+        result.head._11 should equal(11.24)
+        result(2)._11 should equal(7)
+      }
+    }
+  }
+
+
+  "A CustomerDiscount" should "be creatable" in {
+    running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
+     val id : Int = CustomerDiscount.create(CustomerDiscount(1,1,25.00))
+      val discount = CustomerDiscount.getCustomerDiscountsById(id)
+      discount.id should not equal(0)
+      }
+  }
+
+  "Import method" should "return the result" in {
+    running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
+      val res = Imports.importFromCsvWithHeaders("imports/test4.csv",";")
+      val products = Product.productsFromSource(res)
+      res.head("base_price").toDouble should equal(0.73)
+      res.head("reference") should include  ("BP_002106")
+      products.head.reference should equal("BP_002106")
+      products.head.supplier_id should equal(1)
+      products.head.base_price should equal(0.73)
+    }
   }
 
 

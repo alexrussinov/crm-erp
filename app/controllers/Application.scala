@@ -10,7 +10,9 @@ import db.DB
 import play.api.mvc._
 import play.api.mvc.Results._
 import play.api.libs.json._
+import play.api.libs.functional.syntax._
 import reflect.classTag
+import scala.Some
 
 
 //import com.codahale.jerkson.Json
@@ -19,6 +21,7 @@ import play.api.Play.current
 import jp.t2v.lab.play2.auth._
 import play.api.Play._
 import play.api.Routes
+
 
 
 
@@ -264,8 +267,23 @@ object AccountCreation extends Controller with LoginLogout with AuthConf with Au
 }
 
 object Catalogue extends Controller with LoginLogout with AuthConf with Auth {
+  implicit val productWithCustomerPriceFormat = (
+    (__ \ 'id).write[Option[Int]]and
+      (__ \ 'reference).write[String]and
+      (__ \ 'label).write[String]and
+      (__ \ 'description).write[Option[String]]and
+      (__ \ 'image_url).write[Option[String]]and
+      (__ \ 'unity).write[String]and
+      (__ \ 'category_id).write[Option[Int]]and
+      (__ \ 'supplier_id).write[Int]and
+      (__ \ 'manufacture).write[Option[String]]and
+      (__ \ 'tva_rate).write[Double]and
+      (__ \ 'price).write[Double]
+    ).tupled : Writes[(Option[Int], String, String, Option[String], Option[String], String, Option[Int], Int, Option[String], Double, Double)]
+
   def getProductsWithPricesInJson(customer_id: Int) = authorizedAction(NormalUser){ user => implicit request =>
-                val result = ProductDoll.getProductsWithPrices(customer_id,0,10000)
+//                val result = ProductDoll.getProductsWithPrices(customer_id,0,10000)
+                val result = Json.toJson(play.api.db.slick.DB.withSession { implicit session => ProductTable.getAllProductsWithCustomerPrices(customer_id)} )
     Ok(result).as(JSON)
   }
 
@@ -274,3 +292,22 @@ object Catalogue extends Controller with LoginLogout with AuthConf with Auth {
   }
 }
 
+
+trait JsonFormaters {
+  // we need this formater to generate appropriate JSON for Products with customer prices
+  implicit val productWithCustomerPriceFormat = (
+    (__ \ 'id).write[Option[Int]]and
+      (__ \ 'reference).write[String]and
+      (__ \ 'label).write[String]and
+      (__ \ 'description).write[Option[String]]and
+      (__ \ 'image_url).write[Option[String]]and
+      (__ \ 'unity).write[String]and
+      (__ \ 'category_id).write[Option[Int]]and
+      (__ \ 'supplier_id).write[Int]and
+      (__ \ 'manufacture).write[Option[String]]and
+      (__ \ 'tva_rate).write[Double]and
+      (__ \ 'price).write[Double]
+    ).tupled : Writes[(Option[Int], String, String, Option[String], Option[String], String, Option[Int], Int, Option[String], Double, Double)]
+}
+
+// TODO Add possibility to set customer discount for every supplier

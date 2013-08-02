@@ -1,4 +1,4 @@
-import models.{Product, ProductTable, Users}
+import models.{CustomerDiscount, Product, ProductTable, Users}
 import org.squeryl.adapters.{H2Adapter, PostgreSqlAdapter, MySQLAdapter}
 import org.squeryl.internals.DatabaseAdapter
 import org.squeryl.{Session, SessionFactory}
@@ -34,10 +34,15 @@ object Global extends GlobalSettings {
       ) foreach Users.create
     }
 
+      if(CustomerDiscount.getAll.isEmpty){
+      CustomerDiscount(1,1,25.00).create_discount
+      }
+
+
     play.api.db.slick.DB.withSession { implicit session =>
       if (ProductTable.count == 0) {
           Seq(
-            Product(None, "some ref", "some label","some desc.","image url","kg",
+            Product(None, "some ref", "some label",Some("some desc."),Some("image url"),"kg",
               None,1,Some("Some manufacture"),Some("Suppl. Ref."), false, 5.5, 7.99, 14.99)
           ).foreach(ProductTable.insert)
       }
