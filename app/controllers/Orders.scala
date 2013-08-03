@@ -229,19 +229,24 @@ object Orders extends  Controller with LoginLogout with AuthConf with Auth with 
       ).tupled : Writes[(Int,Option[String],Option[String],Double,Double)]
 
     val customer = Customer.getById(customer_id)
-    val json = transaction(DollConn.doll_session(current)){
-      //val products = from(Product.productTable) ( s => where ( (s.ref like value.map(_+ "%").?) or
-      //  (s.label like value.map("%"+ _ + "%").?) ) select(s))
-
-      val products  = from(ProductDoll.productTable, ProductDoll.productpriceTable) ((s,p) => where((s.ref like value.map(_+ "%").?) or
-        (s.label like value.map("%"+ _ + "%").?) and (p.fk_product === s.id) and (p.price_level === customer.price_level))
-       select(s.id, s.ref, s.label, p.price, p.tva_tx))
-      //select(s))
-
-      Json.toJson(products)
+    /*** Old version to search using Squeryl ***/
+//    val json = transaction(DollConn.doll_session(current)){
+//      val products   = from(ProductDoll.productTable, ProductDoll.productpriceTable) ((s,p) => where((s.ref like value.map(_+ "%").?) or
+//        (s.label like value.map("%"+ _ + "%").?) and (p.fk_product === s.id) and (p.price_level === customer.price_level))
+//       select(s.id, s.ref, s.label, p.price, p.tva_tx))
+//      //select(s))
+//      Json.toJson(products)
+//    }
+    /**
+     * New version to work with Slick and native Product
+     */
+    val json2 : JsValue = DB.withSession {implicit session =>
+      val u_result = ProductTable.getAllProductsWithCustomerPrices(customer_id)
+      val f_result : List[(Int,Option[String],Option[String],Double,Double)] = u_result.filter(s=>(s._2.toLowerCase.contains(value.get)||s._3.toLowerCase.contains(value.get))) map(s=>(s._1.get,Some(s._2),Some(s._3),s._11,s._10))
+      Json.toJson(f_result)
     }
 
-    Ok(json).as(JSON)
+    Ok(json2).as(JSON)
   }
 
   def deleteLine (id : Int, order_id : Int) = Action {
