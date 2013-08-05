@@ -1,4 +1,4 @@
-import models.{CustomerDiscount, Product, ProductTable, Users}
+import models._
 import org.squeryl.adapters.{H2Adapter, PostgreSqlAdapter, MySQLAdapter}
 import org.squeryl.internals.DatabaseAdapter
 import org.squeryl.{Session, SessionFactory}
@@ -9,6 +9,7 @@ import play.api.Application
 import play.api.db.slick.Config.driver.simple._
 import play.api.db.slick._
 import play.api.Play.current
+import scala.Some
 
 /**
  * Created with IntelliJ IDEA.
@@ -32,6 +33,12 @@ object Global extends GlobalSettings {
         Users("test@test.com", "12345", 1,Some(1))
 
       ) foreach Users.create
+    }
+
+    if (Supplier.getAll.isEmpty){
+      Seq(
+      Supplier("Default supplier","Some address","some tel","mail@mail.com")
+      ) foreach(f=>f.create_supplier)
     }
 
       if(CustomerDiscount.getAll.isEmpty){

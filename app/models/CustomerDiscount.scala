@@ -20,6 +20,7 @@ case class CustomerDiscount(customer_id : Int, supplier_id : Int, discount : Dou
    }
 }
 
+
 object CustomerDiscount {
 
   def create(c_discount : CustomerDiscount) = inTransaction{

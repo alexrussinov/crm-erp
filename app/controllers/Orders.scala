@@ -334,7 +334,7 @@ object Orders extends  Controller with LoginLogout with AuthConf with Auth with 
 
 //  TODO PDF generation doesn't work
 //  TODO list of orders must depend on type of the user (admin or  normal user)
-// TODO Doesn't count total_ttc + Total qty corectly
+
 
 }
 

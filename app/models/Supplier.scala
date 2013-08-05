@@ -36,6 +36,11 @@ object Supplier {
     supplier.head
   }
 
+  def getAll : List[Supplier] = inTransaction{
+    val res = from(SupplierDB.supplierTable) (s=>select(s))
+    res.toList
+  }
+
   def getAllInJson : JsValue = inTransaction {
     val suppliers = from(SupplierDB.supplierTable) (s=>select(s))
     Json.toJson(suppliers)

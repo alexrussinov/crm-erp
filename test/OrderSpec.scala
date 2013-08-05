@@ -306,7 +306,9 @@ class OrderSpec extends FlatSpec with ShouldMatchers{
 
      val id : Int = Supplier("Bac-Pol", "some address", "some tel", "some@email.com").create_supplier
      val supplier = Supplier.getById(id)
+     val suppliers = Supplier.getAll
       supplier.id should not equal(0)
+      suppliers.size should equal (1)
     }
   }
 

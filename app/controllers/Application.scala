@@ -111,7 +111,7 @@ object Application extends Controller with LoginLogout with AuthConf with Auth{
 
 
   // create new supplier
-  // TODO Create supplier form doesn't work
+
 
   val createsupplierform : Form[Supplier] = Form(
   mapping(
@@ -130,7 +130,7 @@ object Application extends Controller with LoginLogout with AuthConf with Auth{
   createsupplierform.bindFromRequest.fold(
   formWithErrors => BadRequest(views.html.createsupplier(formWithErrors,user)),
   supplier => {
-    Supplier(supplier.name,supplier.address, supplier.tel, supplier.email).create_supplier
+    val id = Supplier(supplier.name,supplier.address, supplier.tel, supplier.email).create_supplier
     Redirect(routes.Application.listSuppliers)
   }
   )
@@ -259,13 +259,17 @@ object AccountCreation extends Controller with LoginLogout with AuthConf with Au
      createaccountform.bindFromRequest.fold(
        formWithErrors => BadRequest(views.html.createaccount(formWithErrors, "Errors!!!", user)),
        user => {
-         Users.createUser(user.email, user.pass, user.admin, user.customer_id)
-         Redirect(routes.Application.showProducts)
+         val us : Users = Users.createUser(user.email, user.pass, user.admin, user.customer_id)
+         // We need to create default 0.00 discounts for this user for all existing suppliers
+         val suppliers = Supplier.getAll
+         for(supplier <- suppliers)CustomerDiscount(us.customer_id.getOrElse(0),supplier.id,0.00).create_discount
+
+         Redirect(routes.Catalogue.listProducts)
        }
      )
   }
 }
-
+    // TODO We need a view that lists all users and a view that represents user(customer) fich, user data modification
 object Catalogue extends Controller with LoginLogout with AuthConf with Auth {
   implicit val productWithCustomerPriceFormat = (
     (__ \ 'id).write[Option[Int]]and
@@ -285,6 +289,7 @@ object Catalogue extends Controller with LoginLogout with AuthConf with Auth {
 //                val result = ProductDoll.getProductsWithPrices(customer_id,0,10000)
                 val result = Json.toJson(play.api.db.slick.DB.withSession { implicit session => ProductTable.getAllProductsWithCustomerPrices(customer_id)} )
     Ok(result).as(JSON)
+
   }
 
   def listProducts = authorizedAction(NormalUser){ user => implicit request =>
