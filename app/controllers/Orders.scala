@@ -270,15 +270,20 @@ object Orders extends  Controller with LoginLogout with AuthConf with Auth with 
 
   // make order editable
   def modifyOrder(order_id : Int) = Action {
+    if(Order.getById(order_id).sent) BadRequest("Can't modify an order that have been sent")
+    else{
     Order.modify(order_id)
     val order = Order.getByIdInJson(order_id)
-
     Ok(order).as(JSON)
+    }
   }
   // delete an order from the database
   def deleteOrder(order_id: Int) = Action { request =>
+    if(Order.getById(order_id).sent) BadRequest("Can't delete an order that have been sent")
+    else{
     Order.delete(order_id)
     Redirect(routes.Orders.showListOrders())
+    }
   }
 
   def sendOrder(order_id: Int) = authorizedAction(NormalUser) {user => implicit request =>
@@ -302,13 +307,15 @@ object Orders extends  Controller with LoginLogout with AuthConf with Auth with 
     email.addTo("imexbox@gmail.com")
     email.setFrom("imexbox@gmail.com","Commandes")
     email.setSubject("Commande de "+client.nom.get)
-    email.setMsg("Veuillez trouver ci-joint la commande "+order.ref + " de "+client.nom.get+"Author: "+user.email)
+    email.setMsg("Veuillez trouver ci-joint la commande "+order.ref + " de "+client.nom.get+" Author: "+user.email)
 
     // add the attachment
     email.attach(attachment)
 
     // send the email
     email.send()
+
+    Order.sent(order_id)
 
     Ok("Email sended correctly")
 }

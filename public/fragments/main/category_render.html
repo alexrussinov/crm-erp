@@ -1,0 +1,6 @@
+<a href="#{{cat.id}}" data-toggle="collapse">{{cat.name}}</a>
+<ul class="collapse nav" id="{{cat.id}}">
+    <li ng-repeat="cat in cat.subcategory" ng-include="'/assets/fragments/main/category_render.html'">
+        <!--<a href="" data-toggle="collapse">{{ cat.name }}</a>-->
+    </li>
+</ul>

@@ -118,10 +118,16 @@ object ProductTable extends Table[Product]("t_products"){
          val products : List[Product] = (for (p <- ProductTable) yield (p)).list
     if(customer_id > 0){
          val discounts : List[CustomerDiscount] = CustomerDiscount.getDiscountsByCustomerId(customer_id)
+         if (!discounts.isEmpty){
     for{ p <- products
          d <- discounts if(p.supplier_id == d.supplier_id)
     } yield (p.id,p.reference, p.label, p.description, p.image_url, p.unity, p.category_id, p.supplier_id,
             p.manufacture, p.tva_rate, mat.round(p.base_price*((100-d.discount)/100)) )
+          }
+      else {
+           for (p <- products) yield (p.id,p.reference, p.label, p.description, p.image_url, p.unity, p.category_id, p.supplier_id,
+           p.manufacture, p.tva_rate, p.base_price )
+         }
        }
     else for (p <- products) yield (p.id,p.reference, p.label, p.description, p.image_url, p.unity, p.category_id, p.supplier_id,
          p.manufacture, p.tva_rate, p.base_price )
@@ -149,6 +155,12 @@ object ProductTable extends Table[Product]("t_products"){
 //         d <- discounts    if(p.supplier_id == d.supplier_id)
 //        }yield (p.id,p.reference,p.label,p.description,p.image_url,p.unity,p.category_id,p.tva_rate,mat.round(p.base_price*((100-d.discount)/100))))
 //    pr.head
+  }
+
+  def getAllManufacturers(implicit session : Session) : List[Option[String]] = {
+    val res = (for (product <- ProductTable) yield product.manufacture).list.toSet
+    res.toList
+
   }
 
 

@@ -4,8 +4,6 @@ import org.scalatest.matchers.ShouldMatchers
 import models._
 import play.api.http.HeaderNames
 import play.api.libs.json._
-import play.api.test._
-import play.api.test.Helpers._
 import play.api.test.{FakeHeaders, FakeRequest, FakeApplication}
 import play.api.test.Helpers._
 import org.squeryl.PrimitiveTypeMode.inTransaction
@@ -13,10 +11,10 @@ import org.scala_tools.time.Imports._
 import java.sql.Timestamp
 import play.test.Helpers
 import scala.Some
-import scala.Some
 import play.api.db.slick.Config.driver.simple._
 import play.api.db.slick._
 import play.api.Play.current
+import jp.t2v.lab.play2.auth.test.Helpers._
 
 
 
@@ -30,6 +28,8 @@ import play.api.Play.current
 
 
 class OrderSpec extends FlatSpec with ShouldMatchers{
+
+  object config extends AuthConf
 
 
   "A OrderLine" should "be creatable" in {
@@ -287,18 +287,39 @@ class OrderSpec extends FlatSpec with ShouldMatchers{
   "A request to deleteOrder" should "respond with Action" in {
     running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
       val t =  new Timestamp(DateTime.now.getMillis)
-      val id = Order.createOrder(1,"2002-01-22", t,1,0,Some(0.0),Some(0.0),Some(0.0),Some("xxx"))
+      //in first part we test deleeting order with lines
+      val id : Int = Order.createOrder(1,"2002-01-22", t,1,0,Some(0.0),Some(0.0),Some(0.0),Some("xxx"))
+      // need to create lines for an order
+      for(i <- 0 until 10){
+      val map  = Json.toJson(Map("user_id"->Json.toJson(1),"order_id"->Json.toJson(id),"product_id"->Json.toJson(1), "qty"->Json.toJson("5.0")) )
+      val r = FakeRequest().withJsonBody(map)
+      val result1 = controllers.Orders.addLineInJson()(r)
+      }
+      val lines = OrderLine.getLines(id)
+      lines.length should equal(10)
+
       val result = controllers.Orders.deleteOrder(id)(FakeRequest())
       status(result) should equal(SEE_OTHER)
       val orders = Order.getAllJson
       Json.stringify(orders).length should equal(2)
+
+      // second part deleting an empty order
+      val id2 : Int = Order.createOrder(1,"2002-01-22", t,1,0,Some(0.0),Some(0.0),Some(0.0),Some("xxx"))
+      val result2 = controllers.Orders.deleteOrder(id2)(FakeRequest())
+      status(result2) should equal(SEE_OTHER)
+      val orders2 = Order.getAllJson
+      Json.stringify(orders2).length should equal(2)
+
     }
   }
-//  "A request to sendOrder" should "respond with Action" in {
-//    running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
-//      val result = controllers.Orders.sendOrder(1)(FakeRequest())
-//      status(result) should equal(OK)
-//    }
+//     "A request to sendOrder" should "respond with Action" in  {
+//     running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
+//     val t =  new Timestamp(DateTime.now.getMillis)
+//     val id : Int = Order.createOrder(1,"2002-01-22", t,1,0,Some(0.0),Some(0.0),Some(0.0),Some("xxx"))
+//     val result = controllers.Orders.sendOrder(id)(FakeRequest().withLoggedIn(config)(1))
+//     status(result) should equal(OK)
+//     Order.getById(id).sent should equal (true)
+//   }
 //  }
 
   "A Supplier" should "be creatable" in {
@@ -308,7 +329,7 @@ class OrderSpec extends FlatSpec with ShouldMatchers{
      val supplier = Supplier.getById(id)
      val suppliers = Supplier.getAll
       supplier.id should not equal(0)
-      suppliers.size should equal (1)
+     // suppliers.size should equal (1)
     }
   }
 
@@ -359,6 +380,26 @@ class OrderSpec extends FlatSpec with ShouldMatchers{
       products.head.reference should equal("BP_002106")
       products.head.supplier_id should equal(1)
       products.head.base_price should equal(0.73)
+    }
+  }
+
+  "A Category" should "be creatable" in {
+    running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
+      DB.withSession { implicit session =>
+        CategoryTable.insert(
+        CategoryT(None,"Charcuterie"))
+        val cat  = for (c <- CategoryTable) yield c
+        cat.first.id.get should equal(1)
+      }
+    }
+  }
+
+  "A request to getCategories" should "respond with Action" in {
+    running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
+
+      val result = controllers.Application.getCategoriesInJson(FakeRequest())
+      status(result) should equal(OK)
+      contentAsString(result) should include ("Sub category charc. 2")
     }
   }
 

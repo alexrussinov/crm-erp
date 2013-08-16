@@ -70,9 +70,11 @@
 //});
 
 // directives that represents an order
-var order = angular.module("orderModule",[]);
+//var order = angular.module("itcModule",['calculateTotalQtyService']);
 
-order.directive('orderHeader', function($http){
+var main = angular.module("itcModule",[]);
+
+main.directive('orderHeader', function($http){
     return{
         restrict: 'A',
         link: function(scope, element, attrs){
@@ -101,7 +103,7 @@ order.directive('orderHeader', function($http){
 
 });
 
-order.directive('orderLines',function($http,calculateTotalQtyService,$compile){
+main.directive('orderLines',function($http,calculateTotalQtyService,$compile){
 
     return {
         restrict: 'A',
@@ -116,20 +118,20 @@ order.directive('orderLines',function($http,calculateTotalQtyService,$compile){
             scope.deleteLine = function(idx){
                 var line_to_delete = scope.order.lines[idx]
                 $http.post('/delete/line?id='+line_to_delete.id + '&order_id='+scope.order.id).success(function(data){
-                      scope.order.lines.splice(idx,1);
-                      scope.order = data.ord;
-                      scope.order.customer = data.customer;
-                      scope.order.lines = data.lines;
-                      var res = calculateTotalQtyService.set(data.lines);
-                      scope.total_kg = res[0];
-                      scope.total_piece = res[1];
+                    scope.order.lines.splice(idx,1);
+                    scope.order = data.ord;
+                    scope.order.customer = data.customer;
+                    scope.order.lines = data.lines;
+                    var res = calculateTotalQtyService.set(data.lines);
+                    scope.total_kg = res[0];
+                    scope.total_piece = res[1];
                 });
 
             }
 
             scope.cancelAction = function(){
                 alert ('cancel');
-                   scope.editMode = false;
+                scope.editMode = false;
             }
 //             $scope.$watch('order.lines',function(oldValue,newValue){
 //                 if ( newValue === oldValue ) {
@@ -148,69 +150,70 @@ order.directive('orderLines',function($http,calculateTotalQtyService,$compile){
 
 });
 
-order.directive('orderControls',function($http,$location){
-   return {
-       restrict: 'A',
-       link: function($scope){
-           $scope.modifyAction = function(order){
-               alert ('modify'+order.id);
-               $http.get('/order/modify?id='+order.id).success(function(data){
-                   $scope.order = data.ord;
-                   $scope.order.customer = data.customer;
-                   $scope.order.lines = data.lines;
-               });
-           }
-           $scope.sendAction = function(order){
-               alert ('send'+order.id);
-               $http.get('/order/send?id='+order.id).success(function(data){
-                     alert("Commande "+order.ref+" envoyée")
-               });
-           }
-           $scope.deleteAction = function (order){
-               $http.post('/order/delete?id='+order.id).success(function(data){
-                   window.location='/showorders';
-               });
-           }
-           $scope.validateAction = function(order){
-               $http.get('/order/validate?id='+order.id).success(function(data){
-                   $scope.order = data.ord;
-                   $scope.order.customer = data.customer;
-                   $scope.order.lines = data.lines;
-               });
-           }
+main.directive('orderControls',function($http,$location){
+    return {
+        restrict: 'A',
+        link: function($scope){
+            $scope.modifyAction = function(order){
+                alert ('modify'+order.id);
+                $http.get('/order/modify?id='+order.id).success(function(data){
+                    $scope.order = data.ord;
+                    $scope.order.customer = data.customer;
+                    $scope.order.lines = data.lines;
+                });
+            }
+            $scope.sendAction = function(order){
 
-       },
-       templateUrl: '/assets/fragments/order/order_controls.html',
-       replace: true
-   }
+                $http.get('/order/send?id='+order.id).success(function(data){
+                    $scope.order.sent=true;
+                    alert("Commande "+order.ref+" envoyée")
+                });
+            }
+            $scope.deleteAction = function (order){
+                $http.post('/order/delete?id='+order.id).success(function(data){
+                    window.location='/showorders';
+                });
+            }
+            $scope.validateAction = function(order){
+                $http.get('/order/validate?id='+order.id).success(function(data){
+                    $scope.order = data.ord;
+                    $scope.order.customer = data.customer;
+                    $scope.order.lines = data.lines;
+                });
+            }
+
+        },
+        templateUrl: '/assets/fragments/order/order_controls.html',
+        replace: true
+    }
 });
 
-order.directive('autoComplete',function($http){
+main.directive('autoComplete',function($http){
     return {
         restrict: 'A',
         link: function(scope,element,attr,ctrl){
-           element.autocomplete({
-              source : function(req,resp){
-                  $http.get('/searchproducts/?term='+scope.request+'&customer_id='+scope.order.customer.id).success( function(data){
-                      var suggestions = [];
-                      $.each(data, function(index, val) {
-                          var obj = {};
-                          //obj.label = val.ref+"-"+val.label+"-"+val.price;
-                          obj.label = val._2+"-"+val._3+"-"+val._4;
-                          obj.id = val._1;
-                          suggestions.push(obj);
-                      });
-                      resp(suggestions);
-                  });
-              },
-              select: function(event, ui){
-                  scope.$apply(function() {
-                      scope.product_id = ui.item.id;
-                  });
-              }
+            element.autocomplete({
+                source : function(req,resp){
+                    $http.get('/searchproducts/?term='+scope.request+'&customer_id='+scope.order.customer.id).success( function(data){
+                        var suggestions = [];
+                        $.each(data, function(index, val) {
+                            var obj = {};
+                            //obj.label = val.ref+"-"+val.label+"-"+val.price;
+                            obj.label = val._2+"-"+val._3+"-"+val._4;
+                            obj.id = val._1;
+                            suggestions.push(obj);
+                        });
+                        resp(suggestions);
+                    });
+                },
+                select: function(event, ui){
+                    scope.$apply(function() {
+                        scope.product_id = ui.item.id;
+                    });
+                }
 
 
-           });
+            });
         },
         template: ''
     }
@@ -219,7 +222,7 @@ order.directive('autoComplete',function($http){
 
 
 
-order.directive('editable', function(){
+main.directive('editable', function(){
 
     return {
         restrict : 'E',
@@ -232,7 +235,7 @@ order.directive('editable', function(){
         link : function(scope, element, attrs){
 
             // editMode is disable by default
-           // scope.editMode = false;
+            // scope.editMode = false;
             attrs.$observe('editable',function(){
 
             });
@@ -256,25 +259,51 @@ order.directive('editable', function(){
 
 });
 
-//service style, service to calculate total qty
-order.service('calculateTotalQtyService', function() {
-       return {
-           set  : function (lines){
-        var total_kg =0;
-        var total_piece = 0;
-        for(var i = 0; i<lines.length; i++){
-            if(lines[i].unity == "piece")
-                total_piece+=lines[i].qty ;
-            if(lines[i].unity == "kg")
-                total_kg+=lines[i].qty ;
-        }
-
-        return [total_kg,total_piece];
+main.directive('blockCategories',function(){
+    return {
+        restrict : 'A',
+        link : function($scope,element,attr){},
+        templateUrl: '/assets/fragments/main/categories.html',
+        replace : true
     }
-}
 });
 
+main.directive('blockManufactures',function(){
+    return {
+        restrict : 'A',
+        link : function($scope,element,attr){
+            $scope.plus = function(){
+                $scope.rest = true;
+            }
+            $scope.minus = function(){
+                $scope.rest = false;
+            }
+        },
+        templateUrl: '/assets/fragments/main/manufactures.html',
+        replace: true
+    }
+});
 
+////service style, service to calculate total qty
+main.service('calculateTotalQtyService', function() {
+    return {
+        set  : function (lines){
+            var total_kg =0;
+            var total_piece = 0;
+            for(var i = 0; i<lines.length; i++){
+                if(lines[i].unity == "piece")
+                    total_piece+=lines[i].qty ;
+                if(lines[i].unity == "kg")
+                    total_kg+=lines[i].qty ;
+            }
+
+            return [total_kg,total_piece];
+        }
+    }
+});
+
+// TODO Progress indication while sending an order, order sent notification
+// TODO Pop up notification when sending an order that after no deletion or modification possible
 
 //angular.module('itcApp',['filters']);
 //angular.module('filters', []).filter('catalogueSearch',function(){
@@ -284,4 +313,3 @@ order.service('calculateTotalQtyService', function() {
 //   }
 // }
 //});
-

@@ -2,7 +2,7 @@
 @main("Catalogue", user) {
     @*<script src="@routes.Assets.at("javascripts/controllers.js")" type="text/javascript"></script>*@
     <div class="col-lg-12 products-list" ng-init="customer_id=@user.customer_id.getOrElse(0)">
-        <div ng-controller="GetProductsCtrl">
+        <div ng-controller="CatalogCtrl">
             <div class="row">
                 <div class="col-lg-4">
                 <div class="input-group">
@@ -50,17 +50,29 @@
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             <h3 id="myModalLabel">Choisisez une commande...</h3>
         </div>
+
+          <form class="form-inline" name="addProductFromCatalog" ng-submit="insertProduct(addProductFromCatalog)" novalidate>
         <div class="modal-body">
-            <select class="select-order" ng-model="order" ng-options="o.ref for o in orders">
-                <option ng-repeat="order in orders" value="{{order.id}}">{{order.ref}} {{order.order_date}}</option>
+            <div class="row">
+            <div class="col-lg-6">
+            <select class="form-control" name="selectOrder" class="select-order" ng-model="order" ng-options="o.ref+' -> '+o.order_date for o in orders"  required>
+                @*<option ng-repeat="order in orders" value="{{order.id}}">{{order.ref}} -> {{order.order_date}}</option>*@
             </select>
-            <input type="text" ng-required="Indiquez la quantité" ng-model="current_order_product_qty">
+            </div>
+            <div class="col-lg-3">
+            <input class="form-control" type="text" name="qty"  ng-model="current_order_product_qty" ng-pattern="/^[0-9]*[.]?[0-9]+$/" placeholder="0.00" required>
+            </div>
+            <div class="col-lg-3">
             <input type="hidden" value="{{order.fk_soc}}" ng-model="current_order_client_id">
+            </div>
+            </div>
         </div>
+
         <div class="modal-footer">
             <button class="btn" data-dismiss="modal" aria-hidden="true">Anuler</button>
-            <button class="btn btn-primary" ng-click="insertProduct()">Ajouter</button>
+            <button ng-disabled="addProductFromCatalog.selectOrder.$invalid || addProductFromCatalog.qty.$invalid || addProductFromCatalog.qty.$pristine " class="btn btn-primary" type="submit">Ajouter</button>
         </div>
+          </form>
        </div>
       </div>
      </div>
@@ -84,6 +96,10 @@
             </div>
         </div>
     </div>
-    @*TODO Add custom search et pagination, total found in the bottom*@
-    @*TODO Realize add the product to the order functionality*@
+
+}{
+    <div class="sidebar">
+    <div block-categories ></div>
+    <div block-manufactures></div>
+    </div>
 }

@@ -25,7 +25,7 @@ import org.scala_tools.time.Imports._
  */
 case class Order(fk_soc : Int, order_date: String, date_creation: Timestamp,
                  fk_uther_author: Int, fk_statut : Int, tva : Option[Double], total_ht: Option[Double],
-                 total_ttc: Option[Double], note: Option[String]) extends KeyedEntity[Int] {
+                 total_ttc: Option[Double], note: Option[String], sent : Boolean = false) extends KeyedEntity[Int] {
   val id : Int = 0
 
   val ref : String = ""
@@ -51,7 +51,7 @@ case class Order(fk_soc : Int, order_date: String, date_creation: Timestamp,
 // represent order for generating json
 case class OrderJ(id: Int, ref: String, date_modif : Option[Timestamp], fk_soc : Int, order_date: String, date_creation: Timestamp,
                    fk_uther_author: Int, fk_statut : Int, tva : Option[Double], total_ht: Option[Double],
-                   total_ttc: Option[Double], note: Option[String])
+                   total_ttc: Option[Double], note: Option[String],sent : Boolean)
 
 case class OrderLine (fk_order_id : Int, product_id : Int, product_ref: String, label: String, tva: Double, qty : Double, unity :String, prix_ht : Double,
                  prix_ttc : Double) extends KeyedEntity[Int] {
@@ -124,7 +124,8 @@ object Order extends Schema {
       ( __ \ 'tva).write[Option[Double]] and
       ( __ \ 'total_ht).write[Option[Double]] and
       ( __ \ 'total_ttc).write[Option[Double]] and
-      ( __ \ 'note).write[Option[String]]
+      ( __ \ 'note).write[Option[String]] and
+      ( __ \ 'sent).write[Boolean]
     )(unlift(OrderJ.unapply))
  // val orderTable : Table[Order] = table[Order]("t_order")
 
@@ -212,9 +213,16 @@ object Order extends Schema {
       r
     }
   }
+
+  def sent(id : Int): Int ={
+    inTransaction{
+      update(OrderDB.orderTable)(o => where(o.id === id)set(o.sent := true))
+    }
+  }
   def delete(id : Int): Int = {
     inTransaction{
-      OrderDB.orderTable.deleteWhere(o=> o.id === id)
+      OrderDB.orderlinesTable.deleteWhere(l => l.fk_order_id === id)
+      OrderDB.orderTable.deleteWhere(o => o.id === id)
     }
   }
 
@@ -233,7 +241,7 @@ object Order extends Schema {
   //we need this to have id, ref, date_modif fields in generated json
   def toOrderJ(o : Order): OrderJ = {
     OrderJ(o.id,o.ref,o.date_modif, o.fk_soc, o.order_date, o.date_creation, o.fk_uther_author,
-      o.fk_statut,o.tva, o.total_ht, o.total_ttc, o.note)
+      o.fk_statut,o.tva, o.total_ht, o.total_ttc, o.note, o.sent)
   }
 
   def totalQty(order_id: Int): Map[String,Double] = {

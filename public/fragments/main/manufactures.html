@@ -1,0 +1,24 @@
+<div class="manufactures">
+    <p class="header">Marque</p>
+    <hr>
+    <div class="scrollabe">
+    <ul class="nav nav-stacked manufacturers">
+        <li ng-repeat="marque in marques_first">
+            <!--<a href="#" >{{marque}}</a>-->
+            <div class="checkbox">
+             <label>
+               <input type="checkbox" name="manufacturer" ng-model="confirmed" ng-change="customSearch()"> {{marque}}
+             </label>
+            </div>
+        </li>
+        <li class="rest" ng-hide="rest"><a href="#rest" data-toggle="collapse" ng-click="plus()">Plus <i class="glyphicon glyphicon-chevron-down"></i></a></li>
+        <li class="rest" ng-show="rest"><a href="#rest" data-toggle="collapse" ng-click="minus()">Moins <i class="glyphicon glyphicon-chevron-up"></i></a></li>
+    </ul>
+    <ul class="nav nav-stacked manufactures collapse" id="rest">
+        <li ng-repeat="marque in marques_rest">
+            <a href="#" >{{marque}}</a>
+        </li>
+    </ul>
+
+    </div>
+</div>

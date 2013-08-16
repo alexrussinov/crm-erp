@@ -27,10 +27,22 @@ import play.api.Routes
 
 object Application extends Controller with LoginLogout with AuthConf with Auth{
   
-  def index =authorizedAction(NormalUser){ user => implicit request =>
+  def index = authorizedAction(NormalUser){ user => implicit request =>
     Ok(views.html.index(user))
   }
 
+ //get categories for a left sidebar categories tree
+  def getCategoriesInJson = Action{
+    val result = Json.toJson(play.api.db.slick.DB.withSession { implicit session =>CategoryTable.getAll})
+    Ok(result).as(JSON)
+  }
+
+  //get list of manufacturers(marques)
+
+  def getManufacturersInJson = Action{
+    val result = Json.toJson(play.api.db.slick.DB.withSession{implicit session =>ProductTable.getAllManufacturers})
+    Ok(result).as(JSON)
+  }
 
   def getProducts = Action {
 
@@ -235,7 +247,7 @@ trait AuthConf extends AuthConfig {
    * Whether use the secure option or not use it in the cookie.
    * However default is false, I strongly recommend using true in a production.
    */
-  //override lazy val cookieSecureOption: Boolean = play.api.Play.current.configuration.getBoolean("auth.cookie.secure").getOrElse("true")
+ // override lazy val cookieSecureOption: Boolean = play.api.Play.current.configuration.getBoolean("auth.cookie.secure").getOrElse(true)
 
 }
 
@@ -295,6 +307,7 @@ object Catalogue extends Controller with LoginLogout with AuthConf with Auth {
   def listProducts = authorizedAction(NormalUser){ user => implicit request =>
     Ok(views.html.catalogue(user))
   }
+
 }
 
 

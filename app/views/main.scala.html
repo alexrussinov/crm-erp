@@ -1,6 +1,6 @@
-@(title: String, user: Users)(content: Html)
+@(title: String, user: Users)(content: Html)(sidebar: Html)
 <!DOCTYPE html>
-<html lang="en" ng-app="orderModule" ng-init="user={email:'@user.email',admin:'@user.admin',customer_id:'@user.customer_id'}">
+<html lang="en" ng-app="itcModule" ng-init="user={email:'@user.email',admin:'@user.admin',customer_id:'@user.customer_id'}">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -73,19 +73,23 @@
                 </div>
             </div>
 
-
+            <div class="test-side-bar"></div>
                 <!-- Begin page content -->
-          <div class="container">
-            @*<div class="row">*@
-                <div class="col-lg-2">
-                    <div class="sidebar2"></div>
+          <div class="container" >
+            <div class="row">
+                <div class="col-lg-3">
+                    @*<div class="sidebar">*@
+                        @*<div block-categories ></div>*@
+                        @*<div block-manufactures></div>*@
+                    @*</div>*@
+                    @sidebar
                 </div>
                     <!--/span-->
-                <div class="col-lg-10 main">
+                <div class="col-lg-9 main">
                         <!--page content here-->
                     @content
                 </div>
-            @*</div>*@
+            </div>
                 </div>
           </div>
 

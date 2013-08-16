@@ -22,6 +22,45 @@ body {
     background-color: #777777;
 }
 
+div.sidebar {
+    margin-top: 50px;
+    background-color: ghostwhite;
+}
+
+div.categories hr {
+    margin: 0;
+}
+
+div.categories p {
+    margin-left: 20px;
+    font-weight: bold;
+    color: #563d7c;
+}
+
+div.manufactures{
+    margin-top: 20px;
+    margin-bottom: 20px;
+
+}
+div.scrollable {
+    height: 200px;
+    overflow: auto;
+}
+
+div.manufactures .header {
+    margin-left: 20px;
+    font-weight: bold;
+    color: #563d7c;
+}
+
+div.manufactures label {
+    color: #716b7a;
+}
+
+div.manufactures hr {
+    margin: 0 0 0 10px;
+}
+
 /* Lastly, apply responsive CSS fixes as necessary */
 @media (max-width: 767px) {
     #footer {
@@ -163,4 +202,42 @@ i.edit-line, .delete-line, .update-line, .cancel-line {
 
 input.line-qty {
     width: 3em;
+}
+
+
+/* Docs sidebar
+-------------------------------------------------- */
+
+
+/* All levels of nav */
+.sidebar .nav > li > a {
+    display: block;
+    color: #716b7a;
+    padding: 5px 20px;
+}
+.sidebar .nav > li > a:hover,
+.sidebar .nav > li > a:focus {
+    text-decoration: none;
+    background-color: #e5e3e9;
+    border-right: 1px solid #dbd8e0;
+}
+.sidebar .nav > .active > a,
+.sidebar .nav > .active:hover > a,
+.sidebar .nav > .active:focus > a {
+    font-weight: bold;
+    color: #563d7c;
+    background-color: transparent;
+    border-right: 1px solid #563d7c;
+}
+
+/* second level nav */
+.sidebar .nav .nav > li > a {
+    padding-top:    3px;
+    padding-bottom: 3px;
+    padding-left: 30px;
+    font-size: 90%;
+}
+
+.manufactures .nav > li > a {
+    font-size: 90%;
 }

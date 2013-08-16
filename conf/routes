@@ -8,7 +8,9 @@ GET         /login                            controllers.Application.login
 # GET     /index                    controllers.Application.index
 GET         /getproducts                      controllers.Application.getProducts
 GET         /products                         controllers.Application.showProducts
-GET         /searchproducts/                  controllers.Orders.searchProducts(term : Option[String] ?=        None,        customer_id:     Int        ?= 0     )
+GET         /searchproducts/                  controllers.Orders.searchProducts(term : Option[String] ?=None,customer_id:Int ?= 0)
+GET         /categories                       controllers.Application.getCategoriesInJson
+GET         /manufacturers                    controllers.Application.getManufacturersInJson
 GET         /assets/javascripts/routes        controllers.Application.javascriptRoutes
 # Map static resources from the /public folder to the /assets URL path
 GET         /assets/*file                     controllers.Assets.at(path="/public", file)

@@ -1,5 +1,101 @@
-function MainCtrl($scope,$http){
+function MainCtrl($scope,$http,$filter){
 
+    $scope.marques_first = [];
+    $scope.marques_rest = [];
+    $scope.rest = false;
+    $scope.pagedItems=[];
+
+
+
+    // initialize data for side bar
+
+    $http.get('/categories').success(function(data){
+       $scope.categories = data;
+    });
+
+    $http.get('/manufacturers').success(function(data){
+        //we take first 10 marque
+        for(var i=0; i<data.length; i++){
+            if(i<10)
+            $scope.marques_first.push(data[i]);
+            else
+            $scope.marques_rest.push(data[i]);
+        }
+        //$scope.marques = data;
+    });
+
+    $scope.manufacturerFilter = function(etat){
+        alert("it work"+etat);
+    }
+
+    $scope.customSearch = function(){
+        alert($scope.filteredItems[0]);
+    }
+
+
+    // catalog action, wee need to declare them in parent scope!
+    //$scope.search();
+    /*add product action from catalog*/
+    $scope.addProduct = function (product) {
+        $scope.orders=[];
+        //we use this with old implementation of json response from the server
+        //$scope.current_product_id = product._1
+
+        //for new json implementation
+        $scope.current_product_id = product.id;
+
+        if($scope.user.admin == 1){
+            $http.get('/getorders').success(function(data){
+
+                if (!$.isEmptyObject(data)){
+//               for (var item in data ){
+//                   if(item.fk_statut == 0)
+//                   $scope.orders.push(item);
+//               }
+                    $scope.orders= data;
+                    $('#orderChoice').modal('toggle');
+                }
+                else
+                    $('#addAlertModal').modal('toggle');
+            });
+        }
+        else {
+            $http.get('/getorders/customer?id='+$scope.customer_id).success(function(data){
+
+                if (!$.isEmptyObject(data)){
+//               for (var item in data ){
+//                   if(item.fk_statut == 0)
+//                   $scope.orders.push(item);
+//               }
+                    $scope.orders= data;
+                    $('#orderChoice').modal('toggle');
+
+                }
+                else
+                    $('#addAlertModal').modal('toggle');
+            });
+        }
+    }
+    /*insert line to order from catalog*/
+    $scope.insertProduct = function (form){
+
+        $scope.insert_product_json =
+        { user_id: $scope.order.fk_soc,
+            order_id: $scope.order.id,
+            product_id: $scope.current_product_id,
+            qty: $scope.current_order_product_qty };
+//        alert("Client id:" + $scope.insert_product_json.user_id + "Order id:"+$scope.insert_product_json.order_id+
+//        "Product id:"+$scope.insert_product_json.product_id+"Qty :"+$scope.insert_product_json.qty);
+        $http.post("/addLineJson", $scope.insert_product_json)
+            .success(function(data, status, headers, config) {
+                $('#orderChoice').modal('hide');
+            }).error(function(data, status, headers, config) {
+                $scope.status = status;
+                alert('Error'+status)
+            });
+
+
+    }
 }
 
 function GetLinesCtrl($scope, $http){
@@ -33,19 +129,22 @@ function GetLinesCtrl($scope, $http){
 
 }
 
-// Retrieve products from database
-function GetProductsCtrl($scope, $http, $filter){
+// Data and data manipulations for catalog view //  Retrieve products from database
+function CatalogCtrl($scope, $http, $filter){
+    // initialize data for catalog
+
     $scope.itemsPerPage = 15;
     $scope.pagedItems = [];
     $scope.currentPage = 0;
 
+
+    // ajax request for products in database
     // ajax request for products in database
     // TODO user id is hard coded, must correspond for current user loged in
-    $http.get('/catalogue/json?id='+$scope.customer_id).success(function(data){
-    $scope.products =  data;
+    $http.get('/catalogue/json?id='+$scope.user.customer_id).success(function(data){
+        $scope.products =  data;
         $scope.search();
     });
-
 
 
     // search a needle in a haystack OK <> true, KO <> false
@@ -70,7 +169,7 @@ function GetProductsCtrl($scope, $http, $filter){
         $scope.groupToPages();
     }
 
-   /*Catalog search result Pagination*/
+    /*Catalog search result Pagination*/
     $scope.groupToPages = function () {
         $scope.pagedItems = [];
 
@@ -111,68 +210,11 @@ function GetProductsCtrl($scope, $http, $filter){
         $scope.currentPage = this.n;
     };
 
-    //$scope.search();
-   /*add product action from catalog*/
-    $scope.addProduct = function (product) {
-        $scope.orders=[];
-          //we use this with old implementation of json response from the server
-        //$scope.current_product_id = product._1
 
-        //for new json implementation
-        $scope.current_product_id = product.id
-
-        if($scope.user.admin == 1){
-        $http.get('/getorders').success(function(data){
-
-            if (!$.isEmptyObject(data)){
-//               for (var item in data ){
-//                   if(item.fk_statut == 0)
-//                   $scope.orders.push(item);
-//               }
-                $scope.orders=data
-                $('#orderChoice').modal('toggle');
-            }
-            else
-                $('#addAlertModal').modal('toggle');
-        });
-        }
-        else {
-            $http.get('/getorders/customer?id='+$scope.customer_id).success(function(data){
-
-                if (!$.isEmptyObject(data)){
-//               for (var item in data ){
-//                   if(item.fk_statut == 0)
-//                   $scope.orders.push(item);
-//               }
-                    $scope.orders=data
-                    $('#orderChoice').modal('toggle');
-                }
-                else
-                    $('#addAlertModal').modal('toggle');
-            });
-        }
-    }
- /*insert line to order from catalog*/
-    $scope.insertProduct = function (){
-        $scope.insert_product_json =
-            { user_id: $scope.order.fk_soc,
-              order_id: $scope.order.id,
-              product_id: $scope.current_product_id,
-              qty: $scope.current_order_product_qty };
-//        alert("Client id:" + $scope.insert_product_json.user_id + "Order id:"+$scope.insert_product_json.order_id+
-//        "Product id:"+$scope.insert_product_json.product_id+"Qty :"+$scope.insert_product_json.qty);
-        $http.post("/addLineJson", $scope.insert_product_json)
-            .success(function(data, status, headers, config) {
-                $('#orderChoice').modal('hide');
-            }).error(function(data, status, headers, config) {
-                $scope.status = status;
-                alert('Error'+status)
-            });
-    }
 
 }
 
-GetProductsCtrl.$inject = ['$scope','$http','$filter'];
+//CatalogCtrl.$inject = ['$scope','$http','$filter'];
 
 // regroupe order fiche functionality
 function OrderCtrl($scope,$http, calculateTotalQtyService){
@@ -245,6 +287,8 @@ function OrderCtrl($scope,$http, calculateTotalQtyService){
 
     }
 }
+
+
 // controller for order pdf  template generation
 
 function OrderPdfTplCtrl($scope, $http){
