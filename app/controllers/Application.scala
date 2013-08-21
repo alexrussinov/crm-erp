@@ -13,6 +13,7 @@ import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import reflect.classTag
 import scala.Some
+import lib.mat
 
 
 //import com.codahale.jerkson.Json
@@ -306,6 +307,53 @@ object Catalogue extends Controller with LoginLogout with AuthConf with Auth {
 
   def listProducts = authorizedAction(NormalUser){ user => implicit request =>
     Ok(views.html.catalogue(user))
+  }
+
+
+  // Return number of products in each category as Json result
+  def getNumberOfProductsByCategory = Action {
+
+    def totalProductsByCategory (lst : List[Product],res : Map[String,Int]): Map[String,Int]={
+
+        lst match {
+        case Nil => res
+        case x::xs => if(res contains(x.category_id.getOrElse(0).toString))
+                       totalProductsByCategory(xs,res.updated (x.category_id.get.toString, mat.increment(res.get(x.category_id.get.toString).get) ))
+                      else if(x.category_id.getOrElse(0)==0)
+                        totalProductsByCategory(xs,res)
+                       else
+                         totalProductsByCategory(xs,res + (x.category_id.get.toString -> 1) )
+         }
+    }
+    // auxilier function that helps to get total number of products in subcategories
+    def countProductsInSubcategories(category : Category, data : Map[String, Int]) = {
+
+      var count : Int = 0
+
+      def update() ={
+        if(data.contains(category.id.toString))
+          data.updated(category.id.toString,count)
+        else
+          data ++ Map(category.id.toString -> count)
+      }
+
+      if(category.subcutegory.isEmpty) update()
+      else {
+        for(cat <- category.subcutegory) count += data.get(cat.id.toString).getOrElse(0)
+         update()
+      }
+
+
+
+    }
+
+    val products : List[Product] = play.api.db.slick.DB.withSession { implicit session => ProductTable.getAll}
+    val categories : List[Category] = play.api.db.slick.DB.withSession { implicit session => CategoryTable.getAll}
+    val result : Map[String,Int] = categories.map(f=>countProductsInSubcategories(f,totalProductsByCategory(products,Map()))).reduce(_ ++ _)
+
+
+    Ok(Json.toJson(result)).as(JSON)
+
   }
 
 }

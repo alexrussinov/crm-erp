@@ -3,11 +3,11 @@
     <hr>
     <div class="scrollabe">
     <ul class="nav nav-stacked manufacturers">
-        <li ng-repeat="marque in marques_first">
+        <li ng-repeat="m in marques_first">
             <!--<a href="#" >{{marque}}</a>-->
             <div class="checkbox">
              <label>
-               <input type="checkbox" name="manufacturer" ng-model="confirmed" ng-change="customSearch()"> {{marque}}
+               <input type="checkbox" name="manufacturer" ng-model="marque_selection.marque[m]" id="{{m}}" ng-change="manufacturerFilter(m)"> {{m}}
              </label>
             </div>
         </li>
@@ -15,10 +15,13 @@
         <li class="rest" ng-show="rest"><a href="#rest" data-toggle="collapse" ng-click="minus()">Moins <i class="glyphicon glyphicon-chevron-up"></i></a></li>
     </ul>
     <ul class="nav nav-stacked manufactures collapse" id="rest">
-        <li ng-repeat="marque in marques_rest">
-            <a href="#" >{{marque}}</a>
+        <li ng-repeat="m2 in marques_rest">
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" name="manufacturer" ng-model="marque_selection.marque[m2]" id="{{m2}}" ng-change="manufacturerFilter(m2)"> {{m2}}
+                </label>
+            </div>
         </li>
     </ul>
-
     </div>
 </div>

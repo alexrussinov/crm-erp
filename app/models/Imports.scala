@@ -14,7 +14,8 @@ object Imports{
 
   def importFromCsvWithHeaders(pathToFile : String, delim : String) : Seq[Map[String,String]]={
 
-       val source = Source.fromFile(pathToFile)(Codec("ISO8859-1")).getLines
+       // in windows i had to use Codec(ISO8859-1) to be able to work with
+       val source = Source.fromFile(pathToFile).getLines
        lazy val lines= source.toSeq
        val headers = lines.head.split(delim)
        lines.tail.map(l => headers zip removeDiacritics(l).split(delim)).map(s=>s.toMap)

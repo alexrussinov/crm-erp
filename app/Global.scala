@@ -59,13 +59,38 @@ object Global extends GlobalSettings {
       if (CategoryTable.count == 0) {
         Seq(
          CategoryT(None,"Charcuterie"),
-         CategoryT(None,"Sub category charc. 1",1),
-         CategoryT(None,"Sub category charc. 2",1),
-         CategoryT(None,"Sub category charc. 3",1),
+         CategoryT(None,"Produits du Vieux Village",1),
+         CategoryT(None,"Produits traditionels",1),
+         CategoryT(None,"Jambon, Viande fumée",1),
+         CategoryT(None,"Produits crus - fumé",1),
+         CategoryT(None,"Produits à Griller - fumé",1),
+         CategoryT(None,"Saucisses",1),
+         CategoryT(None,"Pates, Terrines, Saucissons",1),
+         CategoryT(None,"Produits mis en pot",1),
+         CategoryT(None,"Autres",1),
          CategoryT(None,"Produits Latiers"),
-         CategoryT(None,"Sub category latiers 1",5),
+         CategoryT(None,"Yaourts 1",5),
+         CategoryT(None,"Fromages 1",5),
+         CategoryT(None,"Lait, Créme fraiche 1",5),
          CategoryT(None,"Poissonerie"),
-         CategoryT(None, "Autres produits")
+         CategoryT(None,"Boissons"),
+         CategoryT(None,"Plats préparés"),
+         CategoryT(None,"Conficerie"),
+         CategoryT(None,"Lesgumes"),
+         CategoryT(None, "Epicerie"),
+         CategoryT(None, "Consérves",20),
+         CategoryT(None, "Sauces, Moutardes, Mayonnaises",20),
+         CategoryT(None, "Pâtes, Céréales, Farines",20),
+         CategoryT(None, "Thé, Café",20),
+         CategoryT(None, "Confiture, Miel",20),
+         CategoryT(None, "Soupes séches, liquide, concentrâtes...",20),
+         CategoryT(None, "Epices et Aromates",20),
+         CategoryT(None, "Autres",20),
+         CategoryT(None, "Yaourts",11),
+         CategoryT(None, "Fromages",11),
+         CategoryT(None, "Lait, Créme frâiche",11),
+         CategoryT(None, "Beure, Margarine",11),
+         CategoryT(None, "Autres...",11)
         ).foreach(CategoryTable.insert)
       }
     }

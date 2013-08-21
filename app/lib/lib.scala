@@ -26,6 +26,11 @@ object mat {
   def round (x : Double) : Double ={
     (math rint x * 100) / 100
   }
+
+// increment value by one
+  def increment(value : Int) : Int = {
+    value +1
+  }
 }
 
 

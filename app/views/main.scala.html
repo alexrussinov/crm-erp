@@ -40,7 +40,7 @@
                         <span class="icon-bar"></span>
                     </button>
                     <a class="navbar-brand logo" href="@routes.Application.index">ITC PLUS</a>
-                    <p class="navbar-text pull-right">Signed in as: <a href="#" class="navbar-link">@user.email</a>&nbsp&nbsp<a href="@routes.Application.logout" class="navbar-link">Deconexion</a></p>
+                    <p class="navbar-text pull-right">Bienvenu: <a href="#" class="navbar-link">@user.email</a>&nbsp&nbsp<a href="@routes.Application.logout" class="navbar-link">Deconexion</a></p>
                     @*<p class="navbar-text pul-right">Signed in as: <a href="#" class="navbar-link">@user.email</a></p>*@
                     <div class="nav-collapse collapse">
                         <ul class="nav navbar-nav">
@@ -66,6 +66,7 @@
                                     <li><a href="@routes.Application.createSupplierForm">Créer Fournisseur</a></li>
                                     <li><a href="@routes.Application.listSuppliers">List Fournisseurs</a></li>
                                     <li><a href="@routes.Products.uploadProductsCsvForm">Import Produits CSV</a></li>
+                                    <li><a href="@routes.Categories.manageCategories">Gérer des catégories</a></li>
                                 </ul>
                             </li> }
                         </ul>
@@ -77,15 +78,15 @@
                 <!-- Begin page content -->
           <div class="container" >
             <div class="row">
-                <div class="col-lg-3">
+                @*<div class="col-lg-3">*@
                     @*<div class="sidebar">*@
                         @*<div block-categories ></div>*@
                         @*<div block-manufactures></div>*@
                     @*</div>*@
                     @sidebar
-                </div>
+                @*</div>*@
                     <!--/span-->
-                <div class="col-lg-9 main">
+                <div class="col-lg-12 main">
                         <!--page content here-->
                     @content
                 </div>

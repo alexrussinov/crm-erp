@@ -1,4 +1,7 @@
-import models.ProductPresta
+import java.text.Normalizer
+import play.api.libs.json._
+
+Json.toJson(Map("1"->1))
 
 
 
@@ -652,7 +655,41 @@ val product = <prestashop xmlns:xlink="http://www.w3.org/1999/xlink">
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 val pr = ProductPresta.fromXml(product \ "product")
+
+
+
+
 
 
 
@@ -666,12 +703,20 @@ val image = (product \ "product" \ "id_default_image" )(0)
 
 
 
+
+
+
+
 val uri : String = image.attribute(image.getNamespace("xlink"),"href").getOrElse(None).toString
 
 
 
 
+
+
 uri.split("//")
+
+
 
 
 

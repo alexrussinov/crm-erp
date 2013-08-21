@@ -1,6 +1,6 @@
 @(form: Form[Option[Users]], user: Users)(implicit flash: Flash)
 @import helper.twitterBootstrap._
-@main("Login you", user) {
+@main("Connectez-vous", user) {
     @helper.form(routes.Application.authenticate, args = 'class -> "form-horizontal") {
         <!-- Modal -->
         <script>

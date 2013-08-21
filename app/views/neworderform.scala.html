@@ -1,7 +1,7 @@
 @(form : Form[(Int,String,String)], user : Users)
 @*TODO We must verify is a user administrator and if no, choose automaticaly client as user*@
 @import helper.twitterBootstrap._
-@main("Create order", user){
+@main("Nouvelle commande", user){
     @helper.form(routes.Orders.createOrder, args = 'class -> "form-horizontal") {
 
         <!-- Modal -->
@@ -63,9 +63,9 @@
                     </div>
 
                     <div class="modal-footer">
-                        <a href="@routes.Application.index" class="btn"  aria-hidden="true">Cancel</a>
+                        <a href="@routes.Application.index" class="btn btn-default"  aria-hidden="true">Annuler</a>
                             <!--  <button class="btn btn-primary">Create</button>  -->
-                        <input type="submit" class="btn btn-default" value="Create ">
+                        <input type="submit" class="btn btn-primary" value="Valider ">
                     </div>
                 </div>
             </div>

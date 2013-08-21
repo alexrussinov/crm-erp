@@ -1,37 +1,5 @@
 function MainCtrl($scope,$http,$filter){
 
-    $scope.marques_first = [];
-    $scope.marques_rest = [];
-    $scope.rest = false;
-    $scope.pagedItems=[];
-
-
-
-    // initialize data for side bar
-
-    $http.get('/categories').success(function(data){
-       $scope.categories = data;
-    });
-
-    $http.get('/manufacturers').success(function(data){
-        //we take first 10 marque
-        for(var i=0; i<data.length; i++){
-            if(i<10)
-            $scope.marques_first.push(data[i]);
-            else
-            $scope.marques_rest.push(data[i]);
-        }
-        //$scope.marques = data;
-    });
-
-    $scope.manufacturerFilter = function(etat){
-        alert("it work"+etat);
-    }
-
-    $scope.customSearch = function(){
-        alert($scope.filteredItems[0]);
-    }
-
 
     // catalog action, wee need to declare them in parent scope!
     //$scope.search();
@@ -96,6 +64,9 @@ function MainCtrl($scope,$http,$filter){
 
 
     }
+
+
+
 }
 
 function GetLinesCtrl($scope, $http){
@@ -138,35 +109,55 @@ function CatalogCtrl($scope, $http, $filter){
     $scope.currentPage = 0;
 
 
+
+
     // ajax request for products in database
     // ajax request for products in database
     // TODO user id is hard coded, must correspond for current user loged in
     $http.get('/catalogue/json?id='+$scope.user.customer_id).success(function(data){
         $scope.products =  data;
         $scope.search();
+        getMarques();
     });
 
 
     // search a needle in a haystack OK <> true, KO <> false
-    var searchMatch = function (haystack, needle) {
+    var searchMatchString = function (haystack, needle) {
         if (!needle) {
             return true;
         }
+
         return normalize2((''+ haystack).toLowerCase()).indexOf(normalize2(needle.toLowerCase())) !== -1;
+
     };
 
+    var searchMatchInt = function(haystack, needle){
+
+        for(var i = 0; i<haystack.length; i++){
+        if(haystack[i].id == needle)
+        return true;
+
+        }
+        return false;
+    }
+
 // init the filtered items
-    $scope.search = function () {
+    $scope.search = function (query) {
         $scope.filteredItems = $filter('filter')($scope.products, function (item) {
+
             for(var attr in item) {
-                if (searchMatch(item[attr], $scope.query))
+                if (searchMatchString(item[attr], query))
                     return true;
             }
             return false;
+
         });
         $scope.currentPage = 0;
         // now group by pages
         $scope.groupToPages();
+
+
+        getMarques();
     }
 
     /*Catalog search result Pagination*/
@@ -211,7 +202,130 @@ function CatalogCtrl($scope, $http, $filter){
     };
 
 
+    /**
+     *  Side bar
+     */
+    $scope.marques_first = [];
+    $scope.marques_rest = [];
+    $scope.rest = false;
+    $scope.marque_selection = {
+        marque:{}
+    };
 
+    $scope.request=[];
+    //$scope.pagedItems=[];
+
+
+    // initialize data for side bar
+
+    $http.get('/categories').success(function(data){
+        $scope.categories = data;
+    });
+
+    $http.get('catalogue/numberproductsbycategory').success(function(data){
+       $scope.numberOfProductsByCategory = data;
+    });
+
+    /* we get all marques from the sever */          //Old implementation
+//    $http.get('/manufacturers').success(function(data){
+//        //we take first 10 marque
+//        for(var i=0; i<data.length; i++){
+//            if(i<10)
+//                $scope.marques_first.push(data[i]);
+//            else
+//                $scope.marques_rest.push(data[i]);
+//
+//        }
+//    });
+
+
+    // in this version we form our marque list(for side bar...) from filtered items array  instead of get all marques from database
+    function getMarques(){
+      if (typeof $scope.filteredItems != 'undefined'){
+          //reinitialize marque every time to get marque for current array of filtered items
+          $scope.marques_first = [];
+          $scope.marques_rest = [];
+        for(var i = 0; i< $scope.filteredItems.length; i++ ){
+            if($scope.marques_first.length <=10){
+                if($scope.marques_first.indexOf($scope.filteredItems[i].manufacture) == -1)
+                $scope.marques_first.push($scope.filteredItems[i].manufacture);
+
+            }
+            else
+                if($scope.marques_rest.indexOf($scope.filteredItems[i].manufacture) == -1)
+                $scope.marques_rest.push($scope.filteredItems[i].manufacture);
+
+        }
+      }
+    }
+
+    // function to un check all checked Marque checkboxes
+    $scope.uncheckAllMArques =  function(){
+//        angular.forEach($scope.marque_selection.marque, function(value,key){
+//            $scope.marque_selection.marque[key]=false;
+//        });
+        $scope.marque_selection.marque = [];
+    }
+
+
+
+    $scope.manufacturerFilter = function(mrq){
+
+        if($scope.marque_selection.marque[mrq]){
+            $scope.request.push(mrq);
+            $scope.search($scope.query);
+        }
+
+        else {
+            var idx =  $scope.request.indexOf(mrq);
+            if (idx !== -1){
+                $scope.request.splice(idx,1);
+                $scope.search($scope.query);
+            }
+
+        }
+
+        $scope.filteredItems = $filter('marqueFilter')($scope.filteredItems,$scope.request);
+
+        $scope.currentPage = 0;
+        // now group by pages
+        $scope.groupToPages();
+
+        window.scrollTo(0,0);
+
+
+
+    }
+
+    // represents catalog side-bar by category filter
+    $scope.filterByCategory = function (category){
+        $scope.filteredItems = $filter('filter')($scope.products, function (item) {
+            if(typeof(category)=== 'undefined')
+            return true;
+            else
+            // if there are subcategories we loop over and return true if any of them contain given item
+             if(category.subcategory.length >0){
+
+                for(var i=0; i < category.subcategory.length; i++){
+                    if(category.subcategory[i].id == item.category_id)
+                    return true;
+                }
+                return false;
+
+             }
+             else
+             return item.category_id == category.id;
+        });
+
+        $scope.currentPage = 0;
+        // now group by pages
+        $scope.groupToPages();
+
+        $scope.uncheckAllMArques();
+        // clear search input
+        $scope.query="";
+        getMarques();
+    }
 }
 
 //CatalogCtrl.$inject = ['$scope','$http','$filter'];
@@ -350,6 +464,17 @@ function ImportProductsFromCsvCtrl($http,$scope){
     });
 }
 
+/*
+*   Controller to manage Products categories
+ */
+function ManageCategoriesCtrl($http, $scope){
+    $http.get('/categories').success(function(data){
+        $scope.categories = data;
+    });
+}
+
 // TODO may be it would be better to realise search et pagination on server side
 // TODO add filter by group, by manufacturer
 // TODO Action create new order is possible only if there are no unvalidated orders, or Alert!!!
+
+// TODO Tests for catalog view and controller

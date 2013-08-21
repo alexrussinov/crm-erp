@@ -241,3 +241,7 @@ input.line-qty {
 .manufactures .nav > li > a {
     font-size: 90%;
 }
+
+#all-products{
+    font-weight: bold;
+}

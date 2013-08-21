@@ -114,6 +114,10 @@ object ProductTable extends Table[Product]("t_products"){
   def count(implicit s:Session): Int =
     Query(ProductTable.length).first
 
+  def getAll(implicit s : Session) : List[Product] = {
+    (for(p <- ProductTable) yield p ).list
+  }
+
   def getAllProductsWithCustomerPrices (customer_id : Int)(implicit s : Session) = {
          val products : List[Product] = (for (p <- ProductTable) yield (p)).list
     if(customer_id > 0){

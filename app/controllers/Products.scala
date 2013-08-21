@@ -64,7 +64,8 @@ object Products extends  Controller with LoginLogout with AuthConf with Auth {
       tmp.ref.moveTo(new File("imports/"+filename.split("\\.")(0)+dt.toString("YYMMDDHMS")+".csv"))
       CustomIO.getFileTree(new File("imports/")) filter (_.isFile) map (f=>Map(f.getName->("imports/"+f.getName)))
     }
-    Ok(Json.toJson(result))
+    //Ok(Json.toJson(result))
+    Redirect(routes.Products.uploadProductsCsvForm)
     }
 
    def getFilesToImportJson = Action {request =>
@@ -78,7 +79,8 @@ object Products extends  Controller with LoginLogout with AuthConf with Auth {
     try {  DB.withSession { implicit session =>
            products.foreach(ProductTable.insert)
       }
-      Ok(""+products.length)
+     // Ok(""+products.length)
+      Redirect(routes.Catalogue.listProducts)
     }
     catch{
       case e: Exception => BadRequest(e.toString)
@@ -86,6 +88,14 @@ object Products extends  Controller with LoginLogout with AuthConf with Auth {
   }
 
 
+
+}
+
+object Categories extends  Controller with LoginLogout with AuthConf with Auth {
+
+  def manageCategories = authorizedAction(NormalUser){ user => implicit request =>
+  Ok(views.html.categories(user))
+  }
 
 }
 // TODO Evolution for slick doesn't work

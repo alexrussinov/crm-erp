@@ -371,17 +371,17 @@ class OrderSpec extends FlatSpec with ShouldMatchers{
       }
   }
 
-  "Import method" should "return the result" in {
-    running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
-      val res = Imports.importFromCsvWithHeaders("imports/test4.csv",";")
-      val products = Product.productsFromSource(res)
-      res.head("base_price").toDouble should equal(0.73)
-      res.head("reference") should include  ("BP_002106")
-      products.head.reference should equal("BP_002106")
-      products.head.supplier_id should equal(1)
-      products.head.base_price should equal(0.73)
-    }
-  }
+//  "Import method" should "return the result" in {
+//    running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
+//      val res = Imports.importFromCsvWithHeaders("imports/test4.csv",";")
+//      val products = Product.productsFromSource(res)
+//      res.head("base_price").toDouble should equal(0.73)
+//      res.head("reference") should include  ("BP_002106")
+//      products.head.reference should equal("BP_002106")
+//      products.head.supplier_id should equal(1)
+//      products.head.base_price should equal(0.73)
+//    }
+//  }
 
   "A Category" should "be creatable" in {
     running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
@@ -399,10 +399,21 @@ class OrderSpec extends FlatSpec with ShouldMatchers{
 
       val result = controllers.Application.getCategoriesInJson(FakeRequest())
       status(result) should equal(OK)
-      contentAsString(result) should include ("Sub category charc. 2")
+      contentAsString(result) should include ("Produits du Vieux Village")
     }
   }
 
+  "A request to getNumberOfProductsByCategory" should "respond with Action" in {
+    running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
+      DB.withSession { implicit session =>
+        ProductTable.insert(
+          Product(None, "some ref", "some label",Some("some desc."),Some("image url"),"kg",
+            Some(31),2,Some("Some manufacture"),Some("Suppl. Ref."), false, 5.5, 7.99, 10.00))
+      }
+      val result = controllers.Catalogue.getNumberOfProductsByCategory(FakeRequest())
+      contentAsString(result) should include ("31")
+    }
+  }
 
 }
 

@@ -1,13 +1,21 @@
 @(user: Users)
 @main("Catalogue", user) {
     @*<script src="@routes.Assets.at("javascripts/controllers.js")" type="text/javascript"></script>*@
-    <div class="col-lg-12 products-list" ng-init="customer_id=@user.customer_id.getOrElse(0)">
-        <div ng-controller="CatalogCtrl">
+  <div class="row" ng-init="customer_id=@user.customer_id.getOrElse(0)">
+    <div ng-controller="CatalogCtrl">
+     <div class="col-lg-3">
+        <div class="sidebar">
+            <block-categories with-id="false"></block-categories>
+            <div block-manufactures></div>
+        </div>
+     </div>
+     <div class="col-lg-9 products-list" >
+        <div>
             <div class="row">
                 <div class="col-lg-4">
                 <div class="input-group">
                     <span class="input-group-addon input-small"><i class="glyphicon glyphicon-search"></i></span>
-                    <input type="text" class="form-control input-small" ng-model="query" ng-change="search()">
+                    <input type="text" class="form-control input-small" ng-model="query" ng-change="search(query);uncheckAllMArques()">
                 </div>
                 </div>
             </div>
@@ -40,7 +48,9 @@
                 </div>
             </div>
         </div>
-    </div>
+     </div> <!-- product-list-->
+  <!-- </div> <!-- div CatalogCtrl -->
+  </div> <!-- row-->
 
     <!-- Modal Choose an order -->
     <div id="orderChoice" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -96,10 +106,7 @@
             </div>
         </div>
     </div>
-
+  </div> <!-- catalog controller-->
 }{
-    <div class="sidebar">
-    <div block-categories ></div>
-    <div block-manufactures></div>
-    </div>
+
 }

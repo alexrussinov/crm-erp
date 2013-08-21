@@ -261,8 +261,13 @@ main.directive('editable', function(){
 
 main.directive('blockCategories',function(){
     return {
-        restrict : 'A',
-        link : function($scope,element,attr){},
+        restrict : 'E',
+        link : function($scope,element,attrs){
+            attrs.$observe('withId', function(value) {
+                $scope.categoryWithId = value;
+                console.log('withId=', value);
+            });
+        },
         templateUrl: '/assets/fragments/main/categories.html',
         replace : true
     }
@@ -313,3 +318,21 @@ main.service('calculateTotalQtyService', function() {
 //   }
 // }
 //});
+
+main.filter('marqueFilter',function(){
+    return function(items,query){
+        var filtered =[];
+        if(query.length === 0)
+        return items;
+        else{
+        angular.forEach(items,function(item){
+           for(var i=0; i< query.length; i++){
+              if(item.manufacture.indexOf(query[i]) !== -1)
+              filtered.push(item);
+           }
+        });
+
+        return filtered;
+        }
+    }
+});
