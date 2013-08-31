@@ -1,7 +1,6 @@
 <div>
-<div class="col-lg-12 order-controls">
-
-
+<div class="row">
+ <div class="col-lg-8 order-controls">
     <!--<script src="@routes.Assets.at("javascripts/lst.js")" type="text/javascript"></script>-->
     <form class="form-inline" method="post" ng-submit="insertLine()">
     <div class="add_line">
@@ -9,29 +8,101 @@
             <div id="add_line_form">
 
             <label for="product"> Réf. ou Libellé
-            <input type="text" ng-model="request" name="product" id="product" required placeholder="Tapez votre recherche" auto-complete>
+            <input ng-disabled="order.fk_statut==1" type="text" ng-model="request" name="product" id="product" required placeholder="Tapez votre recherche" auto-complete>
             </label>
             <label for="product_qty"> Qty
-            <input type="text" ng-model="qty" name="product_qty" id="product_qty" class="input-mini" required pattern="\d+(\.\d*)?" placeholder="0.00">
+            <input ng-disabled="order.fk_statut==1" type="text" ng-model="qty" name="product_qty" id="product_qty" class="input-mini" required pattern="\d+(\.\d*)?" placeholder="0.00">
             </label>
             <input type="hidden" name="order_id" id="order_id" value="{{order.id}}">
             <input type="hidden" name="product_id" id="product_id" value="{{product_id}}">
-            <input type="submit" class="btn btn-primary btn-small" value="Ajouter">
+            <input ng-disabled="order.fk_statut==1" type="submit" class="btn btn-primary btn-small" value="Ajouter">
             </div>
             <table id="search_result"></table>
             </div>
         </form>
+ </div>
+ <div class="col-lg-4">
+     <div class="panel" ng-show="order.fk_statut==1">
+         <img src="/assets/images/icons/PDF-download-icon1.png" style="height: 60px;width: 60px"><a href="/order/pdf?id={{ order.id }}" target="_blank">{{ order.ref }}.PDF</a>
+     </div>
+
+ </div>
 </div>
-<div class="col-lg-12 order-controls" ng-switch="order.fk_statut">
+
+<div class="col-lg-8 order-controls" ng-switch="order.fk_statut">
     <div ng-switch-when="0">
-    <button class="btn btn-default btn-small" ng-click="validateAction(order)">Valider</button>
-    <button class="btn btn-default btn-small" ng-click="sendAction(order)" disabled>Envoyer</button>
+    <button class="btn btn-default btn-small" ng-click="validateAlertAction(order)">Valider</button>
+    <button class="btn btn-default btn-small" ng-click="sendAlertAction()" disabled>Envoyer</button>
     <button class="btn btn-primary btn-small" ng-disabled="order.sent" ng-click="deleteAction(order)">Supprimer</button>
     </div>
     <div ng-switch-when="1">
     <button class="btn btn-primary btn-small" ng-disabled="order.sent" ng-click="modifyAction(order)">Modifier</button>
-    <button class="btn btn-default btn-small" ng-click="sendAction(order)">Envoyer</button>
+    <button class="btn btn-default btn-small" ng-click="sendAlertAction()">Envoyer</button>
     <button class="btn btn-danger btn-small" ng-disabled="order.sent" ng-click="deleteAction(order)" href="">Supprimer</button>
     </div>
 </div>
+<div class="col-lg-4 order-events">
+    <div class="panel">
+        <p>Etats de commande:</p>
+        <table>
+            <tr>
+                <td>Date de création:</td><td>{{ order.date_creation | date: 'yyyy-MM-dd HH:mm:ss' }}</td>
+            </tr>
+            <tr>
+                <td>Dérnier modification:</td><td>{{ order.date_modif| date: 'yyyy-MM-dd HH:mm:ss' }}</td>
+            </tr>
+            <tr>
+                <td>Commande author:</td><td>{{ order.fk_user_author }}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div id="validateOrderAlert" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Valider la commande : {{ order.ref }}</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Êtes-vous sûr de vouloir valider cette commande?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default btn-small" data-dismiss="modal">Non</button>
+                    <button ng-click="validateAction(order)" type="button" class="btn btn-primary btn-small">Oui</button>
+                </div>
+            </div>
+      </div>
+</div>
+<div id="sendingOrderProgressBarModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="sendingOrderProgressBarModal" aria-hidden="true">
+   <div class="modal-dialog">
+       <div class="modal-content">
+           <div class="modal-body">
+               <div class="progress progress-striped active">
+                   <div id="sendingProgress" class="progress-bar" role="progress-bar" aria-valuemin="0" aria-valuenow="60" aria-valuemax="100" style="width: 80%;">
+
+                   </div>
+               </div>
+           </div>
+       </div>
+   </div>
+</div>
+    <div id="sendOrderAlert" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Envoyer la commande : {{ order.ref }}</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Êtes-vous sûr de vouloir envoyer cette commande, aucune modification ni suppression n'est possible une fois la commande envoyée?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default btn-small" data-dismiss="modal">Non</button>
+                    <button ng-click="sendAction(order)" type="button" class="btn btn-primary btn-small">Oui</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

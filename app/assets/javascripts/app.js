@@ -88,16 +88,11 @@ main.directive('orderHeader', function($http){
 //                 });
 //             }
 //          });
+
+            // we hide alert block by default
+            $('.alert').hide();
         },
-        template: '<div class="col-lg-12 order-summary">' +
-            '<table id="order_totals" class="order">' +
-            '<tr><td class="ref">Ref.</td><td>{{order.ref}}</td></tr>' +
-            '<tr><td class="client">Client:</td><td>{{order.customer.nom}}</td></tr>' +
-            '<tr><td class="date">Date:</td><td>{{order.order_date}}</td></tr>' +
-            '<tr><td class="qty">Qty:</td><td id="total_qty">{{total_kg}} KG {{total_piece}} Piece</td></tr>' +
-            '<tr><td class="total_ht">Total HT:</td><td>{{order.total_ht}}</td></tr>' +
-            '<tr><td class="total_ttc">Total TTC:</td><td>{{order.total_ttc}}</td></tr>' +
-            '</table></div>',
+        templateUrl: '/assets/fragments/order/order_header.html',
         replace: true
     }
 
@@ -155,18 +150,39 @@ main.directive('orderControls',function($http,$location){
         restrict: 'A',
         link: function($scope){
             $scope.modifyAction = function(order){
-                alert ('modify'+order.id);
+              if($scope.user.admin == 1){
                 $http.get('/order/modify?id='+order.id).success(function(data){
                     $scope.order = data.ord;
                     $scope.order.customer = data.customer;
                     $scope.order.lines = data.lines;
                 });
+              }
+                else{
+                  if(!$.isEmptyObject($scope.activeorder) && $scope.activeorder.fk_statut == 0){
+                      console.log("validate order"+$scope.activeorder.ref);
+                      $('#createOrderAlert').modal('toggle');
+                  }
+                  else{
+                      $http.get('/order/modify?id='+order.id).success(function(data){
+                          $scope.order = data.ord;
+                          $scope.order.customer = data.customer;
+                          $scope.order.lines = data.lines;
+                          $scope.activeorder=$scope.getUserActiveOrder();
+                          console.log("From directive validate action activeorder inside get: "+ $scope.order.fk_statut);
+                      });
+                      console.log("From directive validate action activeorder outside get: "+ $scope.order.fk_statut);
+                  }
+              }
             }
             $scope.sendAction = function(order){
-
+                $('#sendOrderAlert').modal('hide');
+                $('#sendingOrderProgressBarModal').modal('show');
                 $http.get('/order/send?id='+order.id).success(function(data){
                     $scope.order.sent=true;
-                    alert("Commande "+order.ref+" envoyée")
+                    $('#sendingOrderProgressBarModal').modal('hide');
+                    $('.alert').show();
+                    window.setTimeout(function() { $('.alert').hide(); }, 3000);
+                    //alert("Commande "+order.ref+" envoyée")
                 });
             }
             $scope.deleteAction = function (order){
@@ -175,11 +191,22 @@ main.directive('orderControls',function($http,$location){
                 });
             }
             $scope.validateAction = function(order){
+                $('#validateOrderAlert').modal('hide');
                 $http.get('/order/validate?id='+order.id).success(function(data){
                     $scope.order = data.ord;
                     $scope.order.customer = data.customer;
                     $scope.order.lines = data.lines;
+                    if($scope.user.admin!=1)
+                    $scope.activeorder = $scope.getUserActiveOrder();
+                    console.log("From directive validate action order inside get: "+ $scope.order.fk_statut);
                 });
+                console.log("From directive validate action order outside get: "+ $scope.order.fk_statut);
+            }
+            $scope.validateAlertAction = function(){
+                $('#validateOrderAlert').modal('toggle');
+            }
+            $scope.sendAlertAction = function(){
+                $('#sendOrderAlert').modal('toggle');
             }
 
         },
@@ -259,6 +286,43 @@ main.directive('editable', function(){
 
 });
 
+main.directive('editableCell',function(){
+    return {
+        restrict : 'E',
+        replace : true,
+        templateUrl: "/assets/fragments/editable-cell.html",
+        scope : {
+    //        label : '@',
+            value : '='
+        },
+        link : function(scope, element, attrs){
+
+            // editMode is disable by default
+            scope.editMode = false;
+
+            // if label attribut is not provide then remove
+            // the label element
+            if(!attrs.label){
+                element.find('label').remove();
+            }
+
+            // find the input elemnt of this directive ...
+            var input = element.find('input');
+            // and listen for blur event
+            input.bind('blur', function(){
+                // since blur event occured ouside the angular execution context
+                // we need to call scope.$apply to tell angularjs about the changes
+                scope.$apply(function(){
+                    // the change is to disable the editMode
+                    scope.editMode = false;
+                });
+
+            });
+
+        }
+    }
+});
+
 main.directive('blockCategories',function(){
     return {
         restrict : 'E',
@@ -289,6 +353,80 @@ main.directive('blockManufactures',function(){
     }
 });
 
+main.directive('activeOrder',function(){
+       return {
+           restrict : 'E',
+           link : function($scope,element,attr){},
+           templateUrl: '/assets/fragments/main/active-order.html',
+           replace: true
+       }
+});
+
+main.directive('addProductModal',function($http){
+    return {
+        restrict : 'E',
+        link : function($scope,element,attr){
+            /*insert line to order from catalog if user not admin*/
+            $scope.insertProductNotAdmin = function (){
+
+                $scope.insert_product_json =
+                {
+                    user_id: $scope.activeorder.fk_soc,
+                    order_id: $scope.activeorder.id,
+                    product_id: $scope.current_product_id,
+                    qty: $scope.current_order_product_qty
+                };
+
+                $http.post("/addLineJson", $scope.insert_product_json)
+                    .success(function(data, status, headers, config) {
+                        $('#CatalogAddProductNotAdmin').modal('hide');
+                        $scope.getUserActiveOrder();
+                    }).error(function(data, status, headers, config) {
+                        $scope.status = status;
+                        alert('Error'+status)
+                    });
+
+
+            }
+        },
+        templateUrl: '/assets/fragments/main/add-product-modal.html',
+        replace: true
+    }
+});
+
+main.directive('createOrderModal',function($http){
+    return {
+        restrict : 'A',
+        link : function($scope,element,attr){
+
+        },
+        templateUrl: '/assets/fragments/main/new-order-modal.html',
+        replace: true
+    }
+});
+
+main.directive('imagesUpload', function($http){
+   return {
+       restrict : 'E',
+       link : function($scope){
+          $scope.selectCat = function (id){
+              alert(id);
+          }
+       },
+       templateUrl: '/assets/fragments/imageupload/imageupload.html',
+       replace: true
+   }
+});
+
+main.directive('productFiche',function($http){
+    return {
+        restrict : 'E',
+        link : function(){},
+        templateUrl: '/assets/fragments/product/product-fiche.html',
+        replace: true
+    }
+});
+
 ////service style, service to calculate total qty
 main.service('calculateTotalQtyService', function() {
     return {
@@ -303,6 +441,20 @@ main.service('calculateTotalQtyService', function() {
             }
 
             return [total_kg,total_piece];
+        }
+    }
+});
+
+main.service('getCustomersService',function($http){
+    return {
+        set : function(){
+            var result ={};
+            $http.get('/getcustomers').success(function(data){
+                for(var i=0; i< data.length; i++){
+                    result[data[i].id]=data[i];
+                }
+            });
+            return result;
         }
     }
 });

@@ -1,0 +1,73 @@
+<div>
+<div id="createOrder" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">Nouvelle commande</h4>
+            </div>
+            <form class="form-horizontal" action="/create" method="post">
+            <div class="modal-body">
+
+                <div class="form-group">
+                      <div ng-show="user.admin == 1">
+                        <label for="societe" class="col-lg-2 control-label">Societé</label>
+                        <div class="col-lg-10">
+                         <select class="form-control" name="societe" id="societe">
+                             <option ng-repeat="customer in customers" value="{{ customer.id }}">{{ customer.nom }}</option>
+                         </select>
+                        </div>
+                      </div>
+                      <div ng-hide="user.admin==1">
+                          <div class="col-lg-2"></div>
+                          <div class="col-lg-10">
+                              <p>{{ user.email }}</p>
+                              <input type="hidden" name="societe" value="{{user.customer_id}}">
+                          </div>
+                      </div>
+                </div>
+                <div class="form-group">
+                    <label for="datepicker" class="col-lg-2 control-label">Date</label>
+                    <div class="col-lg-10">
+                    <div class="input-append">
+                        <input class="date-picker" id="datepicker" type="text" name="order_date" required/>
+                        <label for="datepicker" class="add-on"><i class="glyphicon glyphicon-calendar"></i></label>
+                    </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="note" class="col-lg-2 control-label">Note</label>
+                    <div class="col-lg-10">
+                    <textarea class="form-control input-xlarge" name="note" id="note" rows="3"></textarea>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                <input type="submit" class="btn btn-primary" value="Valider">
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+    <div id="createOrderAlert" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+             <div class="modal-dialog">
+                 <div class="modal-content">
+                     <div class="modal-header">
+                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                         <h4 class="modal-title">Attention!</h4>
+                     </div>
+                     <div class="modal-body">
+                       <p>Votre commande <a href="/order{{ activeorder.id }}"> {{ activeorder.ref }}</a> en cours n'est pas encore validée</p>
+                       <p>Vous pourriez avoir une seule commande en cours dans le moment donc pour <span style="font-weight: bold">créer une nouvelle commande ou modifier la commande existante</span>, vous devez valider la commande en cours.</p>
+                       <p>Validez-la en passant sur le lien ci-dessous et puis vous pouvez revenir pour modifier cette commande.</p>
+                           <p style="text-align: center"><a href="/order{{ activeorder.id }}" type="button" class="btn btn-primary btn-small">Accéder à la commande {{ activeorder.ref }}</a></p>
+                     </div>
+                     <div class="modal-footer">
+                         <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                     </div>
+                 </div>
+             </div>
+    </div>
+</div>

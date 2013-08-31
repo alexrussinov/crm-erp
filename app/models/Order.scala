@@ -25,13 +25,13 @@ import org.scala_tools.time.Imports._
  */
 case class Order(fk_soc : Int, order_date: String, date_creation: Timestamp,
                  fk_uther_author: Int, fk_statut : Int, tva : Option[Double], total_ht: Option[Double],
-                 total_ttc: Option[Double], note: Option[String], sent : Boolean = false) extends KeyedEntity[Int] {
+                 total_ttc: Option[Double], note: Option[String], sent : Boolean = false, sent_date : Option[Timestamp]=None) extends KeyedEntity[Int] {
   val id : Int = 0
 
   val ref : String = ""
 
 
-  val date_modif = Some(new Timestamp(DateTime.now.getMillis))
+  val date_modif : Option[Timestamp] = None
 
 
 
@@ -51,7 +51,7 @@ case class Order(fk_soc : Int, order_date: String, date_creation: Timestamp,
 // represent order for generating json
 case class OrderJ(id: Int, ref: String, date_modif : Option[Timestamp], fk_soc : Int, order_date: String, date_creation: Timestamp,
                    fk_uther_author: Int, fk_statut : Int, tva : Option[Double], total_ht: Option[Double],
-                   total_ttc: Option[Double], note: Option[String],sent : Boolean)
+                   total_ttc: Option[Double], note: Option[String],sent : Boolean, sent_date : Option[Timestamp])
 
 case class OrderLine (fk_order_id : Int, product_id : Int, product_ref: String, label: String, tva: Double, qty : Double, unity :String, prix_ht : Double,
                  prix_ttc : Double) extends KeyedEntity[Int] {
@@ -85,6 +85,7 @@ case class OrderLine (fk_order_id : Int, product_id : Int, product_ref: String, 
   }
 
   override def toString() = product_id + "," + product_ref + "," + qty + "," + unity
+  def toCsvString(delimiter : String) : String = product_id + delimiter + product_ref + delimiter + label + delimiter + qty + delimiter + unity
 
  // lazy val order : ManyToOne[Order] = OrderDB.OrderToOrderLines.right(this)
 
@@ -125,7 +126,8 @@ object Order extends Schema {
       ( __ \ 'total_ht).write[Option[Double]] and
       ( __ \ 'total_ttc).write[Option[Double]] and
       ( __ \ 'note).write[Option[String]] and
-      ( __ \ 'sent).write[Boolean]
+      ( __ \ 'sent).write[Boolean] and
+      ( __ \ 'sent_date).write[Option[Timestamp]]
     )(unlift(OrderJ.unapply))
  // val orderTable : Table[Order] = table[Order]("t_order")
 
@@ -209,14 +211,14 @@ object Order extends Schema {
   }
   def modify(id : Int):Int={
     inTransaction{
-      val r = update(OrderDB.orderTable)(o => where(o.id===id)set(o.fk_statut :=  0))
+      val r = update(OrderDB.orderTable)(o => where(o.id===id)set(o.fk_statut :=  0,o.date_modif:=Some(new Timestamp(DateTime.now.getMillis)) ))
       r
     }
   }
 
   def sent(id : Int): Int ={
     inTransaction{
-      update(OrderDB.orderTable)(o => where(o.id === id)set(o.sent := true))
+      update(OrderDB.orderTable)(o => where(o.id === id)set(o.sent := true, o.sent_date := Some(new Timestamp(DateTime.now.getMillis))))
     }
   }
   def delete(id : Int): Int = {
@@ -228,20 +230,21 @@ object Order extends Schema {
 
   def generateOrderInCSV(order_id : Int): String = {
     val order= getById(order_id)
-    val initial_list: List[String] = "id,ref,qty,unity"::Nil
-    val order_lines: List[String] = initial_list ::: OrderLine.getLines(order_id) map (s=>s.toString())
+    val initial_list: List[String] = "id;ref;label;qty;unity"::Nil
+    val order_lines: List[String] = initial_list ::: OrderLine.getLines(order_id).map (s=>s.toCsvString(";"))
 
     printToFile(new File("doc/"+order.ref+".csv"))(p => {
          order_lines.foreach(p.println)
     })
-    "doc/"+order.ref+".csv"
+    val path : String = "doc/"+order.ref+".csv"
+    path
   }
 
   // transform Order object to OrderJ object to perform JSON deserialisation with orderFormat,
   //we need this to have id, ref, date_modif fields in generated json
   def toOrderJ(o : Order): OrderJ = {
     OrderJ(o.id,o.ref,o.date_modif, o.fk_soc, o.order_date, o.date_creation, o.fk_uther_author,
-      o.fk_statut,o.tva, o.total_ht, o.total_ttc, o.note, o.sent)
+      o.fk_statut,o.tva, o.total_ht, o.total_ttc, o.note, o.sent,o.sent_date)
   }
 
   def totalQty(order_id: Int): Map[String,Double] = {

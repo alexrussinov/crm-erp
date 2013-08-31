@@ -1,0 +1,27 @@
+<div id="CatalogAddProductNotAdmin" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <form class="form-horizontal" name="addProductFromCatalogNotAdmin" ng-submit="insertProductNotAdmin()" novalidate>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="form-group">
+                         <label class="col-lg-2 control-label" for="qty">Qté :</label>
+                         <div class="col-lg-3">
+                            <input id="qty" class="form-control" type="text" name="qty"  ng-model="current_order_product_qty" ng-pattern="/^[0-9]*[.]?[0-9]+$/" placeholder="0.00" required>
+                         </div>
+                            <input type="hidden" value="{{order.fk_soc}}" ng-model="current_order_client_id">
+                    </div>
+                   </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button ng-disabled="addProductFromCatalogNotAdmin.qty.$invalid || addProductFromCatalogNonAdmin.qty.$pristine " class="btn btn-primary btn-small" type="submit">Ajouter</button>
+                    <button class="btn btn-default btn-small" data-dismiss="modal" aria-hidden="true">Anuler</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

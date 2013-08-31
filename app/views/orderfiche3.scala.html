@@ -2,12 +2,21 @@
 @main("Nouvelle Commande", user){
     @*<script src="@routes.Assets.at("javascripts/app.js")" type="text/javascript"></script>*@
     @*<script src="@routes.Assets.at("javascripts/controllers.js")" type="text/javascript"></script>*@
-<div  ng-init="current_order_id='@order.id';">
+<div class="row">
+ <div class="col-lg-2">
+   <div class="sidebar">
+
+   </div>
+ </div>
+ <div class="col-lg-10">
+ <div  ng-init="current_order_id='@order.id';">
   <div ng-controller="OrderCtrl">
       <input type="hidden" ng-model="order_id" value="@order.id">
     <div order-header="@order.id"></div>
     <div order-lines=""></div>
     <div order-controls=""></div>
   </div>
+ </div>
+ </div>
 </div>
 } {<div></div>}

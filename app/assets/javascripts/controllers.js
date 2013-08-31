@@ -1,11 +1,44 @@
 function MainCtrl($scope,$http,$filter){
 
 
+    $scope.getUserActiveOrder = function(){
+        if($scope.user.admin == 1){
+            $http.get('/getorders').success(function(data){
+
+                if (!$.isEmptyObject(data)){
+                    for(var i=0; i<data.length; i++){
+                        if(data[i].fk_statut == 0)
+                            $scope.activeorder= data[i];
+                    }
+                }
+                else $scope.activeorder={};
+
+            });
+        }
+        else {
+            $http.get('/getorders/customer?id='+$scope.user.customer_id).success(function(data){
+
+                if (!$.isEmptyObject(data)){
+                    for(var i=0; i<data.length; i++){
+                        if(data[i].fk_statut == 0)
+                            $scope.activeorder= data[i];
+                    }
+                }
+                else $scope.activeorder={};
+
+            });
+        }
+
+    }
+
+    $scope.getUserActiveOrder();
+
     // catalog action, wee need to declare them in parent scope!
     //$scope.search();
     /*add product action from catalog*/
     $scope.addProduct = function (product) {
         $scope.orders=[];
+        $scope.customers = getCustomers();
         //we use this with old implementation of json response from the server
         //$scope.current_product_id = product._1
 
@@ -65,6 +98,68 @@ function MainCtrl($scope,$http,$filter){
 
     }
 
+    $scope.addProductNotAdmin = function(product){
+
+        $scope.current_product_id = product.id;
+        if (!$.isEmptyObject($scope.activeorder)){
+
+            $scope.current_order_product_qty="";
+            $('#CatalogAddProductNotAdmin').modal('toggle');
+        }
+        else
+            $('#addAlertModal').modal('toggle');
+    }
+
+    // function that toggle new order creation modal
+    $scope.newOrder = function(){
+
+        if($scope.user.admin == 1){
+          $scope.customers=getCustomers();
+
+          $('#createOrder').modal('toggle');
+          $('#datepicker').datepicker({
+            dateFormat: "yy-mm-dd"
+          });
+
+        }
+        else{
+             $http.get('/getorders/customer?id='+$scope.user.customer_id).success(function(data){
+                  var activeorder = {};
+                 if (!$.isEmptyObject(data)){
+                     for(var i=0; i<data.length; i++){
+                         if(data[i].fk_statut == 0)
+                             activeorder= data[i];
+                     }
+                 }
+                 if(!$.isEmptyObject(activeorder) && activeorder.fk_statut == 0){
+                     //console.log("validate order"+$scope.activeorder.ref);
+                     console.log("From controller new order function activeorder : "+activeorder.fk_statut);
+                     // console.log("From controller new order function order : "+$scope.order.fk_statut);
+                     $('#createOrderAlert').modal('toggle');
+                 }
+                 else {
+                     $('#createOrder').modal('toggle');
+                     $('#datepicker').datepicker({
+                         dateFormat: "yy-mm-dd"
+                     });
+                     console.log("From controller new order function activeorder : "+activeorder.fk_statut);
+                 }
+             });
+
+
+        }
+
+    }
+
+    function getCustomers(){
+        var result = {};
+        $http.get('/getcustomers').success(function(data){
+            for(var i=0; i< data.length; i++){
+                result[data[i].id]=data[i];
+            }
+        });
+        return result;
+    }
 
 
 }
@@ -107,8 +202,6 @@ function CatalogCtrl($scope, $http, $filter){
     $scope.itemsPerPage = 15;
     $scope.pagedItems = [];
     $scope.currentPage = 0;
-
-
 
 
     // ajax request for products in database
@@ -436,8 +529,9 @@ function OrderPdfTplCtrl($scope, $http){
 
 // List Orders Controller, fetch orders of the customer or all orders if admin
 
-function ListOrdersCtrl($scope,$http){
+function ListOrdersCtrl($scope,$http,getCustomersService){
     if($scope.user.admin == 1){
+        $scope.customers = getCustomersService.set();
         $http.get('/getorders').success(function(data){
                $scope.orders=data;
         });
@@ -473,8 +567,237 @@ function ManageCategoriesCtrl($http, $scope){
     });
 }
 
+function ProductsImagesUploadCtrl($http, $scope){
+    $http.get('/categories').success(function(data){
+        $scope.categories = data;
+    });
+}
+
+
+/*
+* Controller to manage Catalog
+ */
+
+// Data and data manipulations for catalog view //  Retrieve products from database
+function ManageCatalogCtrl($scope, $http, $filter){
+    // initialize data for catalog
+
+    $scope.itemsPerPage = 15;
+    $scope.pagedItems = [];
+    $scope.currentPage = 0;
+
+
+    // ajax request for products in database
+    // ajax request for products in database
+    // TODO user id is hard coded, must correspond for current user loged in
+    $http.get('/catalogue/json/admin').success(function(data){
+        $scope.products =  data;
+        $scope.search();
+        getMarques();
+    });
+
+
+    // search a needle in a haystack OK <> true, KO <> false
+    var searchMatchString = function (haystack, needle) {
+        if (!needle) {
+            return true;
+        }
+
+        return normalize2((''+ haystack).toLowerCase()).indexOf(normalize2(needle.toLowerCase())) !== -1;
+
+    };
+
+    var searchMatchInt = function(haystack, needle){
+
+        for(var i = 0; i<haystack.length; i++){
+            if(haystack[i].id == needle)
+                return true;
+
+        }
+        return false;
+    }
+
+// init the filtered items
+    $scope.search = function (query) {
+        $scope.filteredItems = $filter('filter')($scope.products, function (item) {
+
+            for(var attr in item) {
+                if (searchMatchString(item[attr], query))
+                    return true;
+            }
+            return false;
+
+        });
+        $scope.currentPage = 0;
+        // now group by pages
+        $scope.groupToPages();
+
+
+        getMarques();
+    }
+
+    /*Catalog search result Pagination*/
+    $scope.groupToPages = function () {
+        $scope.pagedItems = [];
+
+        for (var i = 0; i < $scope.filteredItems.length; i++) {
+            if (i % $scope.itemsPerPage === 0) {
+                $scope.pagedItems[Math.floor(i / $scope.itemsPerPage)] = [ $scope.filteredItems[i] ];
+            } else {
+                $scope.pagedItems[Math.floor(i / $scope.itemsPerPage)].push($scope.filteredItems[i]);
+            }
+        }
+    };
+//    $scope.groupToPages();
+    $scope.range = function (start, end) {
+        var ret = [];
+        if (!end) {
+            end = start;
+            start = 0;
+        }
+        for (var i = start; i < end; i++) {
+            ret.push(i);
+        }
+        return ret;
+    };
+
+    $scope.prevPage = function () {
+        if ($scope.currentPage > 0) {
+            $scope.currentPage--;
+        }
+    };
+
+    $scope.nextPage = function () {
+        if ($scope.currentPage < $scope.pagedItems.length - 1) {
+            $scope.currentPage++;
+        }
+    };
+
+    $scope.setPage = function () {
+        $scope.currentPage = this.n;
+    };
+
+
+    /**
+     *  Side bar
+     */
+    $scope.marques_first = [];
+    $scope.marques_rest = [];
+    $scope.rest = false;
+    $scope.marque_selection = {
+        marque:{}
+    };
+
+    $scope.request=[];
+    //$scope.pagedItems=[];
+
+
+    // initialize data for side bar
+
+    $http.get('/categories').success(function(data){
+        $scope.categories = data;
+    });
+
+    $http.get('/catalogue/numberproductsbycategory').success(function(data){
+        $scope.numberOfProductsByCategory = data;
+    });
+
+    // in this version we form our marque list(for side bar...) from filtered items array  instead of get all marques from database
+    function getMarques(){
+        if (typeof $scope.filteredItems != 'undefined'){
+            //reinitialize marque every time to get marque for current array of filtered items
+            $scope.marques_first = [];
+            $scope.marques_rest = [];
+            for(var i = 0; i< $scope.filteredItems.length; i++ ){
+                if($scope.marques_first.length <=10){
+                    if($scope.marques_first.indexOf($scope.filteredItems[i].manufacture) == -1)
+                        $scope.marques_first.push($scope.filteredItems[i].manufacture);
+
+                }
+                else
+                if($scope.marques_rest.indexOf($scope.filteredItems[i].manufacture) == -1)
+                    $scope.marques_rest.push($scope.filteredItems[i].manufacture);
+
+            }
+        }
+    }
+
+    // function to un check all checked Marque checkboxes
+    $scope.uncheckAllMArques =  function(){
+//        angular.forEach($scope.marque_selection.marque, function(value,key){
+//            $scope.marque_selection.marque[key]=false;
+//        });
+        $scope.marque_selection.marque = [];
+    }
+
+
+
+    $scope.manufacturerFilter = function(mrq){
+
+        if($scope.marque_selection.marque[mrq]){
+            $scope.request.push(mrq);
+            $scope.search($scope.query);
+        }
+
+        else {
+            var idx =  $scope.request.indexOf(mrq);
+            if (idx !== -1){
+                $scope.request.splice(idx,1);
+                $scope.search($scope.query);
+            }
+
+        }
+
+        $scope.filteredItems = $filter('marqueFilter')($scope.filteredItems,$scope.request);
+
+        $scope.currentPage = 0;
+        // now group by pages
+        $scope.groupToPages();
+
+        window.scrollTo(0,0);
+
+
+
+    }
+
+    // represents catalog side-bar by category filter
+    $scope.filterByCategory = function (category){
+        $scope.filteredItems = $filter('filter')($scope.products, function (item) {
+            if(typeof(category)=== 'undefined')
+                return true;
+            else
+            // if there are subcategories we loop over and return true if any of them contain given item
+            if(category.subcategory.length >0){
+
+                for(var i=0; i < category.subcategory.length; i++){
+                    if(category.subcategory[i].id == item.category_id)
+                        return true;
+                }
+                return false;
+
+            }
+            else
+                return item.category_id == category.id;
+        });
+
+        $scope.currentPage = 0;
+        // now group by pages
+        $scope.groupToPages();
+
+        $scope.uncheckAllMArques();
+        // clear search input
+        $scope.query="";
+        getMarques();
+    }
+}
+
+function ProductFicheCtrl($scope, $http, $filter){
+    $scope.value ="";
+    $http.get('/product/json?id='+$scope.product_id).success(function(data){
+          $scope.product = data;
+    });
+}
+
 // TODO may be it would be better to realise search et pagination on server side
-// TODO add filter by group, by manufacturer
-// TODO Action create new order is possible only if there are no unvalidated orders, or Alert!!!
 
 // TODO Tests for catalog view and controller

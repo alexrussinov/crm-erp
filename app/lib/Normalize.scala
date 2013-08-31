@@ -9,7 +9,8 @@ object Normalize {
 
     val str_nlz = Normalizer.normalize(str,Normalizer.Form.NFD)
     val exp = "\\p{InCombiningDiacriticalMarks}+".r
-    exp.replaceAllIn(str_nlz,"")
+    val exp2 = "ł".r
+    exp2.replaceAllIn(exp.replaceAllIn(str_nlz,""),"l")
   }
 
 }

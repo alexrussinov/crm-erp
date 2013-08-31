@@ -41,7 +41,7 @@ object Orders extends  Controller with LoginLogout with AuthConf with Auth with 
     Ok(views.html.neworderform(newOrderForm, user))
 
   }
-
+  //create order and insert it to the database
   def createOrder = authorizedAction(NormalUser) { user => implicit request =>
   newOrderForm.bindFromRequest.fold (
   formWithErrors => BadRequest,
@@ -175,7 +175,7 @@ object Orders extends  Controller with LoginLogout with AuthConf with Auth with 
 
         // these new implementation  to use with native database
         val product : ProductCustomer = DB.withSession { implicit session =>
-        ProductTable.getProductById(product_id.head,client.id)
+        ProductTable.getProductByIdForCustomer(product_id.head,client.id)
         }
         val line_id = OrderLine(order_id.head,product.id.get,product.reference,product.label,product.tva_rate, qty.head.toDouble, product.unity, product.price, product.price_ttc).insertLine
         val order = Order.getByIdInJson(order_id.head)
@@ -218,7 +218,8 @@ object Orders extends  Controller with LoginLogout with AuthConf with Auth with 
     }.getOrElse{BadRequest}
 
   }
-
+  // we use this controller to get data for the autocomplete field "search product" in the oder fiche,
+  // work with dollibarr product and doll. database
   def searchProducts(value : Option[String], customer_id : Int) = Action {
     implicit val productsFormatTuple5 = (
       (__ \ '_1).write[Int] and
@@ -296,7 +297,7 @@ object Orders extends  Controller with LoginLogout with AuthConf with Auth with 
     attachment.setPath(lnk)
     attachment.setDisposition(EmailAttachment.ATTACHMENT)
     attachment.setDescription("commande")
-    attachment.setName("commande "+order.ref)
+    attachment.setName("commande "+order.ref+".csv")
 
     // Create the email message
     val email = new MultiPartEmail()

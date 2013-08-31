@@ -10,7 +10,7 @@
         <th>Unite</th>
         <th>Prix HT</th>
         <th>Total HT</th>
-        <th></th>
+        <th ng-hide="order.fk_statut==1"></th>
         </thead>
         <tbody ng-switch="lines.length">
         <tr id="no_record" ng-show="order.lines.length==0"><th colspan="9"  style="text-align: center" >Votre commande est vide....</th></tr>
@@ -23,7 +23,7 @@
             <td class='line-unity'>{{line.unity}}</td>
             <td class='line-prix_ht'>{{line.prix_ht}}</td>
             <td>{{(line.prix_ht*line.qty).toFixed(2)}}</td>
-            <td class='control-buttons' ng-hide="editMode">
+            <td class='control-buttons' ng-hide="editMode||order.fk_statut==1">
                 <i class='glyphicon glyphicon-edit edit-line' ng-click="editMode = true"></i>
                 <i class='glyphicon glyphicon-trash delete-line' ng-click="deleteLine($index)"></i>
             </td>

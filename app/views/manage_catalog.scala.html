@@ -1,0 +1,61 @@
+@(user : Users)
+@main("Gestion de catalogue",user){
+    <div class="row" ng-init="customer_id=@user.customer_id.getOrElse(0)">
+        <div ng-controller="ManageCatalogCtrl">
+            <div class="col-lg-3">
+                <div class="sidebar">
+                    <block-categories with-id="false"></block-categories>
+                    <div block-manufactures></div>
+                </div>
+            </div>
+            <div class="col-lg-9 products-list" >
+                <div>
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <div class="input-group">
+                                <span class="input-group-addon input-small"><i class="glyphicon glyphicon-search"></i></span>
+                                <input type="text" class="form-control input-small" ng-model="query" ng-change="search(query);uncheckAllMArques()">
+                            </div>
+
+                        </div>
+                    </div>
+                    <div><hr/></div>
+                    @*<div><input type="text" class="form-control" ng-model="query" ng-change="search()"><hr></div>*@
+                    <div class="row">
+                        <div class="container-list-products-table">
+                            <table class="list-products">
+                                <tr ng-repeat="product in pagedItems[currentPage]" id="{{product.id}}">
+                                    <td><a ng-show="product.image_url" href="{{ product.image_url }}" data-lightbox="image-1" title="{{ product.label }}"><i class="glyphicon glyphicon-camera photo"></i></a><a ng-hide="product.image_url" href="/assets/images/no_image.gif" data-lightbox="image-1" title="{{ product.label }}"><i class="glyphicon glyphicon-camera photo"></i></a> </td>
+                                    <td><a href="/products/fiche?id={{ product.id }}">{{product.reference}}</a></td>
+                                    <td>{{product.label}}</td>
+                                    <td>{{product.base_price}}</td>
+                                    <td>
+                                        <button ng-hide="user.admin==1" class="btn-small" ng-click="addProductNotAdmin(product)"><i class="glyphicon glyphicon-shopping-cart"></i></button>
+                                        <button ng-show="user.admin==1" class="btn-small" ng-click="addProduct(product)"><i class="glyphicon glyphicon-shopping-cart"></i></button>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6"><div class="page-totals"><p>{{filteredItems.length}} Product(s) {{currentPage +1}} sur {{pagedItems.length}}</p></div></div>
+                        <div class="col-lg-6">
+                            <ul class="pager">
+                                <li ng-class="{disabled: currentPage == 0}">
+                                    <a href ng-click="prevPage()">« Prev</a>
+                                </li>
+                                <li ng-class="{disabled: currentPage == pagedItems.length - 1 || pagedItems.length <= itemsPerPage}">
+                                    <a href ng-click="nextPage()">Next »</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div> <!-- product-list-->
+            <!-- </div> <!-- div CatalogCtrl -->
+        </div> <!-- row-->
+
+
+
+    </div> <!-- catalog controller-->
+}{<div></div>}

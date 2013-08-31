@@ -4,15 +4,16 @@
 <div class="span12 list-orders" ng-controller="ListOrdersCtrl">
     <table id="list_orders" class="table table-striped">
     <tr>
-        <th>Reference</th><th>Date</th><th>Societe</th><th>Total HT</th><th>Total TTC</th><th>Status</th>
+        <th>Référence</th><th>Date</th><th ng-hide="user.admin!=1">Société</th><th>Total HT</th><th>Total TTC</th><th>État</th>
     </tr>
         <tr ng-repeat="order in orders">
             <td><a href="/order{{ order.id }}">{{ order.ref }}</a></td>
             <td>{{ order.order_date }}</td>
-            <td>{{ order.fk_soc }}</td>
+            <td ng-hide="user.admin!=1">{{ customers[order.fk_soc].nom }}</td>
             <td>{{ order.total_ht }}</td>
             <td>{{ order.total_ttc }}</td>
-            <td>{{ order.fk_statut }}</td>
+            <td ng-hide="order.fk_statut ==0">Validé</td>
+            <td ng-show="order.fk_statut ==0">Brouillon</td>
         </tr>
 </table>
 </div>

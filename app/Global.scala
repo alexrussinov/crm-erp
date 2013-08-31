@@ -30,14 +30,18 @@ object Global extends GlobalSettings {
      //default user
     if (Users.findAll.isEmpty) {
       Seq(
-        Users("test@test.com", "12345", 1,Some(1))
+        Users("admin@test.com", "12345", 1,Some(1)),
+        Users("user@test.com", "12345", 0,Some(30))
 
       ) foreach Users.create
     }
      //default supplier
     if (Supplier.getAll.isEmpty){
       Seq(
-      Supplier("Default supplier","Some address","some tel","mail@mail.com")
+      Supplier("Default supplier","Some address","some tel","mail@mail.com"),
+      Supplier("Szubryt","Some address","some tel","mail@mail.com"),
+      Supplier("Kora","Some address","some tel","mail@mail.com"),
+      Supplier("J.Michalska","Some address","some tel","mail@mail.com")
       ) foreach(f=>f.create_supplier)
     }
       //Default customer discount for test user
@@ -49,7 +53,7 @@ object Global extends GlobalSettings {
     play.api.db.slick.DB.withSession { implicit session =>
       if (ProductTable.count == 0) {
           Seq(
-            Product(None, "some ref", "some label",Some("some desc."),Some("image url"),"kg",
+            Product(None, "some ref", "some label",Some("some desc."),Some("/assets/images/products/szubryt/baleron_gotowany_2_1_1.jpg"),"kg",
               None,1,Some("Some manufacture"),Some("Suppl. Ref."), false, 5.5, 7.99, 14.99)
           ).foreach(ProductTable.insert)
       }
@@ -90,7 +94,12 @@ object Global extends GlobalSettings {
          CategoryT(None, "Fromages",11),
          CategoryT(None, "Lait, Créme frâiche",11),
          CategoryT(None, "Beure, Margarine",11),
-         CategoryT(None, "Autres...",11)
+         CategoryT(None, "Autres...",11),
+         CategoryT(None, "Produits traditionels",15),
+         CategoryT(None, "Poisson fumé",15),
+         CategoryT(None, "Pierogi",17),
+         CategoryT(None, "Crêpes, Galettes",17),
+         CategoryT(None, "Autres",17)
         ).foreach(CategoryTable.insert)
       }
     }

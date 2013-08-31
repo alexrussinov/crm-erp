@@ -76,8 +76,15 @@ object Products extends  Controller with LoginLogout with AuthConf with Auth {
   def importProductsFromCsv(path : String) = Action {request =>
     val res = Imports.importFromCsvWithHeaders(path,";")
     val products = Product.productsFromSource(res)
+    val productsWithFoto = products.map(f=>{
+      val images = Product.searchForImage(f,"images/products/szubryt")
+      if(!images.isEmpty) Product(f.id,f.reference,f.label,f.description,Some(images.head.path),f.unity,
+        f.category_id,f.supplier_id,f.manufacture,f.reference_supplier,f.multi_price,f.tva_rate,f.price_supplier,f.base_price)
+      else f
+    }
+    )
     try {  DB.withSession { implicit session =>
-           products.foreach(ProductTable.insert)
+           productsWithFoto.foreach(ProductTable.insert)
       }
      // Ok(""+products.length)
       Redirect(routes.Catalogue.listProducts)
@@ -87,7 +94,40 @@ object Products extends  Controller with LoginLogout with AuthConf with Auth {
     }
   }
 
+  def uploadProductsImages = authorizedAction(Administrator){ user => implicit request =>
+  Ok(views.html.products_images_upload(user))
+  }
 
+  def productFiche(id : Int) = authorizedAction(Administrator){ user => implicit request =>
+  Ok(views.html.product_fiche(user,id))
+  }
+
+  def getProductByIdInJson(id : Int) = authorizedAction(Administrator){ user => implicit request =>
+    val product =  DB.withSession { implicit session => ProductTable.getById(id)}
+    Ok(Json.toJson(product))
+  }
+  /* handle image file upload and product update with appropriate image url */
+//  val imageUploadForm = Form(
+//  tuple(
+//  "product_id" -> number,
+//  "image" ->file ignored
+//  )
+//  )
+
+  def updateProductImage() = authorizedAction(Administrator){ user => request =>
+   val product_id : Int = (request.body.asMultipartFormData map {f=>f.asFormUrlEncoded.get("product_id")}).get.get.head.toInt
+   val product = DB.withSession { implicit session => ProductTable.getById(product_id)}
+   val file = request.body.asMultipartFormData map {f => f.file("image").map {tmp =>
+      val filename = tmp.filename
+      import java.io.File
+      val file = new File("public/images/products/"+" ".r.replaceAllIn(product.manufacture.getOrElse("default").toLowerCase,"_")+"/"+filename)
+      tmp.ref.moveTo(file,true)
+      file
+    }}
+    DB.withSession { implicit session => ProductTable.filter(_.id === product_id).map(_.image_url).update(file.map(f=>"public".r.replaceAllIn(f.get.getPath,"assets")))  }
+    //Ok("")
+    Redirect(routes.Products.productFiche(product_id))
+  }
 
 }
 

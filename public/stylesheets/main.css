@@ -61,6 +61,17 @@ div.manufactures hr {
     margin: 0 0 0 10px;
 }
 
+div.active-order {
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+a.product-image, a.product-image:hover,a.product-image :visited {
+    text-decoration: none;
+    color: #563d7c;
+}
+
 /* Lastly, apply responsive CSS fixes as necessary */
 @media (max-width: 767px) {
     #footer {
@@ -159,23 +170,42 @@ table.order th {
     border : 1px solid #a2abc0;
     text-align : center;
 }
+
+div.order-events > table{
+    border-collapse : collapse;
+    background-color:  transparent;
+    /*width: 100%;*/
+    border : 1px solid #a2abc0;
+    font-size: 95%;
+}
+
+div.order-events > td {
+    border-collapse : collapse;
+    background-color:  transparent;
+    /*width: 100%;*/
+    border : 1px solid #a2abc0;
+    font-size: 95%;
+}
+div.order-events p {
+    font-weight: bold;
+}
 .list-orders {
     width: 95%;
     margin-top: 60px;
 }
 .order-summary {
-    width: 95%;
+    /*width: 95%;*/
     margin-top: 60px;
 }
 .fiche {
     margin-top: 10px;
-    width: 95%;
+    /*width: 95%;*/
     max-height: 50%;
     overflow: auto;
     padding: 0;
 }
 .order-controls {
-    width: 95%;
+    /*width: 95%;*/
     padding-top: 20px;
     padding-bottom: 20px;
 }

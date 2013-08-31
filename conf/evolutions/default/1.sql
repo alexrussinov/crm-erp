@@ -32,7 +32,8 @@ tva  DOUBLE,
 total_ht DOUBLE,
 total_ttc DOUBLE,
 note VARCHAR(255),
-sent boolean
+sent boolean,
+sent_date timestamp
 );
 
 create table t_orderlines (

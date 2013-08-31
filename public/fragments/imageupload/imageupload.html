@@ -1,0 +1,10 @@
+<div class="upload">
+    <label>Select categorie</label>
+    <select ng-model="selected" ng-options="cat.name for cat in categories"> </select><br>
+    <div ng-show="selected.subcategory.length > 0">
+    <label>Select subcategorie</label>
+    <select  ng-model="sub" ng-options="c.name for c in selected.subcategory"></select>
+    </div>
+    <p>{{ selected.id }}</p>
+    <p>{{ sub.id }}</p>
+</div>

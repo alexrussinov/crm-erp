@@ -1,0 +1,80 @@
+@(user : Users, form : Form[(String,String,String,String)])(implicit flash: Flash)
+@main("Contactez-nous",user){
+<div  class="row">
+    <div class="col-lg-2"></div>
+    <div class="col-lg-8 ">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Nous contacter</h3>
+            </div>
+            <div class="panel-body">
+                <address>
+                    <strong>SARL ITC PLUS "Stare Miasto"</strong><br>
+                    5 Rue du Vigneau<br>
+                    85310, Nesmy, France<br>
+                    <abbr title="Phone">Tél.:</abbr> +33 688 95 61 61
+                </address>
+                <address>
+                    <strong>Service commande et facturation</strong><br>
+                    <a href="mailto:#">imexbox@@gmail.com</a>
+                </address>
+            </div>
+        </div>
+    </div>
+</div>
+    @flash.get("message").map{ message =>
+       <div class="row">
+       <div class="col-lg-2"></div>
+       <div class="col-lg-8">
+         <div class="alert alert-success">
+          @message
+         </div>
+       </div>
+       <div class="col-lg-2"></div>
+      </div>
+    }
+<div class="row">
+    <div class="col-lg-2"></div>
+    <div class="col-lg-8">
+        <div class="panel">
+            <div class="panel-heading">
+                <h3 class="panel-title">Formulaire de contact</h3>
+            </div>
+            <div class="panel-body">
+            <form class="form form-horizontal" role="form" action="@routes.Application.contactFormSendMessage" method="post">
+                <div class="form-group">
+                    <label for="inputEmail1" class="col-lg-3 control-label">Votre email</label>
+                    <div class="col-lg-9">
+                        <input name="email" type="email" class="form-control" id="inputEmail1" placeholder="Email" required="">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputName" class="col-lg-3 control-label">Nom et Prénom</label>
+                    <div class="col-lg-9">
+                        <input name="name" type="text" class="form-control" id="inputName" placeholder="Nom Prénom" required="">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputSubject" class="col-lg-3 control-label">Objet</label>
+                    <div class="col-lg-9">
+                        <input name="subject" type="text" class="form-control" id="inputSubject" placeholder="Objet" required="">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputMessage" class="col-lg-3 control-label">Message</label>
+                    <div class="col-lg-9">
+                        <textarea name="message" class="form-control" id="inputMessage" rows="6"></textarea>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-lg-3"></div>
+                    <div class="col-lg-9">
+                        <button type="submit" class="btn btn-default">Envoyer</button>
+                    </div>
+                </div>
+            </form>
+            </div>
+        </div>
+    </div>
+</div>
+}{<div></div>}

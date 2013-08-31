@@ -6,7 +6,82 @@
  * To change this template use File | Settings | File Templates.
  */
 
-1+1
+ import lib.CustomIO
+ import java.io.File
+ import models.{ProductTable, FileImp,Product}
+
+val a =CustomIO.getFileTree(new File("public/images/products/szubryt/")) filter (_.isFile) map (f=>FileImp(f.getName,("assets/images/products/szubryt/"+f.getName)))
+
+
+
+val product_name = "boczek pieczony / bacon au four"
+ product_name.split("/")
+
+
+def nrmlz(str : String): String ={
+  "_".r.replaceAllIn(str," ").toLowerCase
+}
+a.length
+
+val result = for{entry <- a.sortBy(f=>f.name)
+   if(nrmlz(entry.name).contains(product_name.split("/")(0).toLowerCase))
+ } yield (product_name,entry)
+
+
+ result.length
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

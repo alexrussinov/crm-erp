@@ -3,7 +3,8 @@ import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
-import lib.{Convertion, mat}
+import lib.{Normalize, CustomIO, Convertion, mat}
+import java.io.File
 
 /**
  * Created with IntelliJ IDEA.
@@ -42,6 +43,11 @@ case class Product (
    price_supplier : Double,
    base_price : Double
 
+)
+
+case class ProductImage(
+name : String,
+path : String
 )
 
 object Product {
@@ -83,6 +89,19 @@ object Product {
         src map (s=>Product(None,s("reference"),s("label"),Some(s("description")),Some(s("image_url")),s("unity"),Convertion.prse[Int](s("category_id")),Convertion.prse[Int](s("supplier_id")).get,
           Some(s("manufacture")),Some(s("reference_supplier")),Convertion.prse[Boolean](s("multi_price")).get,Convertion.prse[Double](s("tva_rate")).get,Convertion.prse[Double](s("price_supplier")).get,Convertion.prse[Double](s("base_price")).get))
   }
+
+  //search for available image ... for the product
+  def searchForImage(product : Product, pathToImageFolder : String) : List[ProductImage] = {
+    def nrmlz(str : String): String ={
+      "_".r.replaceAllIn(str," ").toLowerCase
+    }
+      val listOfFiles = CustomIO.getFileTree(new File("public/"+pathToImageFolder)) filter (_.isFile) map (f=>FileImp(f.getName,("assets/" + pathToImageFolder+ "/" + f.getName)))
+
+     val result = for{entry <- listOfFiles.sortBy(f=>f.name)
+                     if(nrmlz(entry.name).contains(Normalize.removeDiacritics(product.label.split("/")(0)).toLowerCase))
+    } yield (ProductImage(entry.name,entry.path))
+    result.toList
+  }
 }
 
 object ProductTable extends Table[Product]("t_products"){
@@ -117,6 +136,7 @@ object ProductTable extends Table[Product]("t_products"){
   def getAll(implicit s : Session) : List[Product] = {
     (for(p <- ProductTable) yield p ).list
   }
+   // we must have customer discount define for all suppliers(supplier_id)  even if 0, for this method to work
 
   def getAllProductsWithCustomerPrices (customer_id : Int)(implicit s : Session) = {
          val products : List[Product] = (for (p <- ProductTable) yield (p)).list
@@ -124,9 +144,10 @@ object ProductTable extends Table[Product]("t_products"){
          val discounts : List[CustomerDiscount] = CustomerDiscount.getDiscountsByCustomerId(customer_id)
          if (!discounts.isEmpty){
     for{ p <- products
-         d <- discounts if(p.supplier_id == d.supplier_id)
-    } yield (p.id,p.reference, p.label, p.description, p.image_url, p.unity, p.category_id, p.supplier_id,
-            p.manufacture, p.tva_rate, mat.round(p.base_price*((100-d.discount)/100)) )
+         d <- discounts //if(p.supplier_id == d.supplier_id) we have replaced this condition directly to the yield expression to handle the case when customer discounts exist, but not for this supplier
+    }  yield (p.id,p.reference, p.label, p.description, p.image_url, p.unity, p.category_id, p.supplier_id,
+            p.manufacture, p.tva_rate, if(p.supplier_id == d.supplier_id)mat.round(p.base_price*((100-d.discount)/100))else p.base_price )
+
           }
       else {
            for (p <- products) yield (p.id,p.reference, p.label, p.description, p.image_url, p.unity, p.category_id, p.supplier_id,
@@ -137,7 +158,7 @@ object ProductTable extends Table[Product]("t_products"){
          p.manufacture, p.tva_rate, p.base_price )
   }
    // Retrieve product with fields set for customer
-  def getProductById(product_id : Int, customer_id : Int)(implicit s : Session): ProductCustomer ={
+  def getProductByIdForCustomer(product_id : Int, customer_id : Int)(implicit s : Session): ProductCustomer ={
     val discounts = CustomerDiscount.getDiscountsByCustomerId(customer_id)
     val products : List[Product] = (for(p <- ProductTable)yield(p)).list
     if(discounts.isEmpty){
@@ -149,8 +170,8 @@ object ProductTable extends Table[Product]("t_products"){
 
    else { val pr : List[ProductCustomer] = for {
       p <- products if(p.id.get == product_id)
-      d <- discounts if(p.supplier_id == d.supplier_id)
-    }yield ProductCustomer(p.id,p.reference,p.label,p.description,p.image_url,p.unity,p.category_id,p.tva_rate,mat.round(p.base_price*((100-d.discount)/100)))
+      d <- discounts //if(p.supplier_id == d.supplier_id)  we have replaced this condition directly to the yield expression to handle the case when customer discounts exist, but not for this supplier
+    }yield ProductCustomer(p.id,p.reference,p.label,p.description,p.image_url,p.unity,p.category_id,p.tva_rate,if(p.supplier_id == d.supplier_id)mat.round(p.base_price*((100-d.discount)/100))else p.base_price )
     pr.head
     }
 
@@ -159,6 +180,15 @@ object ProductTable extends Table[Product]("t_products"){
 //         d <- discounts    if(p.supplier_id == d.supplier_id)
 //        }yield (p.id,p.reference,p.label,p.description,p.image_url,p.unity,p.category_id,p.tva_rate,mat.round(p.base_price*((100-d.discount)/100))))
 //    pr.head
+  }
+
+  def getById(id : Int)(implicit s : Session) : Product = {
+   val result = (for{
+      p <- ProductTable
+      if(p.id === id)
+    }yield p).list
+
+    result.head
   }
 
   def getAllManufacturers(implicit session : Session) : List[Option[String]] = {

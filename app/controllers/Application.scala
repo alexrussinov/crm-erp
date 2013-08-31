@@ -14,6 +14,7 @@ import play.api.libs.functional.syntax._
 import reflect.classTag
 import scala.Some
 import lib.mat
+import org.apache.commons.mail.{DefaultAuthenticator, MultiPartEmail}
 
 
 //import com.codahale.jerkson.Json
@@ -68,6 +69,42 @@ object Application extends Controller with LoginLogout with AuthConf with Auth{
 
   def showProducts = authorizedAction(NormalUser){ user => implicit request =>
     Ok(views.html.products(user))
+  }
+
+  val contactForm = Form(
+    tuple(
+      "email"-> email,
+      "subject"->text,
+      "message"->text,
+      "name"->text
+    )
+  )
+
+  def contactPage = authorizedAction(NormalUser){ user => implicit request =>
+  Ok(views.html.contact(user,contactForm))
+  }
+
+
+  def contactFormSendMessage = authorizedAction(NormalUser){ user => implicit request =>
+  contactForm.bindFromRequest.fold (
+    formWithErrors=>BadRequest(views.html.contact(user,formWithErrors)),
+    value =>{
+    // Create the email message
+    val email = new MultiPartEmail()
+
+    email.setHostName("smtp.googlemail.com")
+    email.setSmtpPort(465)
+    email.setAuthenticator(new DefaultAuthenticator("imexbox@gmail.com", "eU0mwqAa"))
+    email.setSSL(true)
+    email.addTo("imexbox@gmail.com")
+    email.setFrom(value._1,value._1)
+    email.setSubject("Nouveau message de "+value._4 +" depuis formulaire de contact: "+value._2)
+    email.setMsg(value._3)
+      // send the email
+    email.send()
+    Redirect(routes.Application.contactPage).flashing("message"->"Votre message envoyé avec success!")
+     }
+    )
   }
 
   /** Your application's login form.  Alter it to fit your application */
@@ -298,11 +335,27 @@ object Catalogue extends Controller with LoginLogout with AuthConf with Auth {
       (__ \ 'price).write[Double]
     ).tupled : Writes[(Option[Int], String, String, Option[String], Option[String], String, Option[Int], Int, Option[String], Double, Double)]
 
+      /**
+       *
+        * @param customer_id
+       * @return All products with prices as json for specified customer id,
+       *         light form (with out some fields that's not necessary for the customer view)
+       */
+
   def getProductsWithPricesInJson(customer_id: Int) = authorizedAction(NormalUser){ user => implicit request =>
 //                val result = ProductDoll.getProductsWithPrices(customer_id,0,10000)
                 val result = Json.toJson(play.api.db.slick.DB.withSession { implicit session => ProductTable.getAllProductsWithCustomerPrices(customer_id)} )
     Ok(result).as(JSON)
 
+  }
+
+      /**
+       *  Method to get all available products, used for manage catalog
+        * @return all products as json, with all fields
+       */
+  def getAllProducts = authorizedAction(Administrator){user => implicit request =>
+     val result = Json.toJson( play.api.db.slick.DB.withSession { implicit session => ProductTable.getAll} )
+    Ok(result).as(JSON)
   }
 
   def listProducts = authorizedAction(NormalUser){ user => implicit request =>
@@ -354,6 +407,10 @@ object Catalogue extends Controller with LoginLogout with AuthConf with Auth {
 
     Ok(Json.toJson(result)).as(JSON)
 
+  }
+  // serve the view to manage catalog
+  def manageCatalog = authorizedAction(Administrator){ user => implicit request =>
+  Ok(views.html.manage_catalog(user))
   }
 
 }

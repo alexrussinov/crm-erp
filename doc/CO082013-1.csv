@@ -1,2 +1,3 @@
-id,ref,qty,unity
-1,some ref,5.0,kg
+id;ref;label;qty;unity
+1;some ref;some label;5.0;kg
+1;some ref;some label;5.0;kg

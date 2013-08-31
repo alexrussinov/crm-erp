@@ -1,0 +1,31 @@
+<div ng-controller="ProductFicheCtrl">
+    <h4>Fiche de produit</h4>
+    <form>
+    <table class="table">
+        <tr>
+            <td>Reference</td><td><editable-cell  value="product.reference"></editable-cell></td>
+        </tr>
+        <tr>
+            <td>Label</td><td><editable-cell  value="product.label"></editable-cell></td>
+        </tr>
+        <tr>
+            <td>Description</td><td><editable-cell  value="product.description"></editable-cell></td>
+        </tr>
+        <tr>
+            <td>Image Url</td><td><editable-cell  value="product.image_url"></editable-cell></td>
+        </tr>
+        <tr>
+            <td>Prix de base</td><td><editable-cell  value="product.base_price"></editable-cell></td>
+        </tr>
+    </table>
+        </form>
+
+    <div class="well">
+        <h4>Update image</h4>
+        <hr class="divider">
+        <form enctype="multipart/form-data" action="/product/updateimage" method="post">
+            <input type="file" name="image"><input type="submit" value="Update image">
+            <input type="hidden" name="product_id" value="{{ product.id }}">
+        </form>
+    </div>
+</div>
