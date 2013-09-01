@@ -64,8 +64,20 @@ object Orders extends  Controller with LoginLogout with AuthConf with Auth with 
 
   // return orders for a specic customer
   def listCustomerOrdersJson(id : Int) = Action { implicit request =>
-    val json = Order.getAllCustomerOrdersJson(id)
+    val json = Json.toJson(Order.getCustomerOrders(id))
     Ok(json).as(JSON)
+  }
+
+  //return 3 last orders for a specific customer
+  def get3CustomerOrderJson(customer_id : Int) = authorizedAction(NormalUser){user => implicit request =>
+    val json = Json.toJson(Order.getCustomerOrders(customer_id,3) )
+    Ok(json).as(JSON)
+  }
+
+  //return total sales per month by costomer
+  def getTotalSalesPerMonthByCostomerInJson(customer_id : Int)=authorizedAction(NormalUser){user => implicit request =>
+    val result = Order.getCustomerTotalOrdersPerMonth(customer_id)
+    Ok(Json.toJson(result)).as(JSON)
   }
   // Retrieve list of avaiable customers
   def getCustomersInJson =  authorizedAction(NormalUser) { user => implicit request =>

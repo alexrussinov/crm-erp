@@ -72,6 +72,11 @@
 // directives that represents an order
 //var order = angular.module("itcModule",['calculateTotalQtyService']);
 
+google.setOnLoadCallback(function() {
+    angular.bootstrap(document.body, ['itcModule']);
+});
+google.load('visualization', '1', {packages: ['corechart']});
+
 var main = angular.module("itcModule",[]);
 
 main.directive('orderHeader', function($http){
@@ -424,6 +429,70 @@ main.directive('productFiche',function($http){
         link : function(){},
         templateUrl: '/assets/fragments/product/product-fiche.html',
         replace: true
+    }
+});
+
+main.directive('googleChart',function($http,$timeout){
+    return{
+        restrict:'EA',
+//        scope: {
+//            title:    '@title',
+//            width:    '@width',
+//            height:   '@height',
+//            client_id:'@clientid',
+//            data:     '=data'
+//        },
+        link : function($scope, $elm, $attr){
+
+            var data = google.visualization.arrayToDataTable($scope.chartData);
+            var chart = new google.visualization.ColumnChart($elm[0]);
+
+
+            $http.get('orders/totals/permonth?id='+$scope.client_id).success(function(res){
+                 data = google.visualization.arrayToDataTable([
+                    ['Mois', 'Sales'],
+                    ['Janvier',  parseFloat(res[0].toFixed(2))],
+                    ['Fevrier',  parseFloat(res[1].toFixed(2))],
+                    ['Mars',  parseFloat(res[2].toFixed(2))],
+                    ['Avril',  parseFloat(res[3].toFixed(2))],
+                    ['Mai',  parseFloat(res[4].toFixed(2))],
+                    ['Juin',  parseFloat(res[5].toFixed(2))],
+                    ['Juillet', parseFloat(res[6].toFixed(2))],
+                    ['Aout',  parseFloat(res[7].toFixed(2))],
+                    ['Septembre', parseFloat(res[8].toFixed(2))],
+                    ['Octobre', parseFloat(res[9].toFixed(2))],
+                    ['Novembre', parseFloat(res[10].toFixed(2))],
+                    ['Decembre', parseFloat(res[11].toFixed(2))]
+                ]);
+            draw();
+            });
+
+            $scope.$watch('data', function() {
+                draw();
+            }, true); // true is for deep object equality checking
+            $scope.$watch('title', function() {
+                draw();
+            });
+            $scope.$watch('width', function() {
+                draw();
+            });
+            $scope.$watch('height', function() {
+                draw();
+            });
+
+
+                function draw(){
+                var options = {
+                    'title': $scope.chartTitle,
+                    'width': $scope.chartWidth,
+                    'height':$scope.chartHeight
+                };
+                chart.draw(data, options);
+
+            }
+
+
+        }
     }
 });
 

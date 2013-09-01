@@ -147,6 +147,14 @@ table.list-products .photo {
 /*}*/
 
 
+/* Dashboard
+-----------------------------------------------*/
+
+div.last-orders, .last-invoices {
+   min-height: 195px;
+    font-size: 95%;
+}
+
 /* Order section
 ----------------------------------------------*/
 
@@ -171,7 +179,7 @@ table.order th {
     text-align : center;
 }
 
-div.order-events > table{
+div.order-events  table{
     border-collapse : collapse;
     background-color:  transparent;
     /*width: 100%;*/
@@ -179,15 +187,16 @@ div.order-events > table{
     font-size: 95%;
 }
 
-div.order-events > td {
+div.order-events td {
     border-collapse : collapse;
     background-color:  transparent;
     /*width: 100%;*/
     border : 1px solid #a2abc0;
-    font-size: 95%;
+    font-size: 90%;
 }
 div.order-events p {
     font-weight: bold;
+
 }
 .list-orders {
     width: 95%;

@@ -161,7 +161,6 @@ function MainCtrl($scope,$http,$filter){
         return result;
     }
 
-
 }
 
 function GetLinesCtrl($scope, $http){
@@ -797,6 +796,41 @@ function ProductFicheCtrl($scope, $http, $filter){
           $scope.product = data;
     });
 }
+
+function DashboardCrtl($scope,$http){
+
+
+    $http.get('/getorders/customer'+$scope.user.customer_id).success(function(data){
+        $scope.last_orders = data;
+
+    });
+
+
+    $scope.client_id = $scope.user.customer_id;
+
+
+
+    $scope.chartData =[
+        ['Mois', 'Sales'],
+        ['Janvier',  0],
+        ['Fevrier',  0],
+        ['Mars',  0],
+        ['Avril',  0],
+        ['Mai',  0],
+        ['Juin',  0],
+        ['Juillet', 0],
+        ['Aout',  0],
+        ['Septembre', 0],
+        ['Octobre', 0],
+        ['Novembre', 0],
+        ['Decembre', 0]
+    ];
+    $scope.chartWidth ="700";
+    $scope.chartHeight="300";
+    $scope.chartTitle ="Dynamique d'achats";
+
+}
+// TODO Controller for dashboard
 
 // TODO may be it would be better to realise search et pagination on server side
 

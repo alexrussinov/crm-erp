@@ -1,4 +1,46 @@
 @(user : Users)
 @main("Tableau de bord", user){
-<div class="row"></div>
+    <div class="col-lg-3"></div>
+    <div class="col-lg-9" ng-controller="DashboardCrtl">
+        <div class="row">
+            <div class="col-lg-6">
+              <div class="panel panel-default last-orders">
+                  <div class="panel-heading">
+                      <h5 class="panel-title">Trois derniere commande</h5>
+                  </div>
+                  <div class="panel-body">
+                     <table class="table">
+                         <tr ng-show="last_orders.length>0" ng-repeat="order in last_orders">
+                             <td><a href="/order{{ order.id }}">{{ order.ref }}</a></td>
+                             <td>{{ order.order_date }}</td>
+                             <td>{{ order.total_ttc }}</td>
+                             <td ng-hide="order.fk_statut ==0">Validé</td>
+                             <td ng-show="order.fk_statut ==0">Brouillon</td>
+                         </tr>
+                         <tr ng-hide="last_orders.length>0"><td colspan="4" style="text-align: center; font-weight: bold">Il n'y a pas des commandes</td></tr>
+                     </table>
+                  </div>
+              </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="panel panel-default last-invoices">
+                    <div class="panel-heading">
+                        <h5 class="panel-title">Trois derniere facture</h5>
+                    </div>
+                    <div class="panel-body">
+                        <table class="table">
+                            <tr ng-show="last_invoices.length>0" ng-repeat="order in last_orders">
+
+                            <tr ng-hide="last_invoices.length>0"><td colspan="4" style="text-align: center; font-weight: bold">Il n'y a pas des factures</td></tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <google-chart ></google-chart>
+            </div>
+        </div>
+    </div>
 }{<div></div>}

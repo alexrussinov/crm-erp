@@ -14,6 +14,7 @@ import org.scala_tools.time.Imports._
  import play.api.libs.json._
  import play.api.libs.json.Json
  import play.api.libs.functional.syntax._
+ import scala.collection.mutable.ArrayBuffer
 
 
  /**
@@ -193,14 +194,47 @@ object Order extends Schema {
 
      json
   }
-
-  def getAllCustomerOrdersJson(id : Int) : JsValue = {
-    val json = inTransaction{
-      val orders: List[OrderJ] = from(OrderDB.orderTable)(orders => where(orders.fk_soc === id) select(orders)).toList map (o=>toOrderJ(o))
-      Json.toJson(orders)
+  // fetch orders for current customer
+  def getCustomerOrders(customer_id : Int, number:Int = -1) : List[OrderJ] = {
+    val list_of_orders = inTransaction{
+      val orders: List[OrderJ] = from(OrderDB.orderTable)(orders => where(orders.fk_soc === customer_id) select(orders)).toList map (o=>toOrderJ(o))
+      if(number == -1)
+      orders
+      else orders.take(number)
     }
 
-    json
+    list_of_orders
+  }
+   // TODO May be refactor to more elegant and immutable solution
+  /**
+   *
+   * @param customer_id - Id of the customer
+   * @return an ArrayBuffer total ordered per month
+   */
+  def getCustomerTotalOrdersPerMonth(customer_id : Int) : ArrayBuffer[Double] = {
+    val orders = getCustomerOrders(customer_id)
+//    val result : Map[String,Double] = Map("janvier"->0,"fevrier"->0,"mars"->0,
+//                     "avril"->0,"mai"->0,"juin"->0,"juillet"->0,
+//                     "aout"->0, "septembre"->0, "octobre"->0,"novembre"->0,"decembre"->0)
+    val result : ArrayBuffer[Double] = ArrayBuffer(0,0,0,0,0,0,0,0,0,0,0,0)
+
+     orders.map{f=>
+     f.order_date.split("-")(1)match{
+       case "01" => result(0)+=mat.round(f.total_ttc.getOrElse(0.0))
+       case "02" => result(1)+=mat.round(f.total_ttc.getOrElse(0.0))
+       case "03" => result(2)+=mat.round(f.total_ttc.getOrElse(0.0))
+       case "04" => result(3)+=mat.round(f.total_ttc.getOrElse(0.0))
+       case "05" => result(4)+=mat.round(f.total_ttc.getOrElse(0.0))
+       case "06" => result(5)+=mat.round(f.total_ttc.getOrElse(0.0))
+       case "07" => result(6)+=mat.round(f.total_ttc.getOrElse(0.0))
+       case "08" => result(7)+=mat.round(f.total_ttc.getOrElse(0.0))
+       case "09" => result(8)+=mat.round(f.total_ttc.getOrElse(0.0))
+       case "10" => result(9)+=mat.round(f.total_ttc.getOrElse(0.0))
+       case "11" => result(10)+=mat.round(f.total_ttc.getOrElse(0.0))
+       case "12" => result(11)+=mat.round(f.total_ttc.getOrElse(0.0))
+       }
+     }
+    result
   }
 
   def validate(id : Int):Int={
@@ -334,6 +368,25 @@ object OrderLine extends Schema {
 //  }
 
 }
+
+ object OrderJ{
+   implicit val orderFormat : Writes[OrderJ] = (
+     ( __ \ 'id).write[Int] and
+       ( __ \ 'ref).write[String] and
+       ( __ \ 'date_modif).write[Option[Timestamp]] and
+       ( __ \ 'fk_soc).write[Int] and
+       ( __ \ 'order_date).write[String] and
+       ( __ \ 'date_creation).write[Timestamp] and
+       ( __ \ 'fk_user_author).write[Int] and
+       ( __ \ 'fk_statut).write[Int] and
+       ( __ \ 'tva).write[Option[Double]] and
+       ( __ \ 'total_ht).write[Option[Double]] and
+       ( __ \ 'total_ttc).write[Option[Double]] and
+       ( __ \ 'note).write[Option[String]] and
+       ( __ \ 'sent).write[Boolean] and
+       ( __ \ 'sent_date).write[Option[Timestamp]]
+     )(unlift(OrderJ.unapply))
+ }
  /*DB tables mapping*/
  object OrderDB extends Schema {
    val orderlinesTable : Table[OrderLine] = table[OrderLine]("t_orderlines")

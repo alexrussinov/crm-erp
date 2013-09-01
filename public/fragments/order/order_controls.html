@@ -15,14 +15,14 @@
             </label>
             <input type="hidden" name="order_id" id="order_id" value="{{order.id}}">
             <input type="hidden" name="product_id" id="product_id" value="{{product_id}}">
-            <input ng-disabled="order.fk_statut==1" type="submit" class="btn btn-primary btn-small" value="Ajouter">
+            <input ng-disabled="order.fk_statut==1" type="submit" class="btn btn-primary btn-sm" value="Ajouter">
             </div>
             <table id="search_result"></table>
             </div>
         </form>
  </div>
  <div class="col-lg-4">
-     <div class="panel" ng-show="order.fk_statut==1">
+     <div class="panel panel-default" ng-show="order.fk_statut==1">
          <img src="/assets/images/icons/PDF-download-icon1.png" style="height: 60px;width: 60px"><a href="/order/pdf?id={{ order.id }}" target="_blank">{{ order.ref }}.PDF</a>
      </div>
 
@@ -31,19 +31,20 @@
 
 <div class="col-lg-8 order-controls" ng-switch="order.fk_statut">
     <div ng-switch-when="0">
-    <button class="btn btn-default btn-small" ng-click="validateAlertAction(order)">Valider</button>
-    <button class="btn btn-default btn-small" ng-click="sendAlertAction()" disabled>Envoyer</button>
-    <button class="btn btn-primary btn-small" ng-disabled="order.sent" ng-click="deleteAction(order)">Supprimer</button>
+    <button class="btn btn-default btn-sm" ng-click="validateAlertAction(order)">Valider</button>
+    <button class="btn btn-default btn-sm" ng-click="sendAlertAction()" disabled>Envoyer</button>
+    <button class="btn btn-primary btn-sm" ng-disabled="order.sent" ng-click="deleteAction(order)">Supprimer</button>
     </div>
     <div ng-switch-when="1">
-    <button class="btn btn-primary btn-small" ng-disabled="order.sent" ng-click="modifyAction(order)">Modifier</button>
-    <button class="btn btn-default btn-small" ng-click="sendAlertAction()">Envoyer</button>
-    <button class="btn btn-danger btn-small" ng-disabled="order.sent" ng-click="deleteAction(order)" href="">Supprimer</button>
+    <button class="btn btn-primary btn-sm" ng-disabled="order.sent" ng-click="modifyAction(order)">Modifier</button>
+    <button class="btn btn-default btn-sm" ng-click="sendAlertAction()">Envoyer</button>
+    <button class="btn btn-danger btn-sm" ng-disabled="order.sent" ng-click="deleteAction(order)" href="">Supprimer</button>
     </div>
 </div>
 <div class="col-lg-4 order-events">
-    <div class="panel">
-        <p>Etats de commande:</p>
+    <div class="panel panel-default">
+        <div class="panel-body">
+        <p> Etats de commande:</p>
         <table>
             <tr>
                 <td>Date de création:</td><td>{{ order.date_creation | date: 'yyyy-MM-dd HH:mm:ss' }}</td>
@@ -55,6 +56,7 @@
                 <td>Commande author:</td><td>{{ order.fk_user_author }}</td>
             </tr>
         </table>
+        </div>
     </div>
 </div>
 

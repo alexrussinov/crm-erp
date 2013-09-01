@@ -5,6 +5,7 @@
 # Home page
 GET         /                                          controllers.Application.index
 GET         /login                                     controllers.Application.login
+GET         /dashboard                                 controllers.Application.dashboard
 # GET     /index                    controllers.Application.index
 GET         /getproducts                               controllers.Application.getProducts
 GET         /products                                  controllers.Application.showProducts
@@ -34,6 +35,7 @@ POST        /updateline                                controllers.Orders.update
 POST        /updateline/json                           controllers.Orders.updateLineInJson
 GET         /getorders                                 controllers.Orders.listOrders
 GET         /getorders/customer                        controllers.Orders.listCustomerOrdersJson(id : Int)
+GET         /getorders/customer:id                     controllers.Orders.get3CustomerOrderJson(id : Int)
 GET         /getcustomers                              controllers.Orders.getCustomersInJson
 GET         /customer/json                             controllers.Orders.getCustomerInJson(id : Int)
 GET         /order:id                                  controllers.Orders.orderFiche(id : Int)
@@ -47,6 +49,7 @@ POST        /order/delete                              controllers.Orders.delete
 GET         /order/send                                controllers.Orders.sendOrder(id : Int)
 GET         /order/pdf                                 controllers.Orders.generatePdf(id : Int)
 GET         /testpdftpl                                controllers.Orders.testPdf(id : Int)
+GET         /orders/totals/permonth                    controllers.Orders.getTotalSalesPerMonthByCostomerInJson(id : Int)
 
 GET         /otherproducts                             controllers.PrestashopClient.productList
 GET         /otherproduct                              controllers.PrestashopClient.getProduct
@@ -68,5 +71,6 @@ GET         /products/upload/images                    controllers.Products.uplo
 GET         /products/fiche                            controllers.Products.productFiche(id : Int)
 POST        /product/updateimage                       controllers.Products.updateProductImage
 GET         /catalogue/numberproductsbycategory        controllers.Catalogue.getNumberOfProductsByCategory
+GET         /dolibarr/ws                               controllers.DolibarrClient.getInvoice
 
 

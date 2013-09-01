@@ -59,3 +59,16 @@ object PrestashopClient extends Controller with LoginLogout with AuthConf with A
   }
 
 }
+
+object DolibarrClient extends Controller {
+  def getInvoice = Action {
+    Async {
+      val product : Future[Response] = WS.url("http://staremiasto.fr/xz88/webservices/server_thirdparty.php#getInvoicesForThirdParty")
+        .withAuth("qsdeaax1235@&ffgr89", "", com.ning.http.client.Realm.AuthScheme.BASIC).get
+
+      product map {f=>
+        Ok(f.body)
+      }
+    }
+  }
+}

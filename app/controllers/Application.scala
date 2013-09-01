@@ -107,6 +107,10 @@ object Application extends Controller with LoginLogout with AuthConf with Auth{
     )
   }
 
+  def dashboard = authorizedAction(NormalUser){ user => implicit request =>
+     Ok(views.html.dashboard(user))
+  }
+
   /** Your application's login form.  Alter it to fit your application */
   val loginForm = Form {
     mapping("email" -> email, "password" -> text)(Users.authenticate)(_.map(u => (u.email, "")))
