@@ -13,13 +13,13 @@ import play.api.libs.json.Json
  *  Class that represent the Customer entity
  */
 
-case class Customer(@Column("rowid")id : Int, nom : Option[String],  price_level : Option[Int], address : Option[String], cp : Option[String],
+case class CustomerDoll(@Column("rowid")id : Int, nom : Option[String],  price_level : Option[Int], address : Option[String], cp : Option[String],
                   ville : Option[String], tel: Option[String], email : Option[String] ) {
 
 }
 
-object Customer extends Schema {
-  val customerTable : Table[Customer] = table[Customer]("llx_societe")
+object CustomerDoll extends Schema {
+  val customerTable : Table[CustomerDoll] = table[CustomerDoll]("llx_societe")
 //  implicit val customerWrites = new Writes[Customer] {
 //    def writes(c: Customer): JsValue = {
 //      Json.obj(
@@ -34,17 +34,17 @@ object Customer extends Schema {
 //      )
 //    }
 //  }
-  implicit val customerFormat = Json.format[Customer]
+  implicit val customerFormat = Json.format[CustomerDoll]
 
   def getAllJson = {
     val json = transaction(DollConn.doll_session(current)){
-      val customers: List[Customer] = from(customerTable)(s => select(s)).toList
+      val customers: List[CustomerDoll] = from(customerTable)(s => select(s)).toList
       Json.toJson(customers)
     }
     json
   }
 
-  def getById(id : Int): Customer = {
+  def getById(id : Int): CustomerDoll = {
     transaction(DollConn.doll_session(current)){
       val customer = from(customerTable)(s => where(s.id === id) select(s))
       customer.head

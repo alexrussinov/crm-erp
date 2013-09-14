@@ -1,4 +1,4 @@
-@(order: Order, lines : List[OrderLine], customer : Customer, total_qty: Map[String,Double])
+@(order: Order, lines : List[OrderLine], customer : CompanyJson, total_qty: Map[String,Double])
 @import lib.mat
 
 <!DOCTYPE html>
@@ -33,8 +33,8 @@
                   @*<dt><span>Date: </span>@order.order_date</dt>*@
               @*</dl>*@
              <table style="width: 300px; border: none;">
-                 <tr><td style="width: 30px; border: none"><span>Client :</span></td><td style="width: 70px; border: none">@customer.nom</td></tr>
-                 <tr><td style="width: 30px; border: none"><span>Adresse :</span></td><td style="width: 70px; border: none">@customer.address, @customer.cp, @customer.ville</td></tr>
+                 <tr><td style="width: 30px; border: none"><span>Client :</span></td><td style="width: 70px; border: none">@customer.name</td></tr>
+                 <tr><td style="width: 30px; border: none"><span>Adresse :</span></td><td style="width: 70px; border: none">@customer.address.get.address, @customer.address.get.zip, @customer.address.get.city</td></tr>
                  <tr><td style="width: 30px; border: none"><span>Date :</span></td><td style="width: 70px; border: none">@order.order_date</td></tr>
              </table>
          </div>

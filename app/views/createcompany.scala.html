@@ -1,0 +1,55 @@
+@(user : Users)
+@main("Créer tiers",user){
+    <div ng-controller="CreateCompanyCtrl" class="row">
+        <div class="col-lg-3"></div>
+        <div class="col-lg-6">
+          <div class="panel panel-default">
+            <div class="panel-heading">Nouveau Tiers</div>
+            <div class="panel-body">
+            <div class="form-group">
+              <label for="companyName">Nome de la société</label>
+              <input type="text" class="form-control" id="companyName" ng-model="company.name">
+            </div>
+            <div class="form-group">
+                <label for="companyAddress">Address</label>
+                <input type="text" class="form-control" id="companyAddress" ng-model="address.address">
+            </div>
+            <div class="form-group">
+                <label for="addressCity">Ville</label>
+                <input type="text" class="form-control" id="addressCity" ng-model="address.city">
+            </div>
+            <div class="form-group">
+                <label for="addressZip">Code postal</label>
+                <input type="text" class="form-control" id="addressZip" ng-model="address.zip">
+            </div>
+            <div class="form-group">
+                <label for="companyTel">Tel.</label>
+                <input type="text" class="form-control" id="companyTel" ng-model="company.tel">
+            </div>
+            <div class="form-group">
+                <label for="companyEmail">Email</label>
+                <input type="email" class="form-control" id="companyEmail" ng-model="company.email">
+            </div>
+                <div class="form-group">
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" ng-model="company.supplier"> Fournisseur
+                            </label>
+                        </div>
+                </div>
+                <div class="form-group">
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" ng-model="company.prospect"> Prospect
+                            </label>
+                        </div>
+                </div>
+            <div class="form-group">
+            <button class="btn btn-default" ng-click="save()">Créer</button>
+            </div>
+          </div>
+          </div>
+        </div>
+        <div class="col-lg-3"></div>
+    </div>
+}{<div></div>}

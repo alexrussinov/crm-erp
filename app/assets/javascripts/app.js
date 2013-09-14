@@ -297,19 +297,22 @@ main.directive('editableCell',function(){
         replace : true,
         templateUrl: "/assets/fragments/editable-cell.html",
         scope : {
-    //        label : '@',
+//            label : '@',
             value : '='
         },
-        link : function(scope, element, attrs){
+        link : function(scope, element, attrs,$scope){
+
+
 
             // editMode is disable by default
-            scope.editMode = false;
+           // scope.editMode = false;
 
             // if label attribut is not provide then remove
             // the label element
             if(!attrs.label){
                 element.find('label').remove();
             }
+
 
             // find the input elemnt of this directive ...
             var input = element.find('input');
@@ -491,6 +494,71 @@ main.directive('googleChart',function($http,$timeout){
 
             }
 
+
+        }
+    }
+});
+
+main.directive('customerFiche',function($http){
+    return{
+        restrict : 'E',
+        link : function($scope){
+           $scope.edit = function(){
+               $scope.edit2Mode.customerInfo = true;
+           }
+           $scope.cancel = function(){
+               $scope.edit2Mode.customerInfo = false;
+           }
+
+           $scope.submit = function(){
+               $http({
+                   url :'/company/update',
+                   method : 'POST',
+                   data : $scope.company,
+                   headers: {'Content-Type': 'application/json'}
+               }).success(function(data){
+                       $scope.company = data;
+                       $scope.edit2Mode.customerInfo = false;
+                   }).error(function(data){
+                       alert(data);
+                   });
+           }
+
+//           $scope.editDiscount = function(){
+//               $scope.edit2Mode.customerDiscount = true;
+//               $scope.editMode = true;
+//           }
+//
+//           $scope.createDiscount = function(){
+//
+//           }
+        },
+        templateUrl: '/assets/fragments/company/customer-fiche.html',
+        replace: true
+    }
+
+});
+
+main.directive('listCustomers',function($http){
+    return{
+        restrict : 'E',
+        link : function($scope){
+
+        },
+        templateUrl: '/assets/fragments/company/list-customers.html',
+        replace: true
+    }
+
+});
+
+
+main.directive('editableDiscount',function(){
+    return {
+        restrict : 'E',
+        replace : true,
+        templateUrl: "/assets/fragments/company/editable-discount.html",
+
+        link : function($scope, element, attrs){
 
         }
     }

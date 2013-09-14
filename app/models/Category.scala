@@ -41,7 +41,7 @@ object CategoryTable extends Table[CategoryT]("t_category"){
   def parent =column[Int]("parent")
   def * = id ~ name ~ parent <>(CategoryT.apply _,CategoryT.unapply _)
 
-  def autoInc = * returning id
+  def autoInc = name ~ parent returning id
 
   /**
    * Count all products
@@ -58,6 +58,10 @@ object CategoryTable extends Table[CategoryT]("t_category"){
     }
 
     for (c <- categorys if(c.parent==0)) yield Category(c.id.get,c.name,getSubCategories(c,categorys))
+  }
+
+  def add(c : CategoryT)(implicit s : Session) = {
+    CategoryTable.autoInc.insert(c.name,c.parent)
   }
 }
 

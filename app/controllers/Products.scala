@@ -129,6 +129,20 @@ object Products extends  Controller with LoginLogout with AuthConf with Auth {
     Redirect(routes.Products.productFiche(product_id))
   }
 
+  def updateProduct = authorizedAction(Administrator){ user => request =>
+    request.body.asJson.map{json =>
+      json.validate[Product].map{
+        case product => {
+          play.api.db.slick.DB.withSession{implicit session =>
+          ProductTable.updateProduct(product)
+          }
+          val updatedProduct = play.api.db.slick.DB.withSession{implicit session => ProductTable.getById(product.id.get)}
+          Ok(Json.toJson(updatedProduct))
+        }
+      }.recoverTotal(e=>BadRequest("Detected error:"+ JsError.toFlatJson(e)))
+    }.getOrElse(BadRequest("Expecting Json Data"))
+  }
+
 }
 
 object Categories extends  Controller with LoginLogout with AuthConf with Auth {

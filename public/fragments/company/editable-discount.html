@@ -1,0 +1,4 @@
+<div>
+    <span ng-hide="editMode" ng-click="editMode=true">{{actualDiscountsBySupplier[supplier.id].discount}}</span>
+    <input ng-show="editMode" type="text" ng-model="discount"/>
+</div>

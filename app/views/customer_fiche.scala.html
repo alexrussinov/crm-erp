@@ -1,0 +1,10 @@
+@(user : Users, customer_id : Int)
+
+@main("Utilisateur", user){
+ <div ng-init="company_id = @customer_id">
+ <div ng-controller="CompanyFicheCtrl">
+    <customer-fiche></customer-fiche>
+ </div>
+ </div>
+
+}{<div></div>}

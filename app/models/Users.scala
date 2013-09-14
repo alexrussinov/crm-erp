@@ -5,6 +5,8 @@ import org.squeryl.{KeyedEntity, Table, Schema}
 import org.squeryl.PrimitiveTypeMode._
 import play.api.Play._
 import org.mindrot.jbcrypt.BCrypt
+import play.api.libs.json._
+import play.api.libs.functional.syntax._
 
 
 /**
@@ -24,7 +26,6 @@ case class Users (email : String, pass: String, admin : Int, customer_id: Option
 object Users extends Schema {
   val usersTable: Table[Users] = table[Users]("t_user")
 
-
   def findById(id : Int) = {
     inTransaction{
     val us = (from(usersTable)(s => where(s.id === id) select(s)))
@@ -42,9 +43,9 @@ object Users extends Schema {
       us.headOption }
   }
 
-  def findAll : Seq[Users] = {
+  def findAll : List[Users] = {
     inTransaction{
-      from(usersTable)(s => select(s)).toSeq
+      from(usersTable)(s => select(s)).toList
     }
   }
 

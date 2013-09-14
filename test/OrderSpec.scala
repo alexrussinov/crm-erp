@@ -1,9 +1,13 @@
 import controllers._
+import models.CategoryT
+import models.Company
 import org.scalatest.FlatSpec
 import org.scalatest.matchers.ShouldMatchers
 import models._
 import play.api.http.HeaderNames
 import play.api.libs.json._
+import play.api.test.FakeApplication
+import play.api.test.FakeHeaders
 import play.api.test.{FakeHeaders, FakeRequest, FakeApplication}
 import play.api.test.Helpers._
 import org.squeryl.PrimitiveTypeMode.inTransaction
@@ -15,7 +19,7 @@ import play.api.db.slick.Config.driver.simple._
 import play.api.db.slick._
 import play.api.Play.current
 import jp.t2v.lab.play2.auth.test.Helpers._
-
+import scala.Some
 
 
 /**
@@ -264,7 +268,7 @@ class OrderSpec extends FlatSpec with ShouldMatchers{
       val id = Order.createOrder(1,"2002-01-22", t,1,1,Some(0.0),Some(0.0),Some(0.0),Some("xxx"))
       val line_id = OrderLine(id,1,"ref1","some label",5.5,2.5,"kg",9.99,12.1).insertLine
       val line = OrderLine.getLineById(line_id)
-      val customer = Customer.getById(1)
+      val customer = CustomerDoll.getById(1)
       val result = controllers.Orders.getOrderInJson(id)(FakeRequest())
       status(result) should equal(OK)
       contentAsString(result) should include (customer.nom.head)
@@ -357,7 +361,7 @@ class OrderSpec extends FlatSpec with ShouldMatchers{
 
         val result = ProductTable.getAllProductsWithCustomerPrices(1)
         result.head._11 should equal(11.24)
-        result(2)._11 should equal(7)
+        result(3)._11 should equal(7)
       }
     }
   }
@@ -412,6 +416,56 @@ class OrderSpec extends FlatSpec with ShouldMatchers{
       }
       val result = controllers.Catalogue.getNumberOfProductsByCategory(FakeRequest())
       contentAsString(result) should include ("31")
+    }
+  }
+
+
+  "A Company" should "be creatable" in {
+    running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
+      DB.withSession { implicit session =>
+        Seq(
+            Company(None,Some("Bac-Pol"),None,Some("+33688818161"),None,false,false),
+            Company(None,Some("Bac-Pol"),None,Some("+33688818161"),None,false,false)
+        )foreach (CompanyTable.add)
+
+        val id = CompanyTable.add(Company(None,Some("Bac-Pol"),None,Some("+33688818161"),None,false,false))
+
+        AddressTable.insert(
+        Address(None,None,Some("City"),Some("02100"),None,id)
+        )
+
+        ContactTable.insert(
+        Contact(None,Some("Ivanov"),Some("John"),Some("developper"),None,None,None,id)
+        )
+
+        val cust : List[Company]  = CompanyTable.getAll
+        val comp = cust.map(c=>CompanyJson(c.id,c.name,c.price_level,c.tel,c.email,c.supplier,c.prospect,c.address,c.contacts))
+        cust.length should equal (21)
+        cust.head.id.get should equal(1)
+        //cust.head.address.get.id.get should equal(1)
+        //cust.head.contacts.head.id.get should equal(1)
+      }
+    }
+  }
+
+  "A request to getCustomersJson" should "respond with Action" in {
+    running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
+
+      DB.withSession { implicit session =>
+        Seq(
+          Company(None,Some("Bac-Pol"),None,Some("+33688818161"),None,false,false),
+          Company(None,Some("Kora"),None,Some("+33688818161"),None,false,false),
+          Company(None,Some("Virtu"),None,Some("+33688818161"),None,false,false)
+        )foreach(CompanyTable.insert)
+        AddressTable.add(
+          Address(None,None,Some("City"),Some("02100"),None,Some(21))
+        )
+      }
+
+      val result = controllers.Companies.getCustomersInJson(FakeRequest())
+      status(result) should equal(OK)
+      contentAsString(result) should include ("Kora")
+      contentAsString(result) should include ("City")
     }
   }
 

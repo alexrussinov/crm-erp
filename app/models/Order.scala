@@ -15,6 +15,7 @@ import org.scala_tools.time.Imports._
  import play.api.libs.json.Json
  import play.api.libs.functional.syntax._
  import scala.collection.mutable.ArrayBuffer
+ import play.api.Play.current
 
 
  /**
@@ -175,12 +176,21 @@ object Order extends Schema {
     }
 
   }
-  /*Fetch order in Json String with lines and customer information */
+  /**
+   * Fetch order in Json String with lines and customer information
+   * */
   def getByIdInJson(id : Int) : JsValue  = {
     val order : Order = getById(id)
 //    val lines : List[OrderLine] = OrderLine.getLines(id)
     val lines : JsValue =OrderLine.getLinesJson(id)
-    val customer: Customer = Customer.getById(order.fk_soc)
+
+ /*   old implementation to use with Dolibarr database */
+//    val customer: CustomerDoll = CustomerDoll.getById(order.fk_soc)
+
+    /* new implementation to use with native DB  */
+    val customer = play.api.db.slick.DB.withSession { implicit session =>
+      CompanyTable.getById(order.fk_soc).toCompanyJson
+    }
     val order_json_object = Json.toJson(Map("ord"->Json.toJson(toOrderJ(order)),"customer"->Json.toJson(customer),"lines"->lines))
     //Json.generate(order)
     order_json_object

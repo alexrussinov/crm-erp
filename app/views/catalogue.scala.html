@@ -74,7 +74,7 @@
         <div class="modal-body">
             <div class="row">
             <div class="col-lg-6">
-            <select class="form-control" name="selectOrder" class="select-order" ng-model="order" ng-options="o.ref+' -> '+o.order_date+' -> '+customers[o.fk_soc].nom for o in orders"  required>
+            <select class="form-control" name="selectOrder" class="select-order" ng-model="order" ng-options="o.ref+' -> '+o.order_date+' -> '+customers[o.fk_soc].name for o in orders"  required>
                 @*<option ng-repeat="order in orders" value="{{order.id}}">{{order.ref}} -> {{order.order_date}}</option>*@
             </select>
             </div>

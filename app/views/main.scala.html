@@ -43,7 +43,7 @@
                     <a class="navbar-brand logo" href="@routes.Application.index">ITC PLUS</a>
                 </div>
                 <div class="collapse navbar-collapse navbar-ex1-collapse">
-                    <p class="navbar-text pull-right">Bienvenu: <a href="#" class="navbar-link"><span style="color: #ffffff">@user.email</span></a>&nbsp&nbsp<a href="@routes.Application.logout" class="navbar-link">Deconexion</a></p>
+                    <p class="navbar-text pull-right">Bienvenu: <a href="/user/fiche?id=@user.id" class="navbar-link"><span style="color: #ffffff">@user.email</span></a>&nbsp&nbsp<a href="@routes.Application.logout" class="navbar-link">Deconexion</a></p>
                     @*<p class="navbar-text pul-right">Signed in as: <a href="#" class="navbar-link">@user.email</a></p>*@
                     @*<div class="nav-collapse collapse">*@
                         <ul class="nav navbar-nav">
@@ -66,9 +66,12 @@
                                 <a href="" class="dropdown-toggle" data-toggle="dropdown">Utils<b class="caret"></b></a>
                                 <ul class="dropdown-menu">
                                     <li><a href="@routes.AccountCreation.createAccountForm">Créer Utilisateur</a></li>
-                                    <li><a href="@routes.AccountCreation.createAccountForm">List Utilisateurs</a></li>
-                                    <li><a href="@routes.Application.createSupplierForm">Créer Fournisseur</a></li>
+                                    <li><a href="@routes.AccountCreation.listUsers">List Utilisateurs</a></li>
+                                     @*Deprecated, all types of companies create from createCompanyForm*@
+                                    @*<li><a href="@routes.Application.createSupplierForm">Créer Fournisseur</a></li>*@
                                     <li><a href="@routes.Application.listSuppliers">List Fournisseurs</a></li>
+                                    <li><a href="@routes.Companies.createCompanyForm">Créer Tiers</a></li>
+                                    <li><a href="@routes.Companies.listCustomers">List Clients</a></li>
                                     <li><a href="@routes.Products.uploadProductsCsvForm">Import Produits CSV</a></li>
                                     <li><a href="@routes.Categories.manageCategories">Gérer des catégories</a></li>
                                     <li><a href="@routes.Catalogue.manageCatalog">Gérer le catalogue</a></li>

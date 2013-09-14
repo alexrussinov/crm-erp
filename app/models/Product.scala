@@ -51,8 +51,8 @@ path : String
 )
 
 object Product {
-  //reads for json generation
-  implicit val productFormat : Writes[Product]= (
+  //write for json generation
+  implicit val productWrites : Writes[Product]= (
     (__ \ 'id).write[Option[Int]]and
       (__ \ 'reference).write[String]and
       (__ \ 'label).write[String]and
@@ -68,6 +68,23 @@ object Product {
       (__ \ 'price_supplier).write[Double]and
       (__ \ 'base_price).write[Double]
     )(unlift(Product.unapply))
+
+  implicit val productReads : Reads[Product] = (
+    (__ \ 'id).read[Option[Int]]and
+      (__ \ 'reference).read[String]and
+      (__ \ 'label).read[String]and
+      (__ \ 'description).read[Option[String]]and
+      (__ \ 'image_url).read[Option[String]]and
+      (__ \ 'unity).read[String]and
+      (__ \ 'category_id).read[Option[Int]]and
+      (__ \ 'supplier_id).read[Int]and
+      (__ \ 'manufacture).read[Option[String]]and
+      (__ \ 'reference_supplier).read[Option[String]]and
+      (__ \ 'multi_price).read[Boolean]and
+      (__ \ 'tva_rate).read[Double]and
+      (__ \ 'price_supplier).read[Double]and
+      (__ \ 'base_price).read[Double]
+    ) (Product.apply _)
 
     // enable us to write Json of this type
   implicit val productWithCustomerPriceFormat = (
@@ -125,7 +142,8 @@ object ProductTable extends Table[Product]("t_products"){
   def * = id ~ reference ~ label ~ description ~ image_url ~ unity ~ category_id ~ supplier_id ~
     manufacture ~ reference_supplier ~ multi_price ~ tva_rate ~ price_supplier ~ base_price  <> (Product.apply _ , Product.unapply _)
 
-  def autoInc = * returning id
+  def autoInc = reference ~ label ~ description ~ image_url ~ unity ~ category_id ~ supplier_id ~
+    manufacture ~ reference_supplier ~ multi_price ~ tva_rate ~ price_supplier ~ base_price returning id
 
   /**
    * Count all products
@@ -146,7 +164,11 @@ object ProductTable extends Table[Product]("t_products"){
     for{ p <- products
          d <- discounts //if(p.supplier_id == d.supplier_id) we have replaced this condition directly to the yield expression to handle the case when customer discounts exist, but not for this supplier
     }  yield (p.id,p.reference, p.label, p.description, p.image_url, p.unity, p.category_id, p.supplier_id,
-            p.manufacture, p.tva_rate, if(p.supplier_id == d.supplier_id)mat.round(p.base_price*((100-d.discount)/100))else p.base_price )
+            p.manufacture, p.tva_rate,
+      if(p.supplier_id == d.supplier_id)
+        mat.round(p.base_price*((100-d.discount)/100))
+      else
+        p.base_price )
 
           }
       else {
@@ -195,6 +217,15 @@ object ProductTable extends Table[Product]("t_products"){
     val res = (for (product <- ProductTable) yield product.manufacture).list.toSet
     res.toList
 
+  }
+
+  def updateProduct(product : Product)(implicit s : Session)={
+    ProductTable.filter(_.id === product.id).update(product)
+  }
+
+  def add(p : Product)(implicit s : Session)={
+    ProductTable.autoInc.insert(p.reference,p.label,p.description,p.image_url,p.unity,p.category_id,p.supplier_id,p.manufacture,
+    p.reference_supplier,p.multi_price,p.tva_rate,p.price_supplier,p.base_price)
   }
 
 

@@ -197,7 +197,11 @@ object Application extends Controller with LoginLogout with AuthConf with Auth{
   }
 
   def getSuppliersInJson = Action {
-        Ok(Supplier.getAllInJson)
+        //Ok(Supplier.getAllInJson)
+    val suppliers = Json.toJson( play.api.db.slick.DB.withSession{implicit session =>
+        CompanyTable.getAllSuppliers.map(s=>s.toCompanyJson)
+        })
+    Ok(suppliers).as(JSON)
   }
 
 
@@ -322,6 +326,39 @@ object AccountCreation extends Controller with LoginLogout with AuthConf with Au
        }
      )
   }
+
+  def listUsers = authorizedAction(Administrator){ user => implicit request =>
+      Ok(views.html.listusers(user))
+  }
+
+  def userFiche(id : Int) = authorizedAction(NormalUser){ user => implicit request =>
+     Ok(views.html.user_fiche(user,id))
+  }
+
+  def getUserInJson(id : Int) = Action {
+    implicit val userWrites = (
+      (__ \'id).write[Int] and
+        (__ \ 'email).write[String] and
+        (__ \ 'customer_id).write[Option[Int]]
+      ).tupled : Writes[(Int,String,Option[Int])]
+    val user = Users.findById(id).get
+    val json = Json.toJson((user.id,user.email,user.customer_id))
+    Ok(json).as(JSON)
+  }
+
+  def getUsersInJson = Action {
+    implicit val userWrites = (
+      (__ \'id).write[Int] and
+      (__ \ 'email).write[String] and
+      (__ \ 'admin).write[Int] and
+      (__ \ 'customer_id).write[Option[Int]]
+      ).tupled : Writes[(Int,String,Int,Option[Int])]
+
+    val users : List[(Int,String,Int,Option[Int])] = Users.findAll.map(u=>(u.id,u.email,u.admin,u.customer_id))
+    val json = Json.toJson(users)
+
+    Ok(json).as(JSON)
+  }
 }
     // TODO We need a view that lists all users and a view that represents user(customer) fich, user data modification
 object Catalogue extends Controller with LoginLogout with AuthConf with Auth {
@@ -417,8 +454,138 @@ object Catalogue extends Controller with LoginLogout with AuthConf with Auth {
   Ok(views.html.manage_catalog(user))
   }
 
+  def getNumberOfProductsByManufacture = Action {
+        //get list of all products
+        val products : List[Product] = play.api.db.slick.DB.withSession { implicit session => ProductTable.getAll}
+        //count occurrences of each manufacture and return a Map(manufacture->occurrences)
+        val result = products.foldLeft(Map[String,Int] () withDefaultValue 0){
+          (m,x)=>m+(x.manufacture.getOrElse("")->(1+m(x.manufacture.getOrElse(""))))
+        }
+        Ok(Json.toJson(result)).as(JSON)
+
+  }
+
 }
 
+object Companies extends Controller with LoginLogout with AuthConf with Auth {
+
+  def getCustomersInJson = Action{ implicit request =>
+    val customers : List[CompanyJson] = play.api.db.slick.DB.withSession { implicit session =>
+    CompanyTable.getAllCustomers.map(c=>CompanyJson(c.id,c.name,c.price_level,c.tel,c.email,c.supplier,c.prospect,c.address,c.contacts))
+    }
+  val json = Json.toJson(customers)
+  Ok(json).as(JSON)
+  }
+
+  def getSuppliersInJson = Action{implicit request =>
+    val suppliers : List[CompanyJson] = play.api.db.slick.DB.withSession { implicit session =>
+       CompanyTable.getAllSuppliers.map(c=>c.toCompanyJson)
+    }
+    val json = Json.toJson(suppliers)
+    Ok(json).as(JSON)
+  }
+
+  def getCompanyInJson(id : Int) = Action{ implicit request =>
+     val customer = Json.toJson( play.api.db.slick.DB.withSession { implicit session =>
+     CompanyTable.getById(id).toCompanyJson
+     })
+    Ok(customer).as(JSON)
+  }
+
+  def listCustomers =  authorizedAction(Administrator){user => implicit request =>
+       Ok(views.html.listcustomers(user))
+  }
+
+  def customerFiche(id : Int) = authorizedAction(Administrator){user => implicit request =>
+       Ok(views.html.customer_fiche(user,id))
+  }
+
+  def getCustomerDiscountsInJson(customer_id : Int) = Action {
+    val discounts =  Json.toJson( CustomerDiscount.getDiscountsByCustomerId(customer_id).map(d=>d.toCustomerDiscountJ) )
+    Ok(discounts).as(JSON)
+
+  }
+
+  def updateCustomer = Action { request =>
+  request.body.asJson.map{json =>
+  json.validate[CompanyJson].map{
+    case customer =>{
+        play.api.db.slick.DB.withSession{implicit session =>
+        CompanyTable.update(customer)
+        AddressTable.update(customer.address.get)
+
+      }
+      val result = play.api.db.slick.DB.withSession{implicit session => CompanyTable.getById(customer.id.getOrElse(0))}
+      Ok(Json.toJson(result.toCompanyJson)).as(JSON)
+    }
+  }.recoverTotal(e => BadRequest("Detected error:"+ JsError.toFlatJson(e)))
+
+   }.getOrElse(BadRequest("Expecting Json data"))
+  }
+
+  def createCompanyForm = authorizedAction(Administrator){user => implicit request =>
+    Ok(views.html.createcompany(user))
+  }
+
+  def createCompany = Action { request =>
+    request.body.asJson.map{json =>
+      json.validate[CompanyJson].map{
+        case customer =>{
+          val id = play.api.db.slick.DB.withSession{implicit session =>
+            CompanyTable.create(customer)
+          }
+         // val result = play.api.db.slick.DB.withSession{implicit session => CompanyTable.getById(id.get)}
+          Ok(Json.toJson(id))
+
+        }
+      }.recoverTotal(e => BadRequest("Detected error:"+ JsError.toFlatJson(e)))
+
+    }.getOrElse(BadRequest("Expecting Json data"))
+  }
+
+
+  def createCustomerDiscount = Action { request =>
+    implicit val dataReads =(
+      (__ \ 'customer_id).read[Int] and
+        (__ \ 'supplier_id).read[Int] and
+        (__ \ 'discount).read[Double]
+      ).tupled
+    request.body.asJson.map{json =>
+      json.validate[(Int,Int,Double)].map{
+        case (customer_id, supplier_id, discount) => {
+          CustomerDiscount.create(CustomerDiscount(customer_id,supplier_id, discount))
+          Ok("")
+        }
+      }.recoverTotal(e=>BadRequest("Detected error:"+ JsError.toFlatJson(e)))
+    }.getOrElse(BadRequest("Expecting Json Data"))
+  }
+
+
+
+
+  def updateCustomerDiscount = Action { request =>
+    implicit val dataReads =(
+      (__ \ 'id).read[Int] and
+        (__ \ 'discount).read[Double]
+      ).tupled
+
+    implicit val dataWrites = (
+      (__ \ 'id).write[Int] and
+        (__ \ 'discount).write[Double]
+      ).tupled
+
+    request.body.asJson.map{json =>
+      json.validate[(Int,Double)].map{
+        case (id, discount) => {
+          CustomerDiscount.updateDiscount(id,discount)
+          Ok(Json.toJson((id,discount))).as(JSON)
+        }
+      }.recoverTotal(e=>BadRequest("Detected error:"+ JsError.toFlatJson(e)))
+    }.getOrElse(BadRequest("Expecting Json Data"))
+
+  }
+
+}
 
 trait JsonFormaters {
   // we need this formater to generate appropriate JSON for Products with customer prices

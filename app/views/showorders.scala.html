@@ -9,7 +9,7 @@
         <tr ng-repeat="order in orders">
             <td><a href="/order{{ order.id }}">{{ order.ref }}</a></td>
             <td>{{ order.order_date }}</td>
-            <td ng-hide="user.admin!=1">{{ customers[order.fk_soc].nom }}</td>
+            <td ng-hide="user.admin!=1">{{ customers[order.fk_soc].name }}</td>
             <td>{{ order.total_ht }}</td>
             <td>{{ order.total_ttc }}</td>
             <td ng-hide="order.fk_statut ==0">Validé</td>

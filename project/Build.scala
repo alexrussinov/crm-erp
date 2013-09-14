@@ -21,7 +21,8 @@ object ApplicationBuild extends Build {
       "pdf" % "pdf_2.10" % "0.5",
 
       "com.typesafe.play" %% "play-slick" % "0.3.3",
-      "mysql" % "mysql-connector-java" % "5.1.18"
+      "mysql" % "mysql-connector-java" % "5.1.18",
+      "postgresql" % "postgresql" % "9.1-901-1.jdbc4"
     )
     // Only compile the bootstrap bootstrap.less file and any other *.less file in the stylesheets directory
     def customLessEntryPoints(base: File): PathFinder = (

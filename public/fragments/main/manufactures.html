@@ -7,7 +7,7 @@
             <!--<a href="#" >{{marque}}</a>-->
             <div class="checkbox">
              <label>
-               <input type="checkbox" name="manufacturer" ng-model="marque_selection.marque[m]" id="{{m}}" ng-change="manufacturerFilter(m)"> {{m}}
+               <input type="checkbox" name="manufacturer" ng-model="marque_selection.marque[m]" id="{{m}}" ng-change="manufacturerFilter(m)"> <span>{{m}}</span> <span>({{ numberOfProductsByManufacture[m]}})</span>
              </label>
             </div>
         </li>
@@ -18,7 +18,7 @@
         <li ng-repeat="m2 in marques_rest">
             <div class="checkbox">
                 <label>
-                    <input type="checkbox" name="manufacturer" ng-model="marque_selection.marque[m2]" id="{{m2}}" ng-change="manufacturerFilter(m2)"> {{m2}}
+                    <input type="checkbox" name="manufacturer" ng-model="marque_selection.marque[m2]" id="{{m2}}" ng-change="manufacturerFilter(m2)"> <span>{{m2}}</span> <span>({{ numberOfProductsByManufacture[m2]}})</span>
                 </label>
             </div>
         </li>

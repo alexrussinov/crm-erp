@@ -1,7 +1,10 @@
 <div ng-controller="ProductFicheCtrl">
-    <h4>Fiche de produit</h4>
-    <form>
-    <table class="table">
+ <div class="row">
+   <div class="col-lg-12">
+    <div class="panel panel-info">
+    <div class="panel-heading"><h4>Fiche de produit</h4></div>
+    <div class="panel-body">
+      <table class="table">
         <tr>
             <td>Reference</td><td><editable-cell  value="product.reference"></editable-cell></td>
         </tr>
@@ -17,15 +20,20 @@
         <tr>
             <td>Prix de base</td><td><editable-cell  value="product.base_price"></editable-cell></td>
         </tr>
-    </table>
-        </form>
-
-    <div class="well">
+      </table>
+      <div class="form-group">
+      <button class="btn btn-default" ng-click="update()">Mettre à jour</button>
+      </div>
+      <div class="well">
         <h4>Update image</h4>
         <hr class="divider">
         <form enctype="multipart/form-data" action="/product/updateimage" method="post">
             <input type="file" name="image"><input type="submit" value="Update image">
             <input type="hidden" name="product_id" value="{{ product.id }}">
         </form>
+       </div>
     </div>
+    </div>
+  </div>
+ </div>
 </div>

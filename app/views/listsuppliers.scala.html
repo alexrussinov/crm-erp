@@ -5,12 +5,13 @@
     <div class="span12 list-suppliers" ng-controller="SupplierCtrl">
         <table class="table table-striped">
             <thead>
-                <tr><th>Fournisseur</th><th>Address</th><th>Telephones</th><th>Email</th></tr>
+                <tr><th>Id</th><th>Fournisseur</th><th>Address</th><th>Telephones</th><th>Email</th></tr>
             </thead>
             <tbody>
                 <tr ng-repeat="supplier in suppliers">
-                    <td>{{ supplier.name }}</td>
-                    <td>{{ supplier.address }}</td>
+                    <td>{{ supplier.id }}</td>
+                    <td><a href="/company/fiche?id={{ supplier.id }}">{{ supplier.name }}</a></td>
+                    <td>{{ supplier.address.address+" "+supplier.address.zip+" "+supplier.address.city }}</td>
                     <td>{{ supplier.tel }}</td>
                     <td>{{ supplier.email }}</td>
                 </tr>

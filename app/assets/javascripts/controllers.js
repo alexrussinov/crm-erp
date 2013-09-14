@@ -318,6 +318,10 @@ function CatalogCtrl($scope, $http, $filter){
        $scope.numberOfProductsByCategory = data;
     });
 
+    $http.get('/catalogue/manufactures/number').success(function(data){
+        $scope.numberOfProductsByManufacture = data;
+    });
+
     /* we get all marques from the sever */          //Old implementation
 //    $http.get('/manufacturers').success(function(data){
 //        //we take first 10 marque
@@ -545,7 +549,7 @@ function ListOrdersCtrl($scope,$http,getCustomersService){
 }
 
 function SupplierCtrl($http,$scope){
-    $http.get('/suppliers/json').success(function(data){
+    $http.get('/company/suppliers/json').success(function(data){
         $scope.suppliers = data;
     });
 }
@@ -700,6 +704,9 @@ function ManageCatalogCtrl($scope, $http, $filter){
     $http.get('/catalogue/numberproductsbycategory').success(function(data){
         $scope.numberOfProductsByCategory = data;
     });
+    $http.get('/catalogue/manufactures/number').success(function(data){
+           $scope.numberOfProductsByManufacture = data;
+    });
 
     // in this version we form our marque list(for side bar...) from filtered items array  instead of get all marques from database
     function getMarques(){
@@ -795,6 +802,20 @@ function ProductFicheCtrl($scope, $http, $filter){
     $http.get('/product/json?id='+$scope.product_id).success(function(data){
           $scope.product = data;
     });
+
+    $scope.update = function(){
+        $http({
+            url :'/product/updateinfo',
+            method : 'POST',
+            data : $scope.product,
+            headers: {'Content-Type': 'application/json'}
+        }).success(function(data){
+               $scope.product = data;
+            }).error(function(data){
+                alert(data);
+            });
+        alert("Update");
+    }
 }
 
 function DashboardCrtl($scope,$http){
@@ -830,7 +851,156 @@ function DashboardCrtl($scope,$http){
     $scope.chartTitle ="Dynamique d'achats";
 
 }
-// TODO Controller for dashboard
+/* list of all customers */
+function CustomersCtrl($scope,$http){
+    $http.get('/getcustomers').success(function(data){
+        $scope.customers = data;
+    });
+
+}
+ /* gestion company info, company fiche */
+function CompanyFicheCtrl($scope,$http){
+    /* each field number correspond to the supplier id */
+    $scope.actualDiscountsBySupplier = {};
+    $scope.edit2Mode = {
+        customerInfo : false,
+        customerDiscount : false
+    }
+    $scope.editMode = false;
+
+    $scope.edit = function(){
+        $scope.editMode = true;
+    }
+
+
+    if(typeof $scope.company_id !== 'undefined' ){
+        $http.get('/company/json'+$scope.company_id).success(function(data){
+            $scope.company = data;
+        });
+
+      $scope.getDiscounts = function(){  $http.get('/company/discounts?id='+$scope.company_id).success(function(data){
+           for(var i=0; i<data.length; i++){
+               $scope.actualDiscountsBySupplier[data[i].supplier_id]=data[i];
+           }
+
+            $http.get('/suppliers/json').success(function(data){
+                $scope.suppliers = data;
+            });
+        });
+      }
+        $scope.getDiscounts();
+    }
+
+    $scope.updateDiscount = function(id,discount){
+        var data = {id : id, discount : parseFloat(discount)};
+
+        $http({
+            url :'/company/discount/update',
+            method : 'POST',
+            data : data,
+            headers: {'Content-Type': 'application/json'}
+        }).success(function(data){
+                // we need to reinitialize all discounts, so we get updated data and destroy editMode...
+                $scope.getDiscounts();
+
+            }).error(function(data){
+                alert(data);
+            });
+    }
+    $scope.createDiscount = function(customer_id,supplier_id,discount){
+
+        var data = {customer_id : parseInt(customer_id),supplier_id : parseInt(supplier_id),discount: parseFloat(discount)}
+        $http({
+            url :'/company/discount/create',
+            method : 'POST',
+            data : data,
+            headers: {'Content-Type': 'application/json'}
+        }).success(function(data){
+                // we need to reinitialize all discounts, so we get updated data and destroy editMode...
+                $scope.getDiscounts();
+
+            }).error(function(data){
+                alert(data);
+            });
+    }
+
+
+}
+/*creation of new Company*/
+function CreateCompanyCtrl ($scope,$http,$location){
+  $scope.company= {
+        name : "",
+        tel : "",
+        email : "",
+        supplier : false,
+        prospect : false,
+        contacts : []
+    }
+
+
+
+  $scope.save = function(){
+      $scope.company.address = $scope.address;
+      $http({
+          url :'/company/create',
+          method : 'POST',
+          data : $scope.company,
+          headers: {'Content-Type': 'application/json'}
+      }).success(function(data){
+               alert("Ok");
+              window.location ="/company/fiche?id="+data;
+          }).error(function(data){
+              alert(data);
+          });
+  }
+}
+ /* list of all users */
+function UsersListCtrl($scope,$http){
+
+        $http.get('/users/json').success(function(data){
+         $scope.users = data;
+        });
+}
+ /* represents user fiche */
+function UserFicheCtrl($scope, $http){
+
+    $scope.edit2Mode = {
+        customerInfo : false,
+        customerDiscount : false
+    }
+
+    $http.get('/user/json?id='+$scope.user_id).success(function(data){
+       $scope.user = data;
+
+        if(typeof $scope.user.customer_id !== 'undefined' ){
+            $http.get('/company/json'+$scope.user.customer_id).success(function(data){
+                $scope.company = data;
+            });
+        }
+    });
+
+    $scope.edit = function(){
+        $scope.edit2Mode.customerInfo = true;
+    }
+    $scope.cancel = function(){
+        $scope.edit2Mode.customerInfo = false;
+    }
+
+    $scope.submit = function(){
+        $http({
+            url :'/company/update',
+            method : 'POST',
+            data : $scope.company,
+            headers: {'Content-Type': 'application/json'}
+        }).success(function(data){
+                $scope.company = data;
+                $scope.edit2Mode.customerInfo = false;
+            }).error(function(data){
+                alert(data);
+            });
+    }
+}
+
 
 // TODO may be it would be better to realise search et pagination on server side
 

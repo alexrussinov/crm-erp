@@ -25,6 +25,10 @@ GET         /logout                                    controllers.Application.l
 
 GET         /account                                   controllers.AccountCreation.createAccountForm
 POST        /createaccount                             controllers.AccountCreation.createAccount
+GET         /users/json                                controllers.AccountCreation.getUsersInJson
+GET         /users                                     controllers.AccountCreation.listUsers
+GET         /user/json                                 controllers.AccountCreation.getUserInJson(id : Int)
+GET         /user/fiche                                controllers.AccountCreation.userFiche(id : Int)
 
 
 GET         /create                                    controllers.Orders.showCreateOrderForm
@@ -70,7 +74,21 @@ GET         /products/import/file                      controllers.Products.impo
 GET         /products/upload/images                    controllers.Products.uploadProductsImages
 GET         /products/fiche                            controllers.Products.productFiche(id : Int)
 POST        /product/updateimage                       controllers.Products.updateProductImage
+POST        /product/updateinfo                        controllers.Products.updateProduct
 GET         /catalogue/numberproductsbycategory        controllers.Catalogue.getNumberOfProductsByCategory
+GET         /catalogue/manufactures/number             controllers.Catalogue.getNumberOfProductsByManufacture
 GET         /dolibarr/ws                               controllers.DolibarrClient.getInvoice
+GET         /company                                   controllers.Companies.listCustomers
+GET         /company/json                              controllers.Companies.getCustomersInJson
+GET         /company/suppliers/json                    controllers.Companies.getSuppliersInJson
+GET         /company/json:id                           controllers.Companies.getCompanyInJson(id : Int)
+GET         /company/fiche                             controllers.Companies.customerFiche(id : Int)
+GET         /company/discounts                         controllers.Companies.getCustomerDiscountsInJson(id : Int)
+POST        /company/update                            controllers.Companies.updateCustomer
+POST        /company/discount/update                   controllers.Companies.updateCustomerDiscount
+POST        /company/discount/create                   controllers.Companies.createCustomerDiscount
+GET         /company/create                            controllers.Companies.createCompanyForm
+POST        /company/create                            controllers.Companies.createCompany
+
 
 

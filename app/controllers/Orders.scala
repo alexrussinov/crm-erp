@@ -81,14 +81,26 @@ object Orders extends  Controller with LoginLogout with AuthConf with Auth with 
   }
   // Retrieve list of avaiable customers
   def getCustomersInJson =  authorizedAction(NormalUser) { user => implicit request =>
-    val json = Customer.getAllJson
+    /*old implementation to use whith Dolibarr database*/
+    //val json = CustomerDoll.getAllJson
+
+    /*new implementation to use with native DB */
+    val json =Json.toJson( play.api.db.slick.DB.withSession { implicit session =>
+    CompanyTable.getAllCustomers.map(c=>c.toCompanyJson)
+    })
     Ok(json).as(JSON)
    }
 
   // Fetch customer in json by id
 
   def getCustomerInJson(id : Int)= authorizedAction(NormalUser) { user => implicit request =>
-    val json = Customer.getByIdInJson(id)
+  /*old implementation to use whith Dolibarr database*/
+    //val json = CustomerDoll.getByIdInJson(id)
+
+    /*new implementation to use with native DB*/
+    val json = Json.toJson(play.api.db.slick.DB.withSession { implicit session =>
+      CompanyTable.getById(id).toCompanyJson
+    })
     Ok(json).as(JSON)
   }
 
@@ -126,7 +138,7 @@ object Orders extends  Controller with LoginLogout with AuthConf with Auth with 
 
   def orderFiche(id : Int) = authorizedAction(NormalUser) { user => implicit request =>
     val order = Order.getById(id)
-    val customer = Customer.getById(order.fk_soc)
+    //val customer = CustomerDoll.getById(order.fk_soc)
     //Ok(views.html.orderfiche(order, user, addlineform, update_line_form ))
     Ok(views.html.orderfiche3(order, user))
   }
@@ -134,7 +146,7 @@ object Orders extends  Controller with LoginLogout with AuthConf with Auth with 
   def showListOrders = authorizedAction(NormalUser) { user => implicit request =>
   Ok(views.html.showorders(user))
   }
-
+   /* Old method to add line, working with Dolibarr product */
   def addLine = authorizedAction(NormalUser) { user => implicit request =>
     addlineform.bindFromRequest.fold(
       formWithErrors => {
@@ -143,7 +155,7 @@ object Orders extends  Controller with LoginLogout with AuthConf with Auth with 
       },
       data =>{
         val order = Order.getById(data._4)
-        val customer = Customer.getById(order.fk_soc)
+        val customer = CustomerDoll.getById(order.fk_soc)
         val product = ProductDoll.getById(data._2)
         val pr_price = ProductDoll.getProductPrice(data._2, customer.price_level.getOrElse(0))
         OrderLine(data._4, product.id, product.ref.getOrElse(""), product.label.getOrElse(""),pr_price.tva_tx, Convertion.prse[Double](data._3).getOrElse(0.00),product.unite,pr_price.price, pr_price.price_ttc).insertLine
@@ -179,15 +191,21 @@ object Orders extends  Controller with LoginLogout with AuthConf with Auth with 
         val product_id = (json \ "product_id").asOpt[Int]
         val qty = (json \ "qty").asOpt[String]
 
-        val client : Customer = Customer.getById(client_id.head )
+        /* old implementatio to work with Dollibarr customer */
+        //val client : CustomerDoll = CustomerDoll.getById(client_id.head )
+        val client = play.api.db.slick.DB.withSession{implicit session =>
+            CompanyTable.getById(client_id.head).toCompanyJson
+        }
+
+        /* we have used this to work with dolibarr database */
         //val product_price : ProductPrice = ProductDoll.getProductPrice(product_id.head, client.price_level.head)
-        // we have used this to work with dolibarr database
+
         //val product : ProductDoll = ProductDoll.getById(product_id.head)
         //val line_id =OrderLine(order_id.head,product.id,product.ref.head,product.label.head,product.tva_tx.head, qty.head.toDouble, product.unite,product_price.price,product_price.price_ttc).insertLine
 
-        // these new implementation  to use with native database
+        /* these new implementation  to use with native database */
         val product : ProductCustomer = DB.withSession { implicit session =>
-        ProductTable.getProductByIdForCustomer(product_id.head,client.id)
+        ProductTable.getProductByIdForCustomer(product_id.head,client.id.getOrElse(0))
         }
         val line_id = OrderLine(order_id.head,product.id.get,product.reference,product.label,product.tva_rate, qty.head.toDouble, product.unity, product.price, product.price_ttc).insertLine
         val order = Order.getByIdInJson(order_id.head)
@@ -241,7 +259,7 @@ object Orders extends  Controller with LoginLogout with AuthConf with Auth with 
               (__ \ '_5).write[Double]
       ).tupled : Writes[(Int,Option[String],Option[String],Double,Double)]
 
-    val customer = Customer.getById(customer_id)
+   // val customer = CustomerDoll.getById(customer_id)
     /*** Old version to search using Squeryl ***/
 //    val json = transaction(DollConn.doll_session(current)){
 //      val products   = from(ProductDoll.productTable, ProductDoll.productpriceTable) ((s,p) => where((s.ref like value.map(_+ "%").?) or
@@ -302,7 +320,11 @@ object Orders extends  Controller with LoginLogout with AuthConf with Auth with 
   def sendOrder(order_id: Int) = authorizedAction(NormalUser) {user => implicit request =>
 
    val order = Order.getById(order_id)
-   val client = Customer.getById(order.fk_soc)
+    /*old implementation to work with dolibarr db */
+    //val client = CustomerDoll.getById(order.fk_soc)
+   val client = play.api.db.slick.DB.withSession{implicit session =>
+     CompanyTable.getById(order.fk_soc).toCompanyJson
+    }
    val lnk = Order.generateOrderInCSV(order_id)
     // Create the attachment
     val attachment = new EmailAttachment()
@@ -319,8 +341,8 @@ object Orders extends  Controller with LoginLogout with AuthConf with Auth with 
     email.setSSL(true)
     email.addTo("imexbox@gmail.com")
     email.setFrom("imexbox@gmail.com","Commandes")
-    email.setSubject("Commande de "+client.nom.get)
-    email.setMsg("Veuillez trouver ci-joint la commande "+order.ref + " de "+client.nom.get+" Author: "+user.email)
+    email.setSubject("Commande de "+client.name.get)
+    email.setMsg("Veuillez trouver ci-joint la commande "+order.ref + " de "+client.name.get+" Author: "+user.email)
 
     // add the attachment
     email.attach(attachment)
@@ -337,7 +359,13 @@ object Orders extends  Controller with LoginLogout with AuthConf with Auth with 
     val order = Order.getById(order_id)
     val lines = OrderLine.getLines(order_id)
     val total_qty = Order.totalQty(order_id)
-    val customer = Customer.getById(order.fk_soc)
+   /* old implementation to use with dolibarr db */
+   // val customer = CustomerDoll.getById(order.fk_soc)
+
+   /*new implementation to use with native db */
+   val customer = play.api.db.slick.DB.withSession{implicit session =>
+    CompanyTable.getById(order.fk_soc).toCompanyJson
+   }
     Ok(PDF.toBytes(views.html.tpl_pdf_customer_oder.render(order,lines,customer,total_qty))).as("application/pdf")
   }
 
@@ -348,7 +376,13 @@ object Orders extends  Controller with LoginLogout with AuthConf with Auth with 
     val order = Order.getById(id)
     val lines = OrderLine.getLines(id)
     val total_qty = Order.totalQty(id)
-    val customer = Customer.getById(order.fk_soc)
+    /*old implementation to work with dolibarr db*/
+   // val customer = CustomerDoll.getById(order.fk_soc)
+
+    /*new implementation*/
+    val customer = play.api.db.slick.DB.withSession{implicit session =>
+     CompanyTable.getById(order.fk_soc).toCompanyJson
+    }
     Ok(views.html.tpl_pdf_customer_oder(order,lines,customer,total_qty))
   }
 

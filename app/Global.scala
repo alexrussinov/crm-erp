@@ -30,8 +30,8 @@ object Global extends GlobalSettings {
      //default user
     if (Users.findAll.isEmpty) {
       Seq(
-        Users("admin@test.com", "12345", 1,Some(1)),
-        Users("user@test.com", "12345", 0,Some(30))
+        Users("admin@test.com", "12345", 1,Some(9)),
+        Users("user@test.com", "12345", 0,Some(9))
 
       ) foreach Users.create
     }
@@ -46,7 +46,8 @@ object Global extends GlobalSettings {
     }
       //Default customer discount for test user
       if(CustomerDiscount.getAll.isEmpty){
-      CustomerDiscount(1,1,25.00).create_discount
+        /* discount for customer with id=1, for products from supplier with id=10, discount is 25% from base price*/
+      CustomerDiscount(1,10,25.00).create_discount
       }
 
     //Defaults Product
@@ -54,8 +55,8 @@ object Global extends GlobalSettings {
       if (ProductTable.count == 0) {
           Seq(
             Product(None, "some ref", "some label",Some("some desc."),Some("/assets/images/products/szubryt/baleron_gotowany_2_1_1.jpg"),"kg",
-              None,1,Some("Some manufacture"),Some("Suppl. Ref."), false, 5.5, 7.99, 14.99)
-          ).foreach(ProductTable.insert)
+              None,10,Some("Some manufacture"),Some("Suppl. Ref."), false, 5.5, 7.99, 14.99)
+          ).foreach(ProductTable.add)
       }
     }
     //Defaults Category
@@ -100,8 +101,37 @@ object Global extends GlobalSettings {
          CategoryT(None, "Pierogi",17),
          CategoryT(None, "Crêpes, Galettes",17),
          CategoryT(None, "Autres",17)
-        ).foreach(CategoryTable.insert)
+        ).foreach(CategoryTable.add)
       }
+    }
+    //default companies
+    play.api.db.slick.DB.withSession { implicit session =>
+    if(CompanyTable.count == 0){
+      Seq(
+        /* Customers*/
+        CompanyJson(None,Some("Saveurs de Pologne"),None,Some("+33618013355"),Some("contact@saveursdepologne.com"),false,false,None,Nil),
+        CompanyJson(None,Some("Remy Schimowski"),None,Some("+33683683704"),Some("remy.schimowski@numericable.fr"),false,false,None,Nil),
+        CompanyJson(None,Some("Saj"),None,Some("+33630078314"),Some("contact@edouardsaj.fr"),false,false,None,Nil),
+        CompanyJson(None,Some("SARL Rauwel"),None,Some("+33668691169"),None,false,false,None,Nil),
+        CompanyJson(None,Some("SARL SPM Manorek"),None,Some("+33143558644"),Some("imanorek@free.fr"),false,false,None,Nil),
+        CompanyJson(None,Some("Adriana et Margo"),None,Some("+33662755006"),Some("adriana.margot@free.fr"),false,false,None,Nil),
+        CompanyJson(None,Some("Association Jacky"),None,Some("+33142386320"),Some("jackyacc@o2.pl"),false,false,None,Nil),
+        CompanyJson(None,Some("Sklep Petrus"),None,None,None,false,false,None,Nil),
+        CompanyJson(None,Some("Alex"),None,None,Some("imexbox@gmail.com"),false,false,None,Nil),
+        /*Suppliers*/
+        CompanyJson(None,Some("Default Supplier"),None,None,Some("imexbox@gmail.com"),true,false,None,Nil),
+        CompanyJson(None,Some("Szubryt"),None,None,Some("biuro@szubryt.pl"),true,false,None,Nil),
+        CompanyJson(None,Some("KORA"),None,None,Some("kora_ryby@wp.pl"),true,false,None,Nil),
+        CompanyJson(None,Some("BAC-POL"),None,None,Some("sabina.dorula@bacpol.com.pl"),true,false,None,Nil),
+        CompanyJson(None,Some("Tradis"),None,None,None,true,false,None,Nil),
+        CompanyJson(None,Some("Jot-l"),None,None,Some("h10.bok@jot-l.pl"),true,false,None,Nil),
+        CompanyJson(None,Some("Virtu"),None,None,Some("michal.bilnik@virtu.com.pl"),true,false,None,Nil),
+        CompanyJson(None,Some("Bruno-Tassi"),None,None,Some("K.Pajtak@brunotassi.com.pl"),true,false,None,Nil),
+        CompanyJson(None,Some("Sloneczne-Pole"),None,None,Some("biuro@slonecznepole.com.pl"),true,false,None,Nil)
+      )foreach(CompanyTable.create)
+
+     }
+
     }
 
   }

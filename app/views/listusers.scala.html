@@ -1,0 +1,21 @@
+@(user : Users)
+@main("List des Utilisateurs",user){
+    <div class="row-fluid">
+        <div class="span12 list-users" ng-controller="UsersListCtrl">
+            <table class="table table-striped">
+                <thead>
+                    <tr><th>Id</th><th>Utilisateurs</th><th>Admin</th><th>Id Client</th></tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="user in users">
+                        <td>{{ user.id }}</td>
+                        <td><a href="/user/fiche?id={{ user.id }}">{{ user.email }}</a></td>
+                        <td ng-show="user.admin==1">Admin</td>
+                        <td ng-show="user.admin==0">Utilisateur</td>
+                        <td>{{ user.customer_id }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+}{<div></div>}

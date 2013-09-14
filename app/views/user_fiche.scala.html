@@ -1,0 +1,88 @@
+@(user : Users, id :Int)
+@main("Utilisateur",user){
+<div ng-init="user_id=@id">
+<div ng-controller="UserFicheCtrl">
+<div class="row" >
+    <div class="col-lg-12">
+        <div class="panel panel-info">
+            <div class="panel-heading">Info Utilisateur</div>
+            <div class="panel-body">
+                <table class="table">
+                    <tr>
+                      <td>Utilisateur</td>
+                      <td>{{ user.email }}</td>
+                    </tr>
+                    <tr>
+                        <td>Mot de passe</td>
+                        <td>**********</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="panel panel-info">
+            <div class="panel-heading">Profil Client Attaché</div>
+            <div class="panel-body">
+                <table class="table">
+                    <tr>
+                        <td>Type</td>
+                        <td ng-show="company.supplier">Fournisseur</td>
+                        <td ng-show="company.prospect">Prospect</td>
+                        <td ng-hide="company.prospect || company.supplier">Client</td>
+                    </tr>
+                    <tr>
+                        <td>Nom</td>
+                        <td>
+                            <span ng-hide="edit2Mode.customerInfo">{{ company.name }}</span>
+                            <input ng-show="edit2Mode.customerInfo" type="text" ng-model="company.name" required>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Address:</td>
+                        <td>
+                            <span ng-hide="edit2Mode.customerInfo">{{ company.address.address }}</span>
+                            <input ng-show="edit2Mode.customerInfo" type="text" ng-model="company.address.address">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Ville:</td>
+                        <td>
+                            <span ng-hide="edit2Mode.customerInfo">{{ company.address.city }}</span>
+                            <input ng-show="edit2Mode.customerInfo" type="text" ng-model="company.address.city">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Code Postal:</td>
+                        <td>
+                            <span ng-hide="edit2Mode.customerInfo">{{ company.address.zip }}</span>
+                            <input ng-show="edit2Mode.customerInfo" type="text" ng-model="company.address.zip">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Tel:</td>
+                        <td>
+                            <span ng-hide="edit2Mode.customerInfo">{{ company.tel }}</span>
+                            <input ng-show="edit2Mode.customerInfo" type="text" ng-model="company.tel">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Email:</td>
+                        <td>
+                            <span ng-hide="edit2Mode.customerInfo">{{ company.email }}</span>
+                            <input ng-show="edit2Mode.customerInfo" type="text" ng-model="company.email" required>
+                        </td>
+                    </tr>
+                </table>
+                <button ng-hide="edit2Mode.customerInfo" class="btn btn-default" ng-click="edit()">Modifier</button>
+                <button ng-show="edit2Mode.customerInfo" class="btn btn-danger" ng-click="submit()">Envoyer</button>
+                <button ng-show="edit2Mode.customerInfo" class="btn btn-primary" ng-click="cancel()">Annuler</button>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+}{<div></div>}

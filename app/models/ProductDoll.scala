@@ -129,7 +129,7 @@ object ProductDoll extends Schema {
 
 
   def getProductsWithPrices(customer_id: Int,offset: Int, pageLength: Int): JsValue = {
-    val customer: Customer = Customer.getById(customer_id)
+    val customer: CustomerDoll = CustomerDoll.getById(customer_id)
      val json  = transaction(DollConn.doll_session(current)){
       val products  = from(productTable,productpriceTable)((s,pr)=>
       where(s.id===pr.fk_product and pr.price_level===customer.price_level) select(s.id, s.ref, s.label,s.tva_tx, pr.price)
