@@ -36,14 +36,14 @@ object Global extends GlobalSettings {
       ) foreach Users.create
     }
      //default supplier
-    if (Supplier.getAll.isEmpty){
-      Seq(
-      Supplier("Default supplier","Some address","some tel","mail@mail.com"),
-      Supplier("Szubryt","Some address","some tel","mail@mail.com"),
-      Supplier("Kora","Some address","some tel","mail@mail.com"),
-      Supplier("J.Michalska","Some address","some tel","mail@mail.com")
-      ) foreach(f=>f.create_supplier)
-    }
+//    if (Supplier.getAll.isEmpty){
+//      Seq(
+//      Supplier("Default supplier","Some address","some tel","mail@mail.com"),
+//      Supplier("Szubryt","Some address","some tel","mail@mail.com"),
+//      Supplier("Kora","Some address","some tel","mail@mail.com"),
+//      Supplier("J.Michalska","Some address","some tel","mail@mail.com")
+//      ) foreach(f=>f.create_supplier)
+//    }
       //Default customer discount for test user
       if(CustomerDiscount.getAll.isEmpty){
         /* discount for customer with id=1, for products from supplier with id=10, discount is 25% from base price*/
@@ -127,7 +127,8 @@ object Global extends GlobalSettings {
         CompanyJson(None,Some("Jot-l"),None,None,Some("h10.bok@jot-l.pl"),true,false,None,Nil),
         CompanyJson(None,Some("Virtu"),None,None,Some("michal.bilnik@virtu.com.pl"),true,false,None,Nil),
         CompanyJson(None,Some("Bruno-Tassi"),None,None,Some("K.Pajtak@brunotassi.com.pl"),true,false,None,Nil),
-        CompanyJson(None,Some("Sloneczne-Pole"),None,None,Some("biuro@slonecznepole.com.pl"),true,false,None,Nil)
+        CompanyJson(None,Some("Sloneczne-Pole"),None,None,Some("biuro@slonecznepole.com.pl"),true,false,None,Nil),
+        CompanyJson(None,Some("J. Michalska"),None,None,Some("zwgjm@wp.pl"),true,false,None,Nil)
       )foreach(CompanyTable.create)
 
      }
