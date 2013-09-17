@@ -1,6 +1,6 @@
 function MainCtrl($scope,$http,$filter){
 
-
+    $scope.unite_selectable = false;
     $scope.getUserActiveOrder = function(){
         if($scope.user.admin == 1){
             $http.get('/getorders').success(function(data){
@@ -44,8 +44,12 @@ function MainCtrl($scope,$http,$filter){
 
         //for new json implementation
         $scope.current_product_id = product.id;
+        $scope.current_product_supplier_id = product.supplier_id;
+        $scope.current_order_product_unite = product.unity;
 
         if($scope.user.admin == 1){
+            if(product.supplier_id == 11)
+                $scope.unite_selectable = true;
             $http.get('/getorders').success(function(data){
 
                 if (!$.isEmptyObject(data)){
@@ -84,12 +88,14 @@ function MainCtrl($scope,$http,$filter){
         { user_id: $scope.order.fk_soc,
             order_id: $scope.order.id,
             product_id: $scope.current_product_id,
-            qty: $scope.current_order_product_qty };
+            qty: $scope.current_order_product_qty,
+            unite : $scope.current_order_product_unite};
 //        alert("Client id:" + $scope.insert_product_json.user_id + "Order id:"+$scope.insert_product_json.order_id+
 //        "Product id:"+$scope.insert_product_json.product_id+"Qty :"+$scope.insert_product_json.qty);
         $http.post("/addLineJson", $scope.insert_product_json)
             .success(function(data, status, headers, config) {
                 $('#orderChoice').modal('hide');
+                $scope.unite_selectable = false;
             }).error(function(data, status, headers, config) {
                 $scope.status = status;
                 alert('Error'+status)
@@ -101,7 +107,12 @@ function MainCtrl($scope,$http,$filter){
     $scope.addProductNotAdmin = function(product){
 
         $scope.current_product_id = product.id;
+        $scope.current_order_product_unite = product.unity;
+
         if (!$.isEmptyObject($scope.activeorder)){
+            // TODO Hardcoded id for supplier for which unites are selectable
+            if(product.supplier_id == 11)
+            $scope.unite_selectable = true;
 
             $scope.current_order_product_qty="";
             $('#CatalogAddProductNotAdmin').modal('toggle');
@@ -433,6 +444,7 @@ function OrderCtrl($scope,$http, calculateTotalQtyService){
     $scope.line_editable = false;
     $scope.order_editable = true;
     $scope.editMode = false;
+    $scope.unite_selectable = false;
 
    //initialising order scope
     $http.get('/order?id='+$scope.current_order_id).success(function(data){
@@ -450,7 +462,8 @@ function OrderCtrl($scope,$http, calculateTotalQtyService){
         { user_id: $scope.order.customer.id,
             order_id: $scope.order.id,
             product_id: $scope.product_id,
-            qty: $scope.qty };
+            qty: $scope.qty,
+            unite : $scope.product_unite};
 //        alert("Client id:" + $scope.insert_product_json.user_id + "Order id:"+$scope.insert_product_json.order_id+
 //        "Product id:"+$scope.insert_product_json.product_id+"Qty :"+$scope.insert_product_json.qty);
         $http.post("/addLineJson", $scope.insert_product_json)
@@ -460,6 +473,7 @@ function OrderCtrl($scope,$http, calculateTotalQtyService){
                 $scope.order.lines = data.lines;
                 $scope.request = '';
                 $scope.qty = '';
+                $scope.unite_selectable = false;
                 setTotalQty(data.lines)
 
             }).error(function(data, status, headers, config) {
@@ -491,6 +505,8 @@ function OrderCtrl($scope,$http, calculateTotalQtyService){
                 total_piece+=lines[i].qty ;
             if(lines[i].unity == "kg")
                 total_kg+=lines[i].qty ;
+            if(lines[i].unity == "piece(0.5kg)")
+                total_kg+=(lines[i].qty/2) ;
         }
         $scope.total_kg = total_kg ;
         $scope.total_piece = total_piece;

@@ -82,6 +82,12 @@
             <input class="form-control" type="text" name="qty"  ng-model="current_order_product_qty" ng-pattern="/^[0-9]*[.]?[0-9]+$/" placeholder="0.00" required>
             </div>
             <div class="col-lg-3">
+                <select ng-disabled="!unite_selectable"  id="unite" class="form-control" type="text" name="unite"  ng-model="current_order_product_unite">
+                    <option>{{ current_order_product_unite }}</option>
+                    <option ng-hide="current_order_product_unite=='piece'">piece(0.5kg)</option>
+                </select>
+            </div>
+            <div class="col-lg-3">
             <input type="hidden" value="{{order.fk_soc}}" ng-model="current_order_client_id">
             </div>
             </div>

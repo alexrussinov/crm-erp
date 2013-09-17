@@ -78,6 +78,7 @@ case class OrderLine (fk_order_id : Int, product_id : Int, product_ref: String, 
   def insertLine : Int = inTransaction {
     val line : OrderLine = OrderDB.orderlinesTable insert (this)
     val order = Order.getById(this.fk_order_id)
+    // calculate total_ht et total_ttc
     val totals = Order.getTotals(order.id)
 //    update(OrderDB.orderTable)(s => where(s.id === this.fk_order_id) set(s.total_ht := Some(mat.round( order.total_ht.getOrElse(0.00)+(this.prix_ht*this.qty) ) ),
 //      s.total_ttc:= Some(mat.round( (order.total_ttc.getOrElse(0.00)+(this.prix_ht*this.qty)*(1+this.tva/100)) )) ) )
@@ -143,8 +144,14 @@ object Order extends Schema {
     var total_ht : Double = 0
     var total_ttc : Double = 0
     for(line <- lines){
-       total_ht += line.qty*line.prix_ht
-       total_ttc += line.qty*line.prix_ttc
+      if(line.unity == "piece(0.5kg)"){
+       total_ht += (line.qty/2)*line.prix_ht
+       total_ttc += (line.qty/2)*line.prix_ttc
+      }
+      else{
+        total_ht += line.qty*line.prix_ht
+        total_ttc += line.qty*line.prix_ttc
+      }
     }
     Map("total_ht"->total_ht, "total_ttc"->total_ttc)
     }

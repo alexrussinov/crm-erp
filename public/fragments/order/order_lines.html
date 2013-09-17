@@ -22,7 +22,7 @@
             <td class='line-qty'><editable text="line.qty"></editable></td>
             <td class='line-unity'>{{line.unity}}</td>
             <td class='line-prix_ht'>{{line.prix_ht}}</td>
-            <td>{{(line.prix_ht*line.qty).toFixed(2)}}</td>
+            <td>{{(line.prix_ht* getQty(line)).toFixed(2)}}</td>
             <td class='control-buttons' ng-hide="editMode||order.fk_statut==1">
                 <i class='glyphicon glyphicon-edit edit-line' ng-click="editMode = true"></i>
                 <i class='glyphicon glyphicon-trash delete-line' ng-click="deleteLine($index)"></i>

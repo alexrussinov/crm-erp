@@ -214,6 +214,13 @@ main.directive('orderControls',function($http,$location){
                 $('#sendOrderAlert').modal('toggle');
             }
 
+            $scope.getQty=function(line){
+               if(line.unity == "piece(0.5kg)")
+               return line.qty /2;
+               else
+               return line.qty;
+            }
+
         },
         templateUrl: '/assets/fragments/order/order_controls.html',
         replace: true
@@ -233,6 +240,8 @@ main.directive('autoComplete',function($http){
                             //obj.label = val.ref+"-"+val.label+"-"+val.price;
                             obj.label = val._2+"-"+val._3+"-"+val._4;
                             obj.id = val._1;
+                            obj.unite = val._6;
+                            obj.supplier_id = val._7;
                             suggestions.push(obj);
                         });
                         resp(suggestions);
@@ -241,6 +250,11 @@ main.directive('autoComplete',function($http){
                 select: function(event, ui){
                     scope.$apply(function() {
                         scope.product_id = ui.item.id;
+                        scope.product_unite=ui.item.unite;
+                        scope.product_supplier_id = ui.item.supplier_id;
+                        //TODO unites are selectable only for the supplier with id=11, so hardcoded, implement possibility choose for which supplier unites can be changed
+                        if(ui.item.supplier_id == 11)
+                        scope.unite_selectable = true;
                     });
                 }
 
@@ -382,13 +396,15 @@ main.directive('addProductModal',function($http){
                     user_id: $scope.activeorder.fk_soc,
                     order_id: $scope.activeorder.id,
                     product_id: $scope.current_product_id,
-                    qty: $scope.current_order_product_qty
+                    qty: $scope.current_order_product_qty,
+                    unite: $scope.current_order_product_unite
                 };
 
                 $http.post("/addLineJson", $scope.insert_product_json)
                     .success(function(data, status, headers, config) {
                         $('#CatalogAddProductNotAdmin').modal('hide');
                         $scope.getUserActiveOrder();
+                        $scope.unite_selectable = false;
                     }).error(function(data, status, headers, config) {
                         $scope.status = status;
                         alert('Error'+status)
@@ -488,7 +504,9 @@ main.directive('googleChart',function($http,$timeout){
                 var options = {
                     'title': $scope.chartTitle,
                     'width': $scope.chartWidth,
-                    'height':$scope.chartHeight
+                    'height':$scope.chartHeight,
+                    'hAxis' : {title: 'Mois', titleTextStyle: {color: 'red'}},
+                    'vAxis' : {maxValue : '4000'}
                 };
                 chart.draw(data, options);
 
@@ -575,6 +593,8 @@ main.service('calculateTotalQtyService', function() {
                     total_piece+=lines[i].qty ;
                 if(lines[i].unity == "kg")
                     total_kg+=lines[i].qty ;
+                if(lines[i].unity == "piece(0.5kg)")
+                    total_kg+=(lines[i].qty/2) ;
             }
 
             return [total_kg,total_piece];

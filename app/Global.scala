@@ -128,7 +128,8 @@ object Global extends GlobalSettings {
         CompanyJson(None,Some("Virtu"),None,None,Some("michal.bilnik@virtu.com.pl"),true,false,None,Nil),
         CompanyJson(None,Some("Bruno-Tassi"),None,None,Some("K.Pajtak@brunotassi.com.pl"),true,false,None,Nil),
         CompanyJson(None,Some("Sloneczne-Pole"),None,None,Some("biuro@slonecznepole.com.pl"),true,false,None,Nil),
-        CompanyJson(None,Some("J. Michalska"),None,None,Some("zwgjm@wp.pl"),true,false,None,Nil)
+        CompanyJson(None,Some("J. Michalska"),None,None,Some("zwgjm@wp.pl"),true,false,None,Nil),
+        CompanyJson(None,Some("Hurtownia Monika"),None,None,Some("fhmonikakukulka1@o2.pl"),true,false,None,Nil)
       )foreach(CompanyTable.create)
 
      }

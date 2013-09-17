@@ -190,6 +190,7 @@ object Orders extends  Controller with LoginLogout with AuthConf with Auth with 
         val order_id = (json \ "order_id").asOpt[Int]
         val product_id = (json \ "product_id").asOpt[Int]
         val qty = (json \ "qty").asOpt[String]
+        val unite = (json \ "unite").as[String]
 
         /* old implementatio to work with Dollibarr customer */
         //val client : CustomerDoll = CustomerDoll.getById(client_id.head )
@@ -207,7 +208,7 @@ object Orders extends  Controller with LoginLogout with AuthConf with Auth with 
         val product : ProductCustomer = DB.withSession { implicit session =>
         ProductTable.getProductByIdForCustomer(product_id.head,client.id.getOrElse(0))
         }
-        val line_id = OrderLine(order_id.head,product.id.get,product.reference,product.label,product.tva_rate, qty.head.toDouble, product.unity, product.price, product.price_ttc).insertLine
+        val line_id = OrderLine(order_id.head,product.id.get,product.reference,product.label,product.tva_rate, qty.head.toDouble, unite, product.price, product.price_ttc).insertLine
         val order = Order.getByIdInJson(order_id.head)
         Ok(order).as(JSON)
     }.getOrElse{BadRequest}
@@ -255,9 +256,11 @@ object Orders extends  Controller with LoginLogout with AuthConf with Auth with 
       (__ \ '_1).write[Int] and
         (__ \ '_2).write[Option[String]] and
           (__ \ '_3).write[Option[String]] and
+          (__ \ '_6).write[String] and
+          (__ \ '_7).write[Int] and
             (__ \ '_4).write[Double] and
               (__ \ '_5).write[Double]
-      ).tupled : Writes[(Int,Option[String],Option[String],Double,Double)]
+      ).tupled : Writes[(Int,Option[String],Option[String],String,Int,Double,Double)]
 
    // val customer = CustomerDoll.getById(customer_id)
     /*** Old version to search using Squeryl ***/
@@ -273,7 +276,7 @@ object Orders extends  Controller with LoginLogout with AuthConf with Auth with 
      */
     val json2 : JsValue = DB.withSession {implicit session =>
       val u_result = ProductTable.getAllProductsWithCustomerPrices(customer_id)
-      val f_result : List[(Int,Option[String],Option[String],Double,Double)] = u_result.filter(s=>(s._2.toLowerCase.contains(value.get)||s._3.toLowerCase.contains(value.get))) map(s=>(s._1.get,Some(s._2),Some(s._3),s._11,s._10))
+      val f_result : List[(Int,Option[String],Option[String],String,Int,Double,Double)] = u_result.filter(s=>(s._2.toLowerCase.contains(value.get)||s._3.toLowerCase.contains(value.get))) map(s=>(s._1.get,Some(s._2),Some(s._3),s._6,s._8,s._11,s._10))
       Json.toJson(f_result)
     }
 

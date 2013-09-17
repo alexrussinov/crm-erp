@@ -10,11 +10,17 @@
             <label for="product"> Réf. ou Libellé
             <input ng-disabled="order.fk_statut==1" type="text" ng-model="request" name="product" id="product" required placeholder="Tapez votre recherche" auto-complete>
             </label>
-            <label for="product_qty"> Qty
-            <input ng-disabled="order.fk_statut==1" type="text" ng-model="qty" name="product_qty" id="product_qty" class="input-mini" required pattern="\d+(\.\d*)?" placeholder="0.00">
+            <label for="product_qty"> Qty:
+            <input ng-disabled="order.fk_statut==1" type="text" ng-model="qty" name="product_qty" id="product_qty" class="line-qty" required pattern="\d+(\.\d*)?" placeholder="0.00">
+            </label>
+            <label ng-show="unite_selectable" for="unite">Unité:
+            <select ng-model="product_unite"  name="product_unite" id="unite" style="height: 2em">
+                <option>{{ product_unite }}</option>
+                <option ng-hide="product_unite=='piece'">piece(0.5kg)</option>
+            </select>
             </label>
             <input type="hidden" name="order_id" id="order_id" value="{{order.id}}">
-            <input type="hidden" name="product_id" id="product_id" value="{{product_id}}">
+            <input type="hidden" name="product_id" id="product_id" value="{{product_id}}">&nbsp
             <input ng-disabled="order.fk_statut==1" type="submit" class="btn btn-primary btn-sm" value="Ajouter">
             </div>
             <table id="search_result"></table>
