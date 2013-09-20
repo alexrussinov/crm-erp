@@ -169,6 +169,8 @@ object Order extends Schema {
   /*Create order*/
   def createOrder(fk_soc: Int, order_date: String, date_creation: Timestamp, user_id: Int, fk_statut: Int, tva: Option[Double], total_ht : Option[Double],
                   total_ttc : Option[Double], note: Option[String]): Int = inTransaction{
+    val format = new java.text.SimpleDateFormat("yyyy-MM-dd")
+
     val o = OrderDB.orderTable insert (Order(fk_soc, order_date, date_creation, user_id, fk_statut, tva, total_ht,
                                    total_ttc, note))
     update (OrderDB.orderTable) (s=> where(s.id === o.id ) set(s.ref := Order.generateRef(o.id)))
