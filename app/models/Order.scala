@@ -16,6 +16,7 @@ import org.scala_tools.time.Imports._
  import play.api.libs.functional.syntax._
  import scala.collection.mutable.ArrayBuffer
  import play.api.Play.current
+ import java.util.Date
 
 
  /**
@@ -25,7 +26,7 @@ import org.scala_tools.time.Imports._
  * Time: 12:22
  * To change this template use File | Settings | File Templates.
  */
-case class Order(fk_soc : Int, order_date: String, date_creation: Timestamp,
+case class Order(fk_soc : Int, order_date: Date, date_creation: Timestamp,
                  fk_uther_author: Int, fk_statut : Int, tva : Option[Double], total_ht: Option[Double],
                  total_ttc: Option[Double], note: Option[String], sent : Boolean = false, sent_date : Option[Timestamp]=None) extends KeyedEntity[Int] {
   val id : Int = 0
@@ -169,9 +170,10 @@ object Order extends Schema {
   /*Create order*/
   def createOrder(fk_soc: Int, order_date: String, date_creation: Timestamp, user_id: Int, fk_statut: Int, tva: Option[Double], total_ht : Option[Double],
                   total_ttc : Option[Double], note: Option[String]): Int = inTransaction{
+    // format to convert string to java.util.Date
     val format = new java.text.SimpleDateFormat("yyyy-MM-dd")
 
-    val o = OrderDB.orderTable insert (Order(fk_soc, order_date, date_creation, user_id, fk_statut, tva, total_ht,
+    val o = OrderDB.orderTable insert (Order(fk_soc, format.parse(order_date), date_creation, user_id, fk_statut, tva, total_ht,
                                    total_ttc, note))
     update (OrderDB.orderTable) (s=> where(s.id === o.id ) set(s.ref := Order.generateRef(o.id)))
 
@@ -296,7 +298,9 @@ object Order extends Schema {
   // transform Order object to OrderJ object to perform JSON deserialisation with orderFormat,
   //we need this to have id, ref, date_modif fields in generated json
   def toOrderJ(o : Order): OrderJ = {
-    OrderJ(o.id,o.ref,o.date_modif, o.fk_soc, o.order_date, o.date_creation, o.fk_uther_author,
+    // format to convert java.util.Date to string
+    val format = new java.text.SimpleDateFormat("yyyy-MM-dd")
+    OrderJ(o.id,o.ref,o.date_modif, o.fk_soc, format.format(o.order_date), o.date_creation, o.fk_uther_author,
       o.fk_statut,o.tva, o.total_ht, o.total_ttc, o.note, o.sent,o.sent_date)
   }
 
