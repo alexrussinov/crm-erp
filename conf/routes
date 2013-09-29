@@ -89,6 +89,7 @@ POST        /company/discount/update                   controllers.Companies.upd
 POST        /company/discount/create                   controllers.Companies.createCustomerDiscount
 GET         /company/create                            controllers.Companies.createCompanyForm
 POST        /company/create                            controllers.Companies.createCompany
+GET         /product/images                            controllers.WsTestCtrl.getListOjectsFromBucket
 
 
 

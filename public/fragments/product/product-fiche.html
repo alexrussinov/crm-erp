@@ -30,6 +30,7 @@
         <form enctype="multipart/form-data" action="/product/updateimage" method="post">
             <input type="file" name="image"><input type="submit" value="Update image">
             <input type="hidden" name="product_id" value="{{ product.id }}">
+            <input type="hidden" name="bucket_prefix" value="{{ product.bucket_prefix }}">
         </form>
        </div>
     </div>

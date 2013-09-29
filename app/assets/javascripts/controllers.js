@@ -817,7 +817,10 @@ function ProductFicheCtrl($scope, $http, $filter){
     $scope.value ="";
     $http.get('/product/json?id='+$scope.product_id).success(function(data){
           $scope.product = data;
+          $scope.product.bucket_prefix = data.manufacture.toLowerCase();
     });
+
+
 
     $scope.update = function(){
         $http({

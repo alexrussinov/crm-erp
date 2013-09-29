@@ -5,6 +5,11 @@ import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import lib.{Normalize, CustomIO, Convertion, mat}
 import java.io.File
+import scala.concurrent.Future
+import fly.play.s3.{S3, BucketItem}
+import play.api.libs.concurrent.Execution.Implicits._
+import scala.concurrent._
+import scala.util._
 
 /**
  * Created with IntelliJ IDEA.
@@ -107,17 +112,57 @@ object Product {
           Some(s("manufacture")),Some(s("reference_supplier")),Convertion.prse[Boolean](s("multi_price")).get,Convertion.prse[Double](s("tva_rate")).get,Convertion.prse[Double](s("price_supplier")).get,Convertion.prse[Double](s("base_price")).get))
   }
 
-  //search for available image ... for the product
+  //search for available image ... for the product in a local folder
   def searchForImage(product : Product, pathToImageFolder : String) : List[ProductImage] = {
     def nrmlz(str : String): String ={
       "_".r.replaceAllIn(str," ").toLowerCase
     }
-      val listOfFiles = CustomIO.getFileTree(new File("public/"+pathToImageFolder)) filter (_.isFile) map (f=>FileImp(f.getName,("assets/" + pathToImageFolder+ "/" + f.getName)))
+      val listOfFiles : Stream[FileImp] = CustomIO.getFileTree(new File("public/"+pathToImageFolder)) filter (_.isFile) map (f=>FileImp(f.getName,("assets/" + pathToImageFolder+ "/" + f.getName)))
 
      val result = for{entry <- listOfFiles.sortBy(f=>f.name)
                      if(nrmlz(entry.name).contains(Normalize.removeDiacritics(product.label.split("/")(0)).toLowerCase))
     } yield (ProductImage(entry.name,entry.path))
     result.toList
+  }
+
+  def searchForImageS3(product : Product) : Future[List[ProductImage]] = {
+    def nrmlz(str : String): String ={
+      "_".r.replaceAllIn(str," ").toLowerCase
+    }
+    val bucket = S3("itcpluswebproducts")
+    val items : Future[Iterable[BucketItem]]  =  bucket.list("szubryt/")
+
+    val res = items.map{f=>
+      //create list of file names
+      val listOfNames : Iterable[String] =  for{
+        item <- f
+      }yield(item.name)
+      //create lis of ProductImage
+      val result : List[ProductImage] = (for{
+                  name <- listOfNames
+                  if(nrmlz(name).contains(Normalize.removeDiacritics(product.label.split("/")(0)).toLowerCase))
+                }yield (ProductImage(name,"https://s3.amazonaws.com/itcpluswebproducts/"+name))).toList
+
+      result
+    }
+    res
+  }
+
+  def searchForImage2(product : Product, items: Iterable[BucketItem]) : List[ProductImage] = {
+    // normalize the string by replacing undescore with espace and convert all characters to lower case
+    def nrmlz(str : String): String ={
+      "_".r.replaceAllIn(str," ").toLowerCase
+    }
+    //create list of file names
+    val listOfNames : Iterable[String] =  for{
+      item <- items
+    }yield(item.name)
+
+    (for{
+      name <- listOfNames
+      if(nrmlz(name).contains(Normalize.removeDiacritics(product.label.split("/")(0)).toLowerCase))
+    }yield (ProductImage(name,"https://s3.amazonaws.com/itcpluswebproducts/"+name))).toList
+
   }
 }
 

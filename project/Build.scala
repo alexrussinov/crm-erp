@@ -19,10 +19,10 @@ object ApplicationBuild extends Build {
       "org.jsoup" % "jsoup" % "1.7.2",
       "com.typesafe" %% "play-plugins-mailer" % "2.1.0",
       "pdf" % "pdf_2.10" % "0.5",
-
       "com.typesafe.play" %% "play-slick" % "0.3.3",
       "mysql" % "mysql-connector-java" % "5.1.18",
-      "postgresql" % "postgresql" % "9.1-901-1.jdbc4"
+      "postgresql" % "postgresql" % "9.1-901-1.jdbc4",
+      "nl.rhinofly" %% "api-s3" % "3.1.0"
     )
     // Only compile the bootstrap bootstrap.less file and any other *.less file in the stylesheets directory
     def customLessEntryPoints(base: File): PathFinder = (
@@ -32,6 +32,7 @@ object ApplicationBuild extends Build {
     val main = play.Project(appName, appVersion, appDependencies).settings(
       // Add your own project settings here
       resolvers += Resolver.url("Violas Play Modules", url("http://www.joergviola.de/releases/"))(Resolver.ivyStylePatterns),
+      resolvers += "Rhinofly Internal Repository" at "http://maven-repository.rhinofly.net:8081/artifactory/libs-release-local",
       testOptions in Test := Nil,
       lessEntryPoints <<= baseDirectory(customLessEntryPoints)
     )
