@@ -111,7 +111,7 @@ object Products extends  Controller with LoginLogout with AuthConf with Auth {
 //    }
 //    )
 //    try {  DB.withSession { implicit session =>
-//           productsWithFoto.foreach(ProductTable.insert)
+//           productsWithFoto.foreach(ProductTable.add)
 //      }
 //     // Ok(""+products.length)
 //      Redirect(routes.Catalogue.listProducts)
@@ -134,7 +134,7 @@ object Products extends  Controller with LoginLogout with AuthConf with Auth {
           else f
         }
         try{  DB.withSession { implicit session =>
-          productsWithPhoto.foreach(ProductTable.insert) }
+          productsWithPhoto.foreach(ProductTable.add) }
 
         Redirect(routes.Catalogue.listProducts)
         }
