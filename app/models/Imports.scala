@@ -15,10 +15,18 @@ object Imports{
   def importFromCsvWithHeaders(pathToFile : String, delim : String) : Seq[Map[String,String]]={
 
        // in windows i had to use Codec(ISO8859-1) to be able to work with
+       if (pathToFile.indexOf("http://")!= -1 || pathToFile.contains("https://")){
+       val source = Source.fromURL(pathToFile).getLines
+       lazy val lines= source.toSeq
+       val headers = lines.head.split(delim)
+       lines.tail.map(l => headers zip removeDiacritics(l).split(delim)).map(s=>s.toMap)
+       }
+       else{
        val source = Source.fromFile(pathToFile).getLines
        lazy val lines= source.toSeq
        val headers = lines.head.split(delim)
        lines.tail.map(l => headers zip removeDiacritics(l).split(delim)).map(s=>s.toMap)
+       }
 
   }
 

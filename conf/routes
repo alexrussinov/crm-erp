@@ -68,8 +68,8 @@ GET         /suppliers/json                            controllers.Application.g
 GET         /products/json                             controllers.Products.getProductsInJson
 GET         /product/json                              controllers.Products.getProductByIdInJson(id : Int)
 GET         /products/import/upload                    controllers.Products.uploadProductsCsvForm
-POST        /products/import                           controllers.Products.uploadFile
-GET         /products/import/files                     controllers.Products.getFilesToImportJson
+POST        /products/import                           controllers.Products.uploadFileS3
+GET         /products/import/files                     controllers.Products.getFilesToImportS3InJson
 GET         /products/import/file                      controllers.Products.importProductsFromCsv(path : String)
 GET         /products/upload/images                    controllers.Products.uploadProductsImages
 GET         /products/fiche                            controllers.Products.productFiche(id : Int)

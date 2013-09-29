@@ -1,10 +1,6 @@
-import java.text.Normalizer
-import lib.CustomIO
-import java.io.File
-import models.FileImp
-import play.api.libs.json._
+val a = "http://someaddress.com"
 
-
+if(a.indexOf("http")>0)println(a)
 
 
 
@@ -701,7 +697,24 @@ val product = <prestashop xmlns:xlink="http://www.w3.org/1999/xlink">
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 val pr = ProductPresta.fromXml(product \ "product")
+
+
 
 
 
@@ -727,6 +740,8 @@ val image = (product \ "product" \ "id_default_image" )(0)
 
 
 
+
+
 val uri : String = image.attribute(image.getNamespace("xlink"),"href").getOrElse(None).toString
 
 
@@ -735,7 +750,9 @@ val uri : String = image.attribute(image.getNamespace("xlink"),"href").getOrElse
 
 
 
+
 uri.split("//")
+
 
 
 

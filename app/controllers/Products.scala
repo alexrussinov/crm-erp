@@ -63,7 +63,7 @@ object Products extends  Controller with LoginLogout with AuthConf with Auth {
     Ok(views.html.importproducts(user))
   }
 
-  // Action that performs upload and import
+  // Action that performs upload of a file for a import
 
   def uploadFile = Action(parse.multipartFormData) { request =>
     val result   = request.body.file("products") map {tmp =>
@@ -76,6 +76,24 @@ object Products extends  Controller with LoginLogout with AuthConf with Auth {
     //Ok(Json.toJson(result))
     Redirect(routes.Products.uploadProductsCsvForm)
     }
+
+  def uploadFileS3 = Action(multipartFormDataAsBytes){request=>
+    val bucket = S3("itcpluswebimports")
+   request.body.files foreach{
+     case FilePart(key,filename,content,bytes) => bucket + BucketFile(filename,content.getOrElse("application/octet-stream"),bytes)
+   }
+    Redirect(routes.Products.uploadProductsCsvForm)
+  }
+   //Return list of avaiable files for import from S3 bucket as Json
+  def getFilesToImportS3InJson = Action {request =>
+       val bucket = S3("itcpluswebimports")
+       Async{
+         bucket.list map{ f=>
+            val files = f.map(i=>FileImp(i.name,bucket.url(i.name,86400))).toList
+           Ok(Json.toJson(files)).as(JSON)
+         }
+       }
+  }
 
    def getFilesToImportJson = Action {request =>
      import java.io.File
