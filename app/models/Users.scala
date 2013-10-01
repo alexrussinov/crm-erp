@@ -62,4 +62,8 @@ object Users extends Schema {
     Some(uss)
   }
 
+  def delete(id : Int) = {
+    inTransaction(usersTable.deleteWhere(us=>us.id===id))
+  }
+
 }

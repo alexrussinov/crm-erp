@@ -23,12 +23,13 @@ GET         /assets/*file                              controllers.Assets.at(pat
 POST        /login                                     controllers.Application.authenticate
 GET         /logout                                    controllers.Application.logout
 
-GET         /account                                   controllers.AccountCreation.createAccountForm
-POST        /createaccount                             controllers.AccountCreation.createAccount
-GET         /users/json                                controllers.AccountCreation.getUsersInJson
-GET         /users                                     controllers.AccountCreation.listUsers
-GET         /user/json                                 controllers.AccountCreation.getUserInJson(id : Int)
-GET         /user/fiche                                controllers.AccountCreation.userFiche(id : Int)
+GET         /account                                   controllers.AccountManagement.createAccountForm
+POST        /createaccount                             controllers.AccountManagement.createAccount
+GET         /users/json                                controllers.AccountManagement.getUsersInJson
+GET         /users                                     controllers.AccountManagement.listUsers
+GET         /user/json                                 controllers.AccountManagement.getUserInJson(id : Int)
+GET         /user/fiche                                controllers.AccountManagement.userFiche(id : Int)
+GET         /user/delete:id                            controllers.AccountManagement.deleteUser(id : Int)
 
 
 GET         /create                                    controllers.Orders.showCreateOrderForm
@@ -75,6 +76,7 @@ GET         /products/upload/images                    controllers.Products.uplo
 GET         /products/fiche                            controllers.Products.productFiche(id : Int)
 POST        /product/updateimage                       controllers.Products.updateProductImage
 POST        /product/updateinfo                        controllers.Products.updateProduct
+GET         /product/delete:id                         controllers.Products.deleteProduct(id:Int)
 GET         /catalogue/numberproductsbycategory        controllers.Catalogue.getNumberOfProductsByCategory
 GET         /catalogue/manufactures/number             controllers.Catalogue.getNumberOfProductsByManufacture
 GET         /dolibarr/ws                               controllers.DolibarrClient.getInvoice
@@ -89,6 +91,7 @@ POST        /company/discount/update                   controllers.Companies.upd
 POST        /company/discount/create                   controllers.Companies.createCustomerDiscount
 GET         /company/create                            controllers.Companies.createCompanyForm
 POST        /company/create                            controllers.Companies.createCompany
+GET         /company/delete:id                         controllers.Companies.deleteCompany(id : Int)
 GET         /product/images                            controllers.WsTestCtrl.getListOjectsFromBucket
 
 

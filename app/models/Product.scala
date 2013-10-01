@@ -273,6 +273,10 @@ object ProductTable extends Table[Product]("t_products"){
     p.reference_supplier,p.multi_price,p.tva_rate,p.price_supplier,p.base_price)
   }
 
+  def deleteProduct(id : Int)(implicit s: Session) = {
+    ProductTable.where(_.id===id).delete
+  }
+
 
 }
 

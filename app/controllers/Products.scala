@@ -227,6 +227,12 @@ object Products extends  Controller with LoginLogout with AuthConf with Auth {
     }.getOrElse(BadRequest("Expecting Json Data"))
   }
 
+  /* delete product from database*/
+  def deleteProduct(id : Int) = authorizedAction(Administrator){user => request =>
+    play.api.db.slick.DB.withSession{implicit session => ProductTable.deleteProduct(id)}
+    Ok("Deleted")
+  }
+
 }
 
 object Categories extends  Controller with LoginLogout with AuthConf with Auth {

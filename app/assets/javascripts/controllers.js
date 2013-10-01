@@ -823,6 +823,7 @@ function ProductFicheCtrl($scope, $http, $filter){
 
 
     $scope.update = function(){
+        $scope.product.base_price = parseFloat($scope.product.base_price);
         $http({
             url :'/product/updateinfo',
             method : 'POST',
@@ -834,6 +835,13 @@ function ProductFicheCtrl($scope, $http, $filter){
                 alert(data);
             });
         alert("Update");
+    }
+    //delete product
+    $scope.deleteProduct = function(id){
+        $http.get('/product/delete'+id).success(function(data){
+            alert(data);
+            window.location.href="/catalogue/manage" ;
+        });
     }
 }
 
@@ -889,6 +897,14 @@ function CompanyFicheCtrl($scope,$http){
 
     $scope.edit = function(){
         $scope.editMode = true;
+    }
+
+    $scope.del = function(id){
+        $http.get('/company/delete'+id).success(function(){
+            alert("Deleted");
+            window.location.href=document.referrer;
+        });
+
     }
 
 
@@ -986,6 +1002,13 @@ function UserFicheCtrl($scope, $http){
     $scope.edit2Mode = {
         customerInfo : false,
         customerDiscount : false
+    }
+
+    $scope.deleteUser = function(id){
+        $http.get('/user/delete'+id).success(function(){
+            alert("Deleted");
+            window.location.href=document.referrer;
+        });
     }
 
     $http.get('/user/json?id='+$scope.user_id).success(function(data){

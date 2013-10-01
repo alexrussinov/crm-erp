@@ -154,5 +154,9 @@ object CompanyTable extends Table[Company]("t_company"){
     CompanyTable.autoInc.insert(c.name,c.price_level,c.tel,c.email,c.supplier,c.prospect)
   }
 
+  def deleteCompany(id : Int)(implicit s : Session) = {
+    CompanyTable.where(_.id === id).delete
+  }
+
 }
 

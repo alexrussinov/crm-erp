@@ -542,6 +542,8 @@ main.directive('customerFiche',function($http){
                    });
            }
 
+
+
 //           $scope.editDiscount = function(){
 //               $scope.edit2Mode.customerDiscount = true;
 //               $scope.editMode = true;

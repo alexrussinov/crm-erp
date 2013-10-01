@@ -56,6 +56,7 @@
                     </tr>
                   </table>
                       <button ng-hide="edit2Mode.customerInfo" class="btn btn-default" ng-click="edit()">Modifier</button>
+                      <button ng-hide="edit2Mode.customerInfo" class="btn btn-default" ng-click="del(company.id)">Supprimer</button>
                       <button ng-show="edit2Mode.customerInfo" class="btn btn-danger" ng-click="submit()">Envoyer</button>
                       <button ng-show="edit2Mode.customerInfo" class="btn btn-primary" ng-click="cancel()">Annuler</button>
                   </div>

@@ -297,7 +297,7 @@ trait AuthConf extends AuthConfig {
 
 }
 
-object AccountCreation extends Controller with LoginLogout with AuthConf with Auth {
+object AccountManagement extends Controller with LoginLogout with AuthConf with Auth {
 
   val createaccountform = Form (
   mapping(
@@ -358,6 +358,11 @@ object AccountCreation extends Controller with LoginLogout with AuthConf with Au
     val json = Json.toJson(users)
 
     Ok(json).as(JSON)
+  }
+
+  def deleteUser(id : Int) = authorizedAction(Administrator){user=>request=>
+    Users.delete(id)
+    Ok("Deleted")
   }
 }
     // TODO We need a view that lists all users and a view that represents user(customer) fich, user data modification
@@ -583,6 +588,11 @@ object Companies extends Controller with LoginLogout with AuthConf with Auth {
       }.recoverTotal(e=>BadRequest("Detected error:"+ JsError.toFlatJson(e)))
     }.getOrElse(BadRequest("Expecting Json Data"))
 
+  }
+
+  def deleteCompany(id : Int) = authorizedAction(Administrator){user => request =>
+    play.api.db.slick.DB.withSession{implicit session => CompanyTable.deleteCompany(id)}
+    Ok("Deleted")
   }
 
 }
