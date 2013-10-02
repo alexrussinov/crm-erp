@@ -202,15 +202,27 @@ object ProductTable extends Table[Product]("t_products"){
    // we must have customer discount define for all suppliers(supplier_id)  even if 0, for this method to work
 
   def getAllProductsWithCustomerPrices (customer_id : Int)(implicit s : Session) = {
+         // list of all products
          val products : List[Product] = (for (p <- ProductTable) yield (p)).list
     if(customer_id > 0){
+          // list of all discounts available for this customer
          val discounts : List[CustomerDiscount] = CustomerDiscount.getDiscountsByCustomerId(customer_id)
+      // helper function
+      def searchForDiscount(p: Product): List[CustomerDiscount] = {
+        val result = for{
+          d<-discounts if(d.supplier_id == p.supplier_id)
+        }yield d
+        if(result!=Nil)
+          result
+        else
+          List(CustomerDiscount(0,0,0.00))
+      }
          if (!discounts.isEmpty){
     for{ p <- products
-         d <- discounts //if(p.supplier_id == d.supplier_id) we have replaced this condition directly to the yield expression to handle the case when customer discounts exist, but not for this supplier
+         d <- searchForDiscount(p) //if(p.supplier_id == d.supplier_id) //we have replaced this condition directly to the yield expression to handle the case when customer discounts exist, but not for this supplier
     }  yield (p.id,p.reference, p.label, p.description, p.image_url, p.unity, p.category_id, p.supplier_id,
             p.manufacture, p.tva_rate,
-      if(p.supplier_id == d.supplier_id)
+      if(d.discount != 0.00)
         mat.round(p.base_price*((100-d.discount)/100))
       else
         p.base_price )
@@ -221,7 +233,8 @@ object ProductTable extends Table[Product]("t_products"){
            p.manufacture, p.tva_rate, p.base_price )
          }
        }
-    else for (p <- products) yield (p.id,p.reference, p.label, p.description, p.image_url, p.unity, p.category_id, p.supplier_id,
+    else
+      for (p <- products) yield (p.id,p.reference, p.label, p.description, p.image_url, p.unity, p.category_id, p.supplier_id,
          p.manufacture, p.tva_rate, p.base_price )
   }
    // Retrieve product with fields set for customer
