@@ -355,13 +355,17 @@ class OrderSpec extends FlatSpec with ShouldMatchers{
       CustomerDiscount(1,1,25.00).create_discount
       CustomerDiscount(1,2,30.00).create_discount
       DB.withSession { implicit session =>
-        ProductTable.insert(
-          Product(None, "some ref", "some label",Some("some desc."),Some("image url"),"kg",
-            None,2,Some("Some manufacture"),Some("Suppl. Ref."), false, 5.5, 7.99, 10.00))
+        ProductTable.insertAll(
+          Product(None, "some ref2", "some label",Some("some desc."),Some("image url"),"kg",
+            None,2,Some("Some manufacture"),Some("Suppl. Ref."), false, 5.5, 7.99, 10.00),
+          Product(None, "some ref3", "some label",Some("some desc."),Some("image url"),"kg",
+            None,3,Some("Some manufacture"),Some("Suppl. Ref."), false, 5.5, 9.99, 15.00)
+        )
 
         val result = ProductTable.getAllProductsWithCustomerPrices(1)
         result.head._11 should equal(11.24)
-        //result(3)._11 should equal(7)
+        result(1)._11 should equal(7)
+        result(2)._11 should equal(15)
       }
     }
   }
@@ -440,7 +444,7 @@ class OrderSpec extends FlatSpec with ShouldMatchers{
 
         val cust : List[Company]  = CompanyTable.getAll
         val comp = cust.map(c=>CompanyJson(c.id,c.name,c.price_level,c.tel,c.email,c.supplier,c.prospect,c.address,c.contacts))
-        cust.length should equal (21)
+        cust.length should equal (23)
         cust.head.id.get should equal(1)
         //cust.head.address.get.id.get should equal(1)
         //cust.head.contacts.head.id.get should equal(1)
