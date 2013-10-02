@@ -207,7 +207,7 @@ object ProductTable extends Table[Product]("t_products"){
     if(customer_id > 0){
           // list of all discounts available for this customer
          val discounts : List[CustomerDiscount] = CustomerDiscount.getDiscountsByCustomerId(customer_id)
-      // helper function
+      // helper function to retrieve customer discount, if there is no, return 0 discount
       def searchForDiscount(p: Product): List[CustomerDiscount] = {
         val result = for{
           d<-discounts if(d.supplier_id == p.supplier_id)
