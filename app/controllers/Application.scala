@@ -256,14 +256,14 @@ trait AuthConf extends AuthConfig {
    */
   //def loginSucceeded(request: RequestHeader): Result = Redirect(routes.Application.showProducts)
   def loginSucceeded(request: RequestHeader): Result = {
-    val uri = request.session.get("access_uri").getOrElse(routes.Application.index.url.toString)
+    val uri = request.session.get("access_uri").getOrElse(routes.Application.dashboard.url.toString)
     Redirect(uri).withSession(request.session - "access_uri")
   }
 
   /**
    * Where to redirect the user after logging out
    */
-  def logoutSucceeded(request: RequestHeader): Result = Redirect(routes.Application.index)
+  def logoutSucceeded(request: RequestHeader): Result = Redirect(routes.Application.dashboard)
 
   /**
    * If the user is not logged in and tries to access a protected resource then redirct them as follows:

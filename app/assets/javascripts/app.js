@@ -584,6 +584,15 @@ main.directive('editableDiscount',function(){
     }
 });
 
+main.directive('startPage',function(){
+    return {
+        restrict: 'E',
+        replace : true,
+        templateUrl: "/assets/fragments/startpage/start-page.html",
+        link : function(){}
+    }
+});
+
 ////service style, service to calculate total qty
 main.service('calculateTotalQtyService', function() {
     return {
@@ -616,6 +625,14 @@ main.service('getCustomersService',function($http){
             return result;
         }
     }
+});
+
+main.service('isActiveNavItem',function(){
+        return {
+            set: function(item,selectedItem){
+                return item === selectedItem;
+            }
+        }
 });
 
 // TODO Progress indication while sending an order, order sent notification

@@ -1,6 +1,6 @@
 <a href="#{{cat.id}}" data-toggle="collapse" ng-click="filterByCategory(cat)"><span ng-show="categoryWithId">{{cat.id}}.</span>{{cat.name}} <span class="pull-right">({{numberOfProductsByCategory[cat.id]}})</span> </a>
 <ul class="collapse nav" id="{{cat.id}}">
-    <li ng-repeat="cat in cat.subcategory" ng-include="'/assets/fragments/main/category_render.html'">
+    <li ng-class="{ active: isActive(cat)}" ng-repeat="cat in cat.subcategory" ng-include="'/assets/fragments/main/category_render.html'">
         <!--<a href="" data-toggle="collapse">{{ cat.name }}</a>-->
     </li>
 </ul>
