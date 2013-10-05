@@ -398,7 +398,7 @@ object Orders extends  Controller with LoginLogout with AuthConf with Auth with 
 trait Ord {
   //Where redirect user after successful order creation
   def OrderCreationSucceeded(request: RequestHeader): Result = {
-    val uri = request.session.get("access_uri").getOrElse(routes.Application.index.url.toString)
+    val uri = request.session.get("access_uri").getOrElse(routes.Application.dashboard.url.toString)
     Redirect(uri).withSession(request.session - "access_uri")
   }
 }

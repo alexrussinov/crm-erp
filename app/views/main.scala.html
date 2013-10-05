@@ -41,18 +41,18 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand logo" href="@routes.Application.index">ITC PLUS</a>
+                    <a class="navbar-brand logo" href="#">ITC PLUS</a>
                 </div>
                 <div class="collapse navbar-collapse navbar-ex1-collapse">
                     <p class="navbar-text pull-right">Bienvenu: <a href="/user/fiche?id=@user.id" class="navbar-link"><span style="color: #ffffff">@user.email</span></a>&nbsp&nbsp<a href="@routes.Application.logout" class="navbar-link">Deconexion</a></p>
                     @*<p class="navbar-text pul-right">Signed in as: <a href="#" class="navbar-link">@user.email</a></p>*@
                     @*<div class="nav-collapse collapse">*@
                         <ul class="nav navbar-nav">
-                            <li class="active"><a href="@routes.Application.dashboard">Tableau de Bord</a></li>
-                            <li><a href="@routes.Catalogue.listProducts">Catalogue</a></li>
-                            <li><a href="@routes.Application.contactPage">Contact</a></li>
+                            <li ng-class="{ active: isActive('@routes.Application.dashboard')}"><a href="@routes.Application.dashboard">Tableau de Bord</a></li>
+                            <li ng-class="{ active: isActive('@routes.Catalogue.listProducts')}"><a href="@routes.Catalogue.listProducts">Catalogue</a></li>
+                            <li ng-class="{ active: isActive('@routes.Application.contactPage')}"><a href="@routes.Application.contactPage">Contact</a></li>
                             <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <a href="#commandes" class="dropdown-toggle" data-toggle="dropdown">
                                     Commandes <b class="caret"></b></a>
                                 <ul class="dropdown-menu">
                                     @*<li><a href="@routes.Orders.showCreateOrderForm" data-toggle="modal">*@
@@ -64,7 +64,7 @@
                             <li><a href="#factures">Factures</a></li>
                                 @if(user.admin == 1){
                             <li class="dropdown">
-                                <a href="" class="dropdown-toggle" data-toggle="dropdown">Utils<b class="caret"></b></a>
+                                <a href="#tools" class="dropdown-toggle" data-toggle="dropdown">Utils<b class="caret"></b></a>
                                 <ul class="dropdown-menu">
                                     <li><a href="@routes.AccountManagement.createAccountForm">Créer Utilisateur</a></li>
                                     <li><a href="@routes.AccountManagement.listUsers">List Utilisateurs</a></li>

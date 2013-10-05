@@ -2,8 +2,8 @@
 <p>Catégories</p>
 <hr>
 <ul class="nav nav-stacked">
-    <li> <a href="#"ng-click="filterByCategory()" id="all-products">Tout les produits...</a> </li>
-    <li ng-repeat="cat in categories" ng-include="'/assets/fragments/main/category_render.html'">
+    <li ng-class="{ active: isActive()}" > <a href="#" ng-click="filterByCategory()" id="all-products">Tout les produits...</a> </li>
+    <li ng-class="{ active: isActive(cat)}" ng-repeat="cat in categories" ng-include="'/assets/fragments/main/category_render.html'">
         <!--<a href="" data-toggle="collapse">{{cat.name}}</a>-->
     </li>
 </ul>

@@ -1,4 +1,4 @@
-function MainCtrl($scope,$http,$filter){
+function MainCtrl($scope,$http,$filter,isActiveNavItem,$location){
 
     $scope.unite_selectable = false;
     $scope.getUserActiveOrder = function(){
@@ -171,6 +171,14 @@ function MainCtrl($scope,$http,$filter){
         });
         return result;
     }
+    //makes selected top nav menu item active
+    $scope.isActive = function(viewLocation){
+        var url =  document.location.href;
+        var target ="/"+ url.split('/').pop();
+        return target === viewLocation;
+    }
+
+
 
 }
 
@@ -206,7 +214,7 @@ function GetLinesCtrl($scope, $http){
 }
 
 // Data and data manipulations for catalog view //  Retrieve products from database
-function CatalogCtrl($scope, $http, $filter){
+function CatalogCtrl($scope, $http, $filter, isActiveNavItem){
     // initialize data for catalog
 
     $scope.itemsPerPage = 15;
@@ -406,6 +414,9 @@ function CatalogCtrl($scope, $http, $filter){
 
     // represents catalog side-bar by category filter
     $scope.filterByCategory = function (category){
+        // we need this for our isActive function...
+        $scope.sideBarCategorySelected = category;
+
         $scope.filteredItems = $filter('filter')($scope.products, function (item) {
             if(typeof(category)=== 'undefined')
             return true;
@@ -432,6 +443,15 @@ function CatalogCtrl($scope, $http, $filter){
         // clear search input
         $scope.query="";
         getMarques();
+    }
+
+    /**
+     * Function that holds which side bar item is selected and make it css class active
+     */
+
+    $scope.isActive = function(cat){
+        var test = $scope.sideBarCategorySelected
+        return isActiveNavItem.set(cat,$scope.sideBarCategorySelected);
     }
 }
 
@@ -1041,6 +1061,10 @@ function UserFicheCtrl($scope, $http){
                 alert(data);
             });
     }
+}
+
+function StartCtrl($scope){
+
 }
 
 
