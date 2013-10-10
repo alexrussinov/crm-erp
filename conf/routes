@@ -77,6 +77,7 @@ GET         /products/fiche                            controllers.Products.prod
 POST        /product/updateimage                       controllers.Products.updateProductImage
 POST        /product/updateinfo                        controllers.Products.updateProduct
 GET         /product/delete:id                         controllers.Products.deleteProduct(id:Int)
+POST        /products/delete                           controllers.Catalogue.deleteSelectedProducts
 GET         /catalogue/numberproductsbycategory        controllers.Catalogue.getNumberOfProductsByCategory
 GET         /catalogue/manufactures/number             controllers.Catalogue.getNumberOfProductsByManufacture
 GET         /dolibarr/ws                               controllers.DolibarrClient.getInvoice
