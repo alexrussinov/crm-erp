@@ -593,6 +593,7 @@ main.directive('startPage',function(){
     }
 });
 
+
 ////service style, service to calculate total qty
 main.service('calculateTotalQtyService', function() {
     return {

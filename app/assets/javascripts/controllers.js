@@ -178,6 +178,11 @@ function MainCtrl($scope,$http,$filter,isActiveNavItem,$location){
         return target === viewLocation;
     }
 
+    // Here we register event listener for the children scopes, to handle load spinner
+
+    $scope.$on('LOAD',function(){$scope.loading = true;});
+    $scope.$on('UNLOAD',function(){$scope.loading = false;});
+
 
 
 }
@@ -225,10 +230,12 @@ function CatalogCtrl($scope, $http, $filter, isActiveNavItem){
     // ajax request for products in database
     // ajax request for products in database
     // TODO user id is hard coded, must correspond for current user loged in
+    $scope.$emit('LOAD');
     $http.get('/catalogue/json?id='+$scope.user.customer_id).success(function(data){
         $scope.products =  data;
         $scope.search();
         getMarques();
+        $scope.$emit('UNLOAD');
     });
 
 
@@ -613,9 +620,9 @@ function ProductsImagesUploadCtrl($http, $scope){
 }
 
 
-/*
-* Controller to manage Catalog
- */
+/**
+ * Controller to manage Catalog
+ **/
 
 // Data and data manipulations for catalog view //  Retrieve products from database
 function ManageCatalogCtrl($scope, $http, $filter){
@@ -624,6 +631,46 @@ function ManageCatalogCtrl($scope, $http, $filter){
     $scope.itemsPerPage = 15;
     $scope.pagedItems = [];
     $scope.currentPage = 0;
+    $scope.selected_products = [];
+    $scope.select_all = false;
+
+    function selectedProducts(){
+        return $filter('filter')($scope.products, {checked: true});
+    }
+
+    $scope.selectProduct = function(){
+        $scope.selected_products = selectedProducts();
+    }
+
+    $scope.selectAll = function(){
+        if($scope.select_all){
+        for(var i=0; i< $scope.filteredItems.length; i++){
+            $scope.filteredItems[i].checked = true;
+          }
+            $scope.selected_products = selectedProducts();
+        }
+        else {
+            for(var i=0; i< $scope.products.length; i++){
+                $scope.filteredItems[i].checked = false;
+            }
+            $scope.selected_products = selectedProducts();
+        }
+    }
+
+    $scope.deleteProducts = function(){
+        $http({
+            url :'/products/delete',
+            method : 'POST',
+            data : $scope.selected_products,
+            headers: {'Content-Type': 'application/json'}
+        }).success(function(data){
+                $scope.products = data;
+                window.location.reload();
+
+            }).error(function(e){
+                     alert(e);
+            });
+    }
 
 
     // ajax request for products in database

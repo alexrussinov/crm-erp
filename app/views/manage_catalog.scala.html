@@ -20,11 +20,14 @@
                         </div>
                     </div>
                     <div><hr/></div>
+                    <div><span> Items selected : {{selected_products.length}}</span></div>
                     @*<div><input type="text" class="form-control" ng-model="query" ng-change="search()"><hr></div>*@
                     <div class="row">
                         <div class="container-list-products-table">
                             <table class="list-products">
+                                <tr><td><label><input type="checkbox" ng-model="select_all" ng-change="selectAll()"><span> All:</span></label></td><td></td><td></td><td></td><td><button class="btn btn-sm btn-danger" ng-click="deleteProducts()" ng-disabled="selected_products.length == 0">Supprimer...</button></td><td></td></tr>
                                 <tr ng-repeat="product in pagedItems[currentPage]" id="{{product.id}}">
+                                    <td><input type="checkbox" ng-model=product.checked ng-change="selectProduct()" ng-checked="product.checked"></td>
                                     <td><a ng-show="product.image_url" href="{{ product.image_url }}" data-lightbox="image-1" title="{{ product.label }}"><i class="glyphicon glyphicon-camera photo"></i></a><a ng-hide="product.image_url" href="/assets/images/no_image.gif" data-lightbox="image-1" title="{{ product.label }}"><i class="glyphicon glyphicon-camera photo"></i></a> </td>
                                     <td><a href="/products/fiche?id={{ product.id }}">{{product.reference}}</a></td>
                                     <td>{{product.label}}</td>
