@@ -476,9 +476,8 @@ object Catalogue extends Controller with LoginLogout with AuthConf with Auth {
        * @return If OK <> All Products as Json Array KO <> Errors
        */
 
-  def deleteSelectedProducts = Action {  request =>
-    request.body.asJson.map{json =>
-       json.validate[List[Product]].map{
+  def deleteSelectedProducts = Action(parse.json(maxLength = 1024*500)) {  request =>
+    request.body.validate[List[Product]].map{
          case products =>{
            for{product <- products}
            play.api.db.slick.DB.withSession{implicit session => ProductTable.deleteProduct(product.id.get)}
@@ -486,9 +485,9 @@ object Catalogue extends Controller with LoginLogout with AuthConf with Auth {
          Ok(result).as(JSON)
          }
        }.recoverTotal(e => BadRequest("Detected error:"+ JsError.toFlatJson(e)))
-    }.getOrElse(BadRequest("Expecting Json data"))
+    }//.getOrElse(BadRequest("Expecting Json data"))
 
-  }
+ // }
 
 }
 

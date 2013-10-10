@@ -658,6 +658,7 @@ function ManageCatalogCtrl($scope, $http, $filter){
     }
 
     $scope.deleteProducts = function(){
+        $scope.$emit('LOAD');
         $http({
             url :'/products/delete',
             method : 'POST',
@@ -665,6 +666,7 @@ function ManageCatalogCtrl($scope, $http, $filter){
             headers: {'Content-Type': 'application/json'}
         }).success(function(data){
                 $scope.products = data;
+                $scope.$emit('UNLOAD');
                 window.location.reload();
 
             }).error(function(e){
