@@ -1067,6 +1067,8 @@ function UsersListCtrl($scope,$http){
 }
  /* represents user fiche */
 function UserFicheCtrl($scope, $http){
+    $scope.isAdmin = $scope.user.admin == 1;
+    $scope.updatePassword = false;
 
     $scope.edit2Mode = {
         customerInfo : false,
@@ -1109,6 +1111,45 @@ function UserFicheCtrl($scope, $http){
             }).error(function(data){
                 alert(data);
             });
+    }
+
+    $scope.passwordErrors = {};
+
+    $scope.changePassword = function(){
+        var json = {
+            user_id: $scope.user.id,
+            current_password : $scope.user.current_pswd,
+            new_password : $scope.user.new_pswd,
+            confirm_password: $scope.user.confirm_new_pswd
+        };
+        $http({
+            url : '/update/pswd',
+            method : 'POST',
+            data : json,
+            headers : {'Content-Type': 'application/json'}
+        }).success(function(data){
+               $scope.updatePassword = false;
+               $scope.passwordErrors.new_password = false;
+               $scope.passwordErrors.current_password = false;
+                $("#new_password").removeClass('error');
+                $("#confirm_password").removeClass('error');
+               $scope.update_allert=true;
+                resetScopePswdValues();
+               window.setTimeout(function() { $(".alert").alert('close'); }, 2000);
+            }).error(function(e){
+                if(e=="Invalid current password")
+                    $scope.passwordErrors.current_password = true;
+                else {
+                    $("#new_password").addClass('error');
+                    $("#confirm_password").addClass('error');
+                    $scope.passwordErrors.new_password = true;
+                }
+            });
+    }
+    function resetScopePswdValues(){
+        delete $scope.user["current_pswd"];
+        delete $scope.user["new_pswd"];
+        delete $scope.user["confirm_new_pswd"];
     }
 }
 

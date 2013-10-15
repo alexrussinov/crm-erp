@@ -243,6 +243,13 @@ input.line-qty {
     width: 4em;
 }
 
+input.error{
+    border:1px solid red;
+}
+span.error{
+    color: red;
+}
+
 
 /* Docs sidebar
 -------------------------------------------------- */

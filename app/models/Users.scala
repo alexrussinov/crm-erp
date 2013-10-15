@@ -36,6 +36,11 @@ object Users extends Schema {
     findByEmail(email).filter { account => BCrypt.checkpw( password, account.pass) }
   }
 
+  def checkPswd(user_id : Int, password : String) : Boolean = {
+    val user = findById(user_id).get
+    BCrypt.checkpw(password, user.pass)
+  }
+
   def findByEmail(email : String) : Option[Users]= {
     inTransaction{
       val us = from(usersTable)(s => where (s.email === email) select(s))
@@ -60,6 +65,12 @@ object Users extends Schema {
     val uss = inTransaction(usersTable insert Users(user.email,BCrypt.hashpw(user.pass, BCrypt.gensalt()),user.admin,user.customer_id) )
 
     Some(uss)
+  }
+
+  def updatePassword(user_id : Int, password : String) = {
+    inTransaction {
+      update(Users.usersTable)(u => where (u.id === user_id) set(u.pass :=  BCrypt.hashpw(password, BCrypt.gensalt())))
+    }
   }
 
   def delete(id : Int) = {

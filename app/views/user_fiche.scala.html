@@ -1,7 +1,7 @@
 @(user : Users, id :Int)
 @main("Utilisateur",user){
 <div ng-init="user_id=@id">
-<div ng-controller="UserFicheCtrl">
+<div class="user-fiche" ng-controller="UserFicheCtrl">
 <div class="row" >
     <div class="col-lg-12">
         <div class="panel panel-info">
@@ -17,10 +17,41 @@
                         <td>**********</td>
                     </tr>
                 </table>
-                <button class="btn btn-danger" ng-click="deleteUser(user.id)">Supprimer</button>
+                <button ng-disabled="!isAdmin" class="btn btn-danger" ng-click="deleteUser(user.id)">Supprimer</button>
+                <button  class="btn btn-default" ng-click="updatePassword = true">Changer mot de passe</button>
             </div>
         </div>
     </div>
+</div>
+<div class="row">
+    <div ng-show="update_allert" class="alert alert-success fade in">Mot de passe a mis à jour avec succès</div>
+</div>
+<div class="row" ng-show ="updatePassword">
+    <div class="col-lg-4">
+        <div class="well">
+           <form class="form" name="changePswd" role="form" ng-submit="changePassword()">
+            <div class="form-group">
+                <label for="current_password">Saisissez votre mot de passe actuelle</label>
+                <input name="current_password" type="password" class="form-control" id="current_password" ng-model="user.current_pswd" required>
+                <span class="error" ng-show="passwordErrors.current_password">Mot de passe incorrect.</span>
+            </div>
+            <div class="form-group">
+                <label for="new_password">Nouveau mot de passe</label>
+                <input name="new_password" type="password" class="form-control" id="new_password" ng-model="user.new_pswd" ng-pattern='/^([1-zA-Z0-1@@.\s]{1,255})$/'>
+            </div>
+             <div class="form-group">
+                 <label for="confirm_password">Confirmez votre mot de passe</label>
+                 <input name="confirm_password" type="password" class="form-control" id="confirm_password" ng-model="user.confirm_new_pswd" required ng-pattern='/^([1-zA-Z0-1@@.\s]{1,255})$/'>
+                 <span class="error" ng-show="passwordErrors.new_password">Veuillez vérifier que vous avez entré et confirmez votre mot de passe correctement!</span>
+             </div>
+
+            <button ng-disabled="changePswd.current_password.$invalid || changePswd.new_password.$invalid || changePswd.confirm_password.$invalid " class="btn btn-primary" type="submit">Valider</button>
+            <button class="btn btn-default" ng-click="updatePassword=false">Annuler</button>
+           </form>
+        </div>
+    </div>
+    <div class="col-lg-4"></div>
+    <div class="col-lg-4"></div>
 </div>
 <div class="row">
     <div class="col-lg-12">

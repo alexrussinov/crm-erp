@@ -94,6 +94,7 @@ GET         /company/create                            controllers.Companies.cre
 POST        /company/create                            controllers.Companies.createCompany
 GET         /company/delete:id                         controllers.Companies.deleteCompany(id : Int)
 GET         /product/images                            controllers.WsTestCtrl.getListOjectsFromBucket
+POST        /update/pswd                               controllers.AccountManagement.updatePassword
 
 
 

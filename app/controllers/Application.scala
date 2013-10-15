@@ -364,6 +364,30 @@ object AccountManagement extends Controller with LoginLogout with AuthConf with 
     Users.delete(id)
     Ok("Deleted")
   }
+
+  def updatePassword = authorizedAction(NormalUser){user=>request=>
+    implicit val passDataReads = (
+      (__ \ 'user_id).read[Int] and
+        (__ \ 'current_password).read[String] and
+        (__ \ 'new_password).read[String] and
+        (__ \ 'confirm_password).read[String]
+      ).tupled
+
+    request.body.asJson.map{json=>
+      json.validate[(Int,String,String,String)].map{
+        case (user_id, current_password, new_password, confirm_password) => {
+          if(Users.checkPswd(user_id,current_password)){
+            if(new_password == confirm_password){
+              Users.updatePassword(user_id,new_password)
+              Ok("Password updated")
+            }
+            else BadRequest("New password confirmation error")
+          }
+          else BadRequest("Invalid current password")
+        }
+      }.recoverTotal(e=>BadRequest("Detected error:"+ JsError.toFlatJson(e)))
+    }.getOrElse(BadRequest("Expected Json Dataa"))
+  }
 }
     // TODO We need a view that lists all users and a view that represents user(customer) fich, user data modification
 object Catalogue extends Controller with LoginLogout with AuthConf with Auth {
