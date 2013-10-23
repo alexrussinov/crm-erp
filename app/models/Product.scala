@@ -241,17 +241,31 @@ object ProductTable extends Table[Product]("t_products"){
   def getProductByIdForCustomer(product_id : Int, customer_id : Int)(implicit s : Session): ProductCustomer ={
     val discounts = CustomerDiscount.getDiscountsByCustomerId(customer_id)
     val products : List[Product] = (for(p <- ProductTable)yield(p)).list
+     // helper function
+     def searchForDiscount(p: Product): List[CustomerDiscount] = {
+       val result = for{
+         d<-discounts if(d.supplier_id == p.supplier_id)
+       }yield d
+       if(result!=Nil)
+         result
+       else
+         List(CustomerDiscount(0,0,0.00))
+     }
     if(discounts.isEmpty){
       val pr : List[ProductCustomer] = for {
-        p <- products if(p.id.get == product_id)
+        p <- products
+        d <- searchForDiscount(p)
       }yield ProductCustomer(p.id,p.reference,p.label,p.description,p.image_url,p.unity,p.category_id,p.tva_rate,p.base_price)
       pr.head
     }
 
    else { val pr : List[ProductCustomer] = for {
       p <- products if(p.id.get == product_id)
-      d <- discounts //if(p.supplier_id == d.supplier_id)  we have replaced this condition directly to the yield expression to handle the case when customer discounts exist, but not for this supplier
-    }yield ProductCustomer(p.id,p.reference,p.label,p.description,p.image_url,p.unity,p.category_id,p.tva_rate,if(p.supplier_id == d.supplier_id)mat.round(p.base_price*((100-d.discount)/100))else p.base_price )
+      d <- searchForDiscount(p) //if(p.supplier_id == d.supplier_id)  we have replaced this condition directly to the yield expression to handle the case when customer discounts exist, but not for this supplier
+    }yield ProductCustomer(p.id,p.reference,p.label,p.description,p.image_url,p.unity,p.category_id,p.tva_rate,
+        if(d.discount != 0.00)
+          mat.round(p.base_price*((100-d.discount)/100))
+        else p.base_price )
     pr.head
     }
 

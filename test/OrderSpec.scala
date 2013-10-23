@@ -473,5 +473,23 @@ class OrderSpec extends FlatSpec with ShouldMatchers{
     }
   }
 
+  "GetProductByIdForCustomer method" should "give correct value" in {
+    running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
+      CustomerDiscount(1,1,25.00).create_discount
+      CustomerDiscount(1,2,30.00).create_discount
+      DB.withSession { implicit session =>
+        ProductTable.insertAll(
+          Product(None, "some ref2", "some label",Some("some desc."),Some("image url"),"kg",
+            None,2,Some("Some manufacture"),Some("Suppl. Ref."), false, 5.5, 7.99, 10.00),
+          Product(None, "some ref3", "some label",Some("some desc."),Some("image url"),"kg",
+            None,3,Some("Some manufacture"),Some("Suppl. Ref."), false, 5.5, 9.99, 15.00)
+        )
+
+        val result = ProductTable.getProductByIdForCustomer(2,1)
+        result.price should equal(7.00)
+      }
+    }
+  }
+
 }
 
