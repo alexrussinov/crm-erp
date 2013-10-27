@@ -92,9 +92,9 @@ object Application extends Controller with LoginLogout with AuthConf with Auth{
     // Create the email message
     val email = new MultiPartEmail()
 
-    email.setHostName("smtp.googlemail.com")
-    email.setSmtpPort(465)
-    email.setAuthenticator(new DefaultAuthenticator("imexbox@gmail.com", "eU0mwqAa"))
+    email.setHostName("smtp.mandrillapp.com")
+    email.setSmtpPort(587)
+    email.setAuthenticator(new DefaultAuthenticator("imexbox@gmail.com", "GlnrL0LUtLsp26OSyzdSJQ"))
     email.setSSL(true)
     email.addTo("imexbox@gmail.com")
     email.setFrom(value._1,value._1)

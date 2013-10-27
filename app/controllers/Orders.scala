@@ -338,12 +338,12 @@ object Orders extends  Controller with LoginLogout with AuthConf with Auth with 
 
     // Create the email message
     val email = new MultiPartEmail()
-    email.setHostName("smtp.googlemail.com")
-    email.setSmtpPort(465)
-    email.setAuthenticator(new DefaultAuthenticator("imexbox@gmail.com", "eU0mwqAa"))
+    email.setHostName("smtp.mandrillapp.com")
+    email.setSmtpPort(587)
+    email.setAuthenticator(new DefaultAuthenticator("imexbox@gmail.com", "GlnrL0LUtLsp26OSyzdSJQ"))
     email.setSSL(true)
     email.addTo("imexbox@gmail.com")
-    email.setFrom("imexbox@gmail.com","Commandes")
+    email.setFrom("no-reply@itcplus.fr","Commandes")
     email.setSubject("Commande de "+client.name.get)
     email.setMsg("Veuillez trouver ci-joint la commande "+order.ref + " de "+client.name.get+" Author: "+user.email)
 

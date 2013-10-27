@@ -9,7 +9,7 @@ GET         /dashboard                                 controllers.Application.d
 # GET     /index                    controllers.Application.index
 GET         /getproducts                               controllers.Application.getProducts
 GET         /products                                  controllers.Application.showProducts
-GET         /searchproducts/                           controllers.Orders.searchProducts(term : Option[String] ?=        None,        customer_id:        Int        ?= 0)
+GET         /searchproducts/                           controllers.Orders.searchProducts(term : Option[String]?=None, customer_id:Int ?= 0)
 GET         /contact                                   controllers.Application.contactPage
 POST        /contact                                   controllers.Application.contactFormSendMessage
 GET         /categories                                controllers.Application.getCategoriesInJson
